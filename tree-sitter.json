@@ -1,0 +1,28 @@
+{
+  "grammars": [
+    {
+      "name": "pike",
+      "scope": "source.pike",
+      "file-types": ["pike", "pmod"],
+      "injection-regex": "^pike$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Pike grammar for tree-sitter",
+    "authors": [
+      { "name": "TheSmuks" }
+    ],
+    "links": {
+      "repository": "github:TheSmuks/tree-sitter-pike"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "node": true,
+    "python": false,
+    "rust": false
+  }
+}

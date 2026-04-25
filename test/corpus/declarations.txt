@@ -1,0 +1,613 @@
+================================================================================
+Variable declaration - int with initializer
+================================================================================
+int x = 1;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+
+================================================================================
+Variable declaration - string without initializer
+================================================================================
+string name;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier))))
+
+================================================================================
+Variable declaration - multiple declarators
+================================================================================
+int a = 1, b = 2;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))))))))))
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))))))
+
+================================================================================
+Function declaration - with parameters and body
+================================================================================
+int add(int a, int b) { return a + b; }
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters
+        (parameter
+          (type
+            (basic_type))
+          (identifier))
+        (parameter
+          (type
+            (basic_type))
+          (identifier)))
+      (block
+        (return_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (power_expr
+                                          (prefix_expr
+                                            (chain_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))))))))
+                                  (mul_expr
+                                    (unary_expr
+                                      (power_expr
+                                        (prefix_expr
+                                          (chain_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  name: (identifier))))))))))))))))))))))))))
+
+================================================================================
+Function declaration - void no params empty body
+================================================================================
+void foo() {}
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters)
+      (block))))
+
+================================================================================
+Class declaration - with members
+================================================================================
+class Foo { int x; void create(int x) { this_program::x = x; } }
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (class_decl
+      (identifier)
+      (class_body
+        (declaration
+          (variable_decl
+            (type
+              (basic_type))
+            (identifier)))
+        (declaration
+          (function_decl
+            (type
+              (basic_type))
+            (identifier)
+            parameters: (parameters
+              (parameter
+                (type
+                  (basic_type))
+                (identifier)))
+            (block
+              (expression_statement
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (power_expr
+                                              (prefix_expr
+                                                (chain_expr
+                                                  (postfix_expr
+                                                    (primary_expr
+                                                      (scope_expr
+                                                        (inherit_specifier)
+                                                        (identifier)))))))))))))))))))
+                    (assign_expr
+                      (cond_expr
+                        (lor_expr
+                          (land_expr
+                            (bitor_expr
+                              (bitxor_expr
+                                (bitand_expr
+                                  (eq_expr
+                                    (rel_expr
+                                      (shift_expr
+                                        (add_expr
+                                          (mul_expr
+                                            (unary_expr
+                                              (power_expr
+                                                (prefix_expr
+                                                  (chain_expr
+                                                    (postfix_expr
+                                                      (primary_expr
+                                                        (identifier_expr
+                                                          name: (identifier))))))))))))))))))))))))))))))
+
+================================================================================
+Enum declaration - simple
+================================================================================
+enum Color { RED, GREEN, BLUE }
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (enum_decl
+      (identifier)
+      (enum_member
+        (identifier))
+      (enum_member
+        (identifier))
+      (enum_member
+        (identifier)))))
+
+================================================================================
+Enum declaration - with explicit values
+================================================================================
+enum Flags { A = 1, B = 2, C = 4 }
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (enum_decl
+      (identifier)
+      (enum_member
+        (identifier)
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))))
+      (enum_member
+        (identifier)
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))))))))))))))))))
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (power_expr
+                                        (prefix_expr
+                                          (chain_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (integer_literal)))))))))))))))))))))))))
+
+================================================================================
+Constant declaration
+================================================================================
+constant PI = 3.14;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (constant_decl
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (float_literal)))))))))))))))))))))))
+
+================================================================================
+Inherit declaration - qualified path
+================================================================================
+inherit Stdio.File;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (inherit_decl
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (dot_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  name: (identifier)))
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Inherit declaration - string path with alias
+================================================================================
+inherit "foo.pike" : bar;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (inherit_decl
+      (string_literal)
+      (identifier))))
+
+================================================================================
+Import declaration
+================================================================================
+import Stdio;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (import_decl
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))))))))
+
+================================================================================
+Typedef declaration - mapping type
+================================================================================
+typedef mapping(string:string) StringMap;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (typedef_decl
+      (type
+        (basic_type
+          (type
+            (basic_type))
+          (type
+            (basic_type))))
+      (identifier))))
+
+================================================================================
+Modifier - private variable
+================================================================================
+private int x;
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier))))
+
+================================================================================
+Modifier - protected function prototype
+================================================================================
+protected void foo();
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters))))
+
+================================================================================
+Modifier - public function with body
+================================================================================
+public int bar() { return 1; }
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters)
+      (block
+        (return_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (power_expr
+                                        (prefix_expr
+                                          (chain_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (integer_literal)))))))))))))))))))))))))
+
+================================================================================
+Annotation - deprecated function
+================================================================================
+@deprecated void old_func() {}
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (annotation
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))))))
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters)
+      (block))))
+
+================================================================================
+Variadic parameters
+================================================================================
+void foo(int ... args) {}
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters
+        (parameter
+          (type
+            (basic_type))
+          (identifier)))
+      (block))))

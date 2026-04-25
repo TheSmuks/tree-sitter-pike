@@ -1,0 +1,7 @@
+node_modules/
+grammar.js
+*.so
+*.dylib
+*.dll
+bindings/
+

@@ -1,0 +1,316 @@
+================================================================================
+Basic scalar types - variable declarations
+================================================================================
+
+int a;
+float b;
+void c;
+string d;
+mixed e;
+auto f;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier))))
+
+================================================================================
+Container types - unparameterized
+================================================================================
+
+array a;
+mapping b;
+multiset c;
+object d;
+program e;
+function f;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier))))
+
+================================================================================
+Parameterized container types
+================================================================================
+
+array(int) a;
+mapping(string:int) b;
+multiset(string) c;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (basic_type))))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (basic_type))
+          (type
+            (basic_type))))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (basic_type))))
+      (identifier))))
+
+================================================================================
+Union types
+================================================================================
+
+int|string a;
+array(int)|mapping(string:mixed) b;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (type
+          (basic_type))
+        (type
+          (basic_type)))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (type
+          (basic_type
+            (type
+              (basic_type))))
+        (type
+          (basic_type
+            (type
+              (basic_type))
+            (type
+              (basic_type)))))
+      (identifier))))
+
+================================================================================
+Function type annotation
+================================================================================
+
+function(int, string:void) cb;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (basic_type))
+          (type
+            (basic_type))
+          (type
+            (basic_type))))
+      (identifier))))
+
+================================================================================
+Int range types
+================================================================================
+
+int(0..255) byte_val;
+int(8..) offset;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (integer_literal)
+          (integer_literal)))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (integer_literal)))
+      (identifier))))
+
+================================================================================
+Int bits type
+================================================================================
+
+int(bits 8) flags;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (integer_literal)))
+      (identifier))))
+
+================================================================================
+String width type
+================================================================================
+
+string(0..255) narrow;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (integer_literal)
+          (integer_literal)))
+      (identifier))))
+
+================================================================================
+Object and program type with identifier
+================================================================================
+
+object(Foo) obj;
+program(Bar) prog;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (id_type
+              (identifier)))))
+      (identifier)))
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (type
+            (id_type
+              (identifier)))))
+      (identifier))))
+
+================================================================================
+Attribute type
+================================================================================
+
+__attribute__("deprecated", int) x;
+
+---
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (string_literal)
+          (type
+            (basic_type))))
+      (identifier))))
+
+================================================================================
+Types in function parameters
+================================================================================
+
+void process(int count, string name, mapping(string:int) data) {
+  return;
+}
+
+---
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      parameters: (parameters
+        (parameter
+          (type
+            (basic_type))
+          (identifier))
+        (parameter
+          (type
+            (basic_type))
+          (identifier))
+        (parameter
+          (type
+            (basic_type
+              (type
+                (basic_type))
+              (type
+                (basic_type))))
+          (identifier)))
+      (block
+        (return_statement)))))

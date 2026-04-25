@@ -1,0 +1,1009 @@
+================================================================================
+Addition expression
+================================================================================
+a + b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Multiplication and addition - precedence
+================================================================================
+a * b + c;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (add_expr
+                              (mul_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier)))))))))
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Subtraction and division - precedence
+================================================================================
+a - b / c;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))
+                            (mul_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier)))))))))
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Equality comparison
+================================================================================
+a == b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier)))))))))))))
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Inequality comparison
+================================================================================
+a != c;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier)))))))))))))
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Greater-or-equal comparison
+================================================================================
+x >= 0;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
+
+================================================================================
+Logical AND
+================================================================================
+a && b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier)))))))))))))))))
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Logical OR
+================================================================================
+a || b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Bitwise AND
+================================================================================
+a & b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Bitwise OR
+================================================================================
+a | c;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Bitwise XOR
+================================================================================
+a ^ b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier)))))))))))))))
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Ternary conditional
+================================================================================
+a ? b : c;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier))))))))))))))))))
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (power_expr
+                                        (prefix_expr
+                                          (chain_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier)))))))))))))))))))))
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (power_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier)))))))))))))))))))))))))
+
+================================================================================
+Simple assignment
+================================================================================
+x = 1;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+
+================================================================================
+Compound assignment - addition
+================================================================================
+x += 2;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+
+================================================================================
+Power assignment
+================================================================================
+x **= 3;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+
+================================================================================
+Conditional assignment (null coalescing)
+================================================================================
+x ?= 4;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+
+================================================================================
+Power expression
+================================================================================
+a ** b;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier))))))
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Pre-increment
+================================================================================
+++x;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Post-increment
+================================================================================
+x++;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Pre-decrement
+================================================================================
+--y;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))))))
+
+================================================================================
+Post-decrement
+================================================================================
+y--;
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Comma expression in parentheses
+================================================================================
+x = (a, b);
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (power_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier)))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (power_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (power_expr
+                                                                          (prefix_expr
+                                                                            (chain_expr
+                                                                              (postfix_expr
+                                                                                (primary_expr
+                                                                                  (identifier_expr
+                                                                                    (identifier))))))))))))))))))))
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (power_expr
+                                                                          (prefix_expr
+                                                                            (chain_expr
+                                                                              (postfix_expr
+                                                                                (primary_expr
+                                                                                  (identifier_expr
+                                                                                    (identifier)))))))))))))))))))))))))))))))))))))))))))
