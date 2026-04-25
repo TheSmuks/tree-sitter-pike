@@ -219,6 +219,7 @@ export default grammar({
       $.multiset_literal,
       $.identifier_expr,
       $.backtick_identifier,
+      seq('.', $.identifier),
       seq('(', $.comma_expr, ')'),
       $.call_expr,
       $.index_expr,
@@ -371,8 +372,12 @@ export default grammar({
 
     for_statement: $ => seq(
       'for', '(',
-      optional($._expr), ';', optional($._expr), ';', optional($._expr),
+      optional(choice($._expr, $.for_init_decl)), ';', optional($._expr), ';', optional($._expr),
       ')', $._stmt,
+    ),
+
+    for_init_decl: $ => seq(
+      $.type, commaSep1(seq($.identifier, optional(seq('=', $._expr)))),
     ),
 
     foreach_statement: $ => seq(

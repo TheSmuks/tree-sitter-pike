@@ -806,6 +806,29 @@
     }
   },
   {
+    "type": "for_init_decl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "for_statement",
     "named": true,
     "fields": {},
@@ -843,6 +866,10 @@
         },
         {
           "type": "expression_statement",
+          "named": true
+        },
+        {
+          "type": "for_init_decl",
           "named": true
         },
         {
@@ -1689,6 +1716,10 @@
         },
         {
           "type": "generic_selection",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         },
         {
