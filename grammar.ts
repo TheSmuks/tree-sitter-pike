@@ -316,6 +316,7 @@ export default grammar({
     // ── Statements ──
 
     _stmt: $ => choice(
+      ';',
       $.expression_statement,
       $.block,
       $.if_statement,
@@ -426,8 +427,7 @@ export default grammar({
     _mapping_type: $ => seq('(', $.type, ':', $.type, ')'),
 
     // trailing comma before '...' allowed: function(int, string, ...:void)
-    // Note: function(:void) zero-param form produces a MISSING node due to
-    // tree-sitter GLR exploring $.type at ':' position — known limitation
+    // Zero-param form: function(:void), function(:int)
     _function_type: $ => seq(
       '(',
       optional(trailingCommaSep1($.type)),
