@@ -8,7 +8,8 @@ export default grammar({
     // expression vs declaration ambiguity at statement level
     [$.expression_statement, $.local_declaration],
     [$.expression_statement, $.declaration],
-    // type vs expression in cast context
+    // @ annotation vs @ spread operator
+    [$.annotation, $.unary_expr],
     [$.type, $._expr],
     // identifier used as both expression and type
     [$._id_expr, $.primary_expr],
@@ -104,12 +105,13 @@ export default grammar({
       seq('`', /[a-zA-Z_][a-zA-Z0-9_]*/),
       '`[]', '`[]=', '`()', '`->', '`->=', '`[..]',
       seq('`', /[-+&|^*\/%~!=<>]+/),
+      seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),
     )),
 
 
     // ── Collection literals ──
 
-    array_literal: $ => seq('(', '{', optional(commaSep($._expr)), '}', ')'),
+    array_literal: $ => seq('(', '{', optional(commaSep1(choice($._expr, seq('@', $._expr)))), '}', ')'),
     mapping_literal: $ => seq('(', '[', optional(commaSep1($.mapping_pair)), ']', ')'),
     multiset_literal: $ => seq('(<', optional(commaSep1($._expr)), '>)'),
 
@@ -198,6 +200,7 @@ export default grammar({
       prec(1, seq('~', $.prefix_expr)),
       prec(1, seq('-', $.prefix_expr)),
       prec(1, seq('+', $.prefix_expr)),
+      prec(1, seq('@', $.prefix_expr)),
     ),
 
 
@@ -293,7 +296,7 @@ export default grammar({
 
     sscanf_expr: $ => seq(
       'sscanf', '(', $._expr, ',', $._expr,
-      repeat(seq(',', $._expr)), ')',
+      repeat(seq(',', $._foreach_lvalue)), ')',
     ),
 
     lambda_expr: $ => seq(

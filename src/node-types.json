@@ -1873,6 +1873,14 @@
         {
           "type": "comma_expr",
           "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
         }
       ]
     }
