@@ -720,7 +720,7 @@ Switch statement
                                         name: (identifier))))))))))))))))))
       (block
         (case_clause
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -739,7 +739,7 @@ Switch statement
                                           (integer_literal))))))))))))))))))
         (break_statement)
         (case_clause
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -813,10 +813,10 @@ Labeled statement
 (program
   (block
     (labeled_statement
-      (identifier)
-      (for_statement
+      label: (identifier)
+      body: (for_statement
         body: (break_statement
-          (identifier))))))
+          label: (identifier))))))
 
 ================================================================================
 Block statement
@@ -1159,8 +1159,8 @@ Labeled break
 (program
   (block
     (labeled_statement
-      (identifier)
-      (if_statement
+      label: (identifier)
+      body: (if_statement
         condition: (comma_expr
           (assign_expr
             (cond_expr
@@ -1179,7 +1179,7 @@ Labeled break
                                       (primary_expr
                                         (integer_literal)))))))))))))))))
         consequence: (break_statement
-          (identifier))))))
+          label: (identifier))))))
 
 ================================================================================
 Case range
@@ -1211,7 +1211,7 @@ Case range
                                         name: (identifier))))))))))))))))))
       (block
         (case_clause
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -1228,7 +1228,7 @@ Case range
                                       (postfix_expr
                                         (primary_expr
                                           (integer_literal)))))))))))))))))
-          (comma_expr
+          high: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -1247,7 +1247,7 @@ Case range
                                           (integer_literal))))))))))))))))))
         (break_statement)
         (case_clause
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr

@@ -1,4 +1,5 @@
-; Function definitions
+; Function definitions (also matches inside class_body, but the more specific
+; class_body pattern below provides @definition.method instead)
 (function_decl
   name: (identifier) @name) @definition.function
 

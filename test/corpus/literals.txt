@@ -512,3 +512,84 @@ Multiset Literal
                                                                   (postfix_expr
                                                                     (primary_expr
                                                                       (integer_literal))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Char literal - simple
+================================================================================
+'a';
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (char_literal)))))))))))))))))))
+
+================================================================================
+Char literal - escape sequence
+================================================================================
+'\n';
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (char_literal)))))))))))))))))))
+
+================================================================================
+Raw string literal
+================================================================================
+#"hello";
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (string_literal)))))))))))))))))))

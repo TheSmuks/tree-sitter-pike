@@ -5,10 +5,6 @@ export default grammar({
   name: 'pike',
 
   conflicts: $ => [
-    // expression vs declaration ambiguity at statement level
-    [$.expression_statement, $.local_declaration],
-    // type vs expression in cast context
-    [$.type, $._expr],
     // identifier used as both expression and type
     [$._id_expr, $.primary_expr],
     [$.identifier_expr, $._id_expr],
@@ -17,21 +13,12 @@ export default grammar({
     [$.typedef_decl],
     [$.inherit_decl],
     [$.import_decl],
-    [$.constant_decl],
-    [$.class_decl],
-    [$.enum_decl],
     [$.enum_decl, $.anon_enum],
     // _definition vs declaration (block appears in both)
     [$._definition, $.declaration],
     // inherit/import can look like expressions
     [$.primary_expr, $.inherit_decl],
-    [$.inherit_specifier, $.this_expr],
-    [$.scope_expr, $.inherit_specifier],
     [$.primary_expr, $.import_decl],
-    // cast vs parenthesized expression
-    [$.cast_expr, $.primary_expr],
-    // parameter type vs expression
-    [$.parameter, $._expr],
     // modifier vs inherit_specifier ('local')
     [$._modifier, $.inherit_specifier],
     // this_expr as type vs expression
@@ -273,15 +260,15 @@ export default grammar({
 
     soft_cast_expr: $ => prec(1, seq('[', field('type', $.type), ']', field('value', $.unary_expr))),
 
-    catch_expr: $ => seq('catch', $._catch_arg),
-    gauge_expr: $ => seq('gauge', $._catch_arg),
+    catch_expr: $ => seq('catch', field('value', $._catch_arg)),
+    gauge_expr: $ => seq('gauge', field('value', $._catch_arg)),
 
     _catch_arg: $ => choice(seq('(', $._expr, ')'), $.block),
-    typeof_expr: $ => seq('typeof', '(', $._expr, ')'),
+    typeof_expr: $ => seq('typeof', '(', field('value', $._expr), ')'),
 
     sscanf_expr: $ => seq(
-      'sscanf', '(', $._expr, ',', $._expr,
-      repeat(seq(',', $._foreach_lvalue)), ')',
+      'sscanf', '(', field('input', $._expr), ',', field('format', $._expr),
+      repeat(seq(',', $._foreach_lvalue)), ')', 
     ),
 
     lambda_expr: $ => seq(
@@ -291,7 +278,7 @@ export default grammar({
     ),
 
 
-    scope_expr: $ => seq($.inherit_specifier, choice($.identifier, $.magic_identifier, $.backtick_identifier)),
+    scope_expr: $ => seq(field('scope', $.inherit_specifier), field('name', choice($.identifier, $.magic_identifier, $.backtick_identifier))),
 
     inherit_specifier: $ => choice(
       seq(choice($.identifier, $.string_literal), '::'),
@@ -393,17 +380,17 @@ export default grammar({
 
     // case expr: / case expr..expr: / case ..expr: / case expr...expr:
     case_clause: $ => choice(
-      seq('case', $._expr, optional(seq(choice('..', '...'), optional($._expr))), ':'),
-      seq('case', choice('..', '...'), $._expr, ':'),
+      seq('case', field('value', $._expr), optional(seq(choice('..', '...'), optional(field('high', $._expr)))), ':'),
+      seq('case', choice('..', '...'), field('value', $._expr), ':'),
     ),
 
     default_clause: $ => seq('default', ':'),
 
     return_statement: $ => seq('return', optional(field('value', $._expr)), ';'),
-    break_statement: $ => seq('break', optional($.identifier), ';'),
-    continue_statement: $ => seq('continue', optional($.identifier), ';'),
+    break_statement: $ => seq('break', optional(field('label', $.identifier)), ';'),
+    continue_statement: $ => seq('continue', optional(field('label', $.identifier)), ';'),
 
-    labeled_statement: $ => seq($.identifier, ':', $._stmt),
+    labeled_statement: $ => seq(field('label', $.identifier), ':', field('body', $._stmt)),
 
     // ── Type system ──
 
@@ -560,12 +547,12 @@ export default grammar({
     ),
 
     import_decl: $ => seq(
-      repeat($._modifier), 'import', choice($._expr, $.string_literal), ';',
+      repeat($._modifier), 'import', field('path', choice($._expr, $.string_literal)), ';',
     ),
 
     inherit_decl: $ => seq(
-      repeat($._modifier), 'inherit', choice($._expr, $.string_literal),
-      optional(seq(':', choice($.identifier, $.string_literal))),
+      repeat($._modifier), 'inherit', field('path', choice($._expr, $.string_literal)),
+      optional(seq(':', field('alias', choice($.identifier, $.string_literal)))),
       ';',
     ),
 

@@ -24,7 +24,7 @@ catch { error("oops"); };
                                 (postfix_expr
                                   (primary_expr
                                     (catch_expr
-                                      (block
+                                      value: (block
                                         (expression_statement
                                           (comma_expr
                                             (assign_expr
@@ -90,7 +90,7 @@ catch(write("hi"));
                                 (postfix_expr
                                   (primary_expr
                                     (catch_expr
-                                      (comma_expr
+                                      value: (comma_expr
                                         (assign_expr
                                           (cond_expr
                                             (lor_expr
@@ -154,7 +154,7 @@ gauge { sleep(1); };
                                 (postfix_expr
                                   (primary_expr
                                     (gauge_expr
-                                      (block
+                                      value: (block
                                         (expression_statement
                                           (comma_expr
                                             (assign_expr
@@ -220,7 +220,7 @@ gauge(cpu_time());
                                 (postfix_expr
                                   (primary_expr
                                     (gauge_expr
-                                      (comma_expr
+                                      value: (comma_expr
                                         (assign_expr
                                           (cond_expr
                                             (lor_expr
@@ -367,7 +367,7 @@ sscanf("hello 42", "%s %d", s, n);
                                 (postfix_expr
                                   (primary_expr
                                     (sscanf_expr
-                                      (comma_expr
+                                      input: (comma_expr
                                         (assign_expr
                                           (cond_expr
                                             (lor_expr
@@ -384,7 +384,7 @@ sscanf("hello 42", "%s %d", s, n);
                                                                   (postfix_expr
                                                                     (primary_expr
                                                                       (string_literal)))))))))))))))))
-                                      (comma_expr
+                                      format: (comma_expr
                                         (comma_expr
                                           (comma_expr
                                             (assign_expr
@@ -844,7 +844,7 @@ Catch with block
                                   (postfix_expr
                                     (primary_expr
                                       (catch_expr
-                                        (block
+                                        value: (block
                                           (expression_statement
                                             (comma_expr
                                               (assign_expr
@@ -911,7 +911,7 @@ Gauge expression
                                   (postfix_expr
                                     (primary_expr
                                       (gauge_expr
-                                        (block
+                                        value: (block
                                           (expression_statement
                                             (comma_expr
                                               (assign_expr

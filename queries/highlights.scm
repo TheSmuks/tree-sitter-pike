@@ -71,7 +71,7 @@
 ] @operator
 
 ; Punctuation
-["(" ")" "{" "}" "[" "]" "," ";" "." "@" "?"] @punctuation.delimiter
+["(" ")" "{" "}" "[" "]" "," ";" "." "@" "?" ":"] @punctuation.delimiter
 
 ; Comments
 (line_comment) @comment.line
