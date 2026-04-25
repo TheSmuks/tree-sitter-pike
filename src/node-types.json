@@ -311,6 +311,10 @@
           "named": true
         },
         {
+          "type": "local_function_decl",
+          "named": true
+        },
+        {
           "type": "return_statement",
           "named": true
         },
@@ -720,6 +724,10 @@
             "named": true
           },
           {
+            "type": "local_function_decl",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -948,6 +956,10 @@
             "named": true
           },
           {
+            "type": "local_function_decl",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -1115,6 +1127,10 @@
           },
           {
             "type": "local_declaration",
+            "named": true
+          },
+          {
+            "type": "local_function_decl",
             "named": true
           },
           {
@@ -1362,6 +1378,10 @@
             "named": true
           },
           {
+            "type": "local_function_decl",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -1459,6 +1479,10 @@
           },
           {
             "type": "local_declaration",
+            "named": true
+          },
+          {
+            "type": "local_function_decl",
             "named": true
           },
           {
@@ -1639,6 +1663,10 @@
             "named": true
           },
           {
+            "type": "local_function_decl",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -1747,6 +1775,56 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "local_function_decl",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "backtick_identifier",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "parameters",
+            "named": true
+          }
+        ]
+      },
+      "return_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type",
             "named": true
           }
         ]
@@ -2479,6 +2557,10 @@
           },
           {
             "type": "local_declaration",
+            "named": true
+          },
+          {
+            "type": "local_function_decl",
             "named": true
           },
           {

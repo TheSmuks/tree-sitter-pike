@@ -2675,6 +2675,10 @@
         {
           "type": "SYMBOL",
           "name": "typedef_decl"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "local_function_decl"
         }
       ]
     },
@@ -4574,6 +4578,52 @@
         {
           "type": "STRING",
           "value": ";"
+        }
+      ]
+    },
+    "local_function_decl": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "return_type",
+          "content": {
+            "type": "SYMBOL",
+            "name": "type"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "backtick_identifier"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "parameters",
+          "content": {
+            "type": "SYMBOL",
+            "name": "parameters"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "body",
+          "content": {
+            "type": "SYMBOL",
+            "name": "block"
+          }
         }
       ]
     },

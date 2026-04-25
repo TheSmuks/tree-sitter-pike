@@ -338,6 +338,7 @@ export default grammar({
       $.class_decl,
       $.enum_decl,
       $.typedef_decl,
+      $.local_function_decl,
     ),
 
     block: $ => seq('{', repeat($._stmt), '}'),
@@ -504,6 +505,13 @@ export default grammar({
         optional(seq('=', field('value', $._expr))),
       )),
       ';',
+    ),
+
+    local_function_decl: $ => seq(
+      field('return_type', $.type),
+      field('name', choice($.identifier, $.backtick_identifier)),
+      field('parameters', $.parameters),
+      field('body', $.block),
     ),
 
     constant_decl: $ => seq(
