@@ -437,9 +437,12 @@ export default grammar({
     // trailing comma before '...' allowed: function(int, string, ...:void)
     _function_type: $ => seq(
       '(',
-      optional(trailingCommaSep1($.type)),
-      optional('...'),
-      ':', $.type,
+      choice(
+        // With parameters (at least one type, optional varargs, trailing comma)
+        seq(optional(trailingCommaSep1($.type)), optional('...'), ':', $.type),
+        // Zero parameters, just return type
+        seq(':', $.type),
+      ),
       ')',
     ),
 
