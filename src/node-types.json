@@ -1021,6 +1021,10 @@
       "required": true,
       "types": [
         {
+          "type": "backtick_identifier",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -1261,10 +1265,6 @@
           "named": true
         },
         {
-          "type": "magic_identifier",
-          "named": true
-        },
-        {
           "type": "version_prefix",
           "named": true
         }
@@ -1399,6 +1399,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "backtick_identifier",
+          "named": true
+        },
         {
           "type": "comma_expr",
           "named": true
@@ -1634,6 +1638,10 @@
           "named": true
         },
         {
+          "type": "char_literal",
+          "named": true
+        },
+        {
           "type": "comma_expr",
           "named": true
         },
@@ -1691,6 +1699,10 @@
         },
         {
           "type": "sscanf_expr",
+          "named": true
+        },
+        {
+          "type": "string_concat",
           "named": true
         },
         {
@@ -1794,6 +1806,10 @@
       "required": true,
       "types": [
         {
+          "type": "backtick_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1856,6 +1872,21 @@
       "types": [
         {
           "type": "comma_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "string_concat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "string_literal",
           "named": true
         }
       ]
@@ -1970,10 +2001,6 @@
       "required": true,
       "types": [
         {
-          "type": "cast_expr",
-          "named": true
-        },
-        {
           "type": "prefix_expr",
           "named": true
         }
@@ -1988,6 +2015,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "backtick_identifier",
+          "named": true
+        },
         {
           "type": "comma_expr",
           "named": true
@@ -2317,6 +2348,10 @@
     "named": false
   },
   {
+    "type": "char_literal",
+    "named": true
+  },
+  {
     "type": "class",
     "named": false
   },
@@ -2414,6 +2449,11 @@
   },
   {
     "type": "line_comment",
+    "named": true,
+    "extra": true
+  },
+  {
+    "type": "line_continuation",
     "named": true,
     "extra": true
   },

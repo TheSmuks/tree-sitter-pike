@@ -29,6 +29,8 @@ export default grammar({
     [$._definition, $.declaration],
     // comma_expr left-assoc vs higher precedence
     [$._expr, $.comma_expr],
+    // prefix_expr vs chain_expr (cast ambiguity)
+    [$.prefix_expr, $.chain_expr],
     // postfix_expr vs dot_expr chaining
     [$.postfix_expr, $.dot_expr],
     // inherit/import can look like expressions
@@ -48,7 +50,8 @@ export default grammar({
   externals: $ => [],
 
   extras: $ => [
-    /\s/,
+    /\s+/,
+    $.line_continuation,
     $.line_comment,
     $.block_comment,
     $.autodoc_comment,
@@ -68,8 +71,9 @@ export default grammar({
     ),
 
     line_comment: _ => token(seq('//', /.*/)),
-    block_comment: _ => token(seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),
+    block_comment: _ => token(seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),  
     autodoc_comment: _ => token(seq('//!', /.*/)),
+    line_continuation: _ => /\\[\r\n]+/,
 
     // ── Literals ──
 
@@ -80,11 +84,16 @@ export default grammar({
       /[0-9]+/,
     )),
 
+    char_literal: _ => token(seq("'", choice(/[^'\\]/, /\\./), "'")),
+
     float_literal: _ => token(
       /[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/,
     ),
 
     string_literal: _ => token(seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')),
+
+    // Adjacent string concatenation: "hello" "world" -> "helloworld"
+    string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
@@ -177,10 +186,10 @@ export default grammar({
 
     unary_expr: $ => choice(
       $.prefix_expr,
-      prec(1, seq('!', $.cast_expr)),
-      prec(1, seq('~', $.cast_expr)),
-      prec(1, seq('-', $.cast_expr)),
-      prec(1, seq('+', $.cast_expr)),
+      prec(1, seq('!', $.prefix_expr)),
+      prec(1, seq('~', $.prefix_expr)),
+      prec(1, seq('-', $.prefix_expr)),
+      prec(1, seq('+', $.prefix_expr)),
     ),
 
 
@@ -206,7 +215,9 @@ export default grammar({
     primary_expr: $ => choice(
       $.integer_literal,
       $.float_literal,
+      $.char_literal,
       $.string_literal,
+      $.string_concat,
       $.array_literal,
       $.mapping_literal,
       $.multiset_literal,
@@ -260,9 +271,9 @@ export default grammar({
 
     automap_expr: $ => seq($.postfix_expr, '[', '*', ']'),
 
-    cast_expr: $ => prec(1, seq('(', $.type, ')', $.cast_expr)),
+    cast_expr: $ => prec.dynamic(2, seq('(', $.type, ')', $._expr)),
 
-    soft_cast_expr: $ => prec(1, seq('[', $.type, ']', $.cast_expr)),
+    soft_cast_expr: $ => prec(1, seq('[', $.type, ']', $.prefix_expr)),
 
     catch_expr: $ => seq('catch', $._catch_arg),
     gauge_expr: $ => seq('gauge', $._catch_arg),
@@ -283,18 +294,19 @@ export default grammar({
     ),
 
 
-    scope_expr: $ => seq($.inherit_specifier, choice($.identifier, $.magic_identifier)),
+    scope_expr: $ => seq($.inherit_specifier, choice($.identifier, $.magic_identifier, $.backtick_identifier)),
 
     inherit_specifier: $ => choice(
       seq($.identifier, '::'),
       seq('local', '::'),
       seq('this_program', '::'),
+      seq('this', '::'),
       seq('global', '::'),
       seq('predef', '::'),
       seq($.version_prefix, '::'),
       seq('continue', '::'),
       seq($.inherit_specifier, $.identifier, '::'),
-      seq('::', choice($.identifier, $.magic_identifier)),
+      '::',
     ),
 
     version_prefix: _ => token(/[0-9]+\.[0-9]+/),
@@ -364,7 +376,7 @@ export default grammar({
     ),
 
     foreach_lvalues: $ => choice(
-      seq(',', $._expr),
+      seq(',', $._foreach_lvalue),
       seq(';', optional($._foreach_lvalue), ';', optional($._foreach_lvalue)),
     ),
 
@@ -413,9 +425,11 @@ export default grammar({
     ),
 
     _int_range: $ => seq('(', choice(
-      seq(optional($.integer_literal), '..', optional($.integer_literal)),
+      seq(optional($._int_range_val), '..', optional($._int_range_val)),
       seq('bits', $.integer_literal),
     ), ')'),
+
+    _int_range_val: $ => choice($.integer_literal, seq('-', $.integer_literal)),
 
     _string_width: $ => choice(
       $._int_range,
@@ -473,7 +487,7 @@ export default grammar({
     annotation: $ => seq('@', $._expr),
 
     function_decl: $ => seq(
-      $.type, $.identifier,
+      $.type, choice($.identifier, $.backtick_identifier),
       field('parameters', $.parameters),
       choice($.block, ';'),
     ),
@@ -486,12 +500,18 @@ export default grammar({
     ),
 
     variable_decl: $ => seq(
-      $.type, commaSep1(seq($.identifier, optional(seq('=', $._expr)))),
+      $.type, commaSep1(seq(
+        choice($.identifier, $.backtick_identifier),
+        optional(seq('=', $._expr)),
+      )),
       ';',
     ),
 
     local_declaration: $ => seq(
-      $.type, commaSep1(seq($.identifier, optional(seq('=', $._expr)))),
+      $.type, commaSep1(seq(
+        choice($.identifier, $.backtick_identifier),
+        optional(seq('=', $._expr)),
+      )),
       ';',
     ),
 
