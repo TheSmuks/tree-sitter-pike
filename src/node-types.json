@@ -19,21 +19,6 @@
     }
   },
   {
-    "type": "annotation",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_expr",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "anon_class",
     "named": true,
     "fields": {},
@@ -397,11 +382,11 @@
       "required": true,
       "types": [
         {
-          "type": "prefix_expr",
+          "type": "type",
           "named": true
         },
         {
-          "type": "type",
+          "type": "unary_expr",
           "named": true
         }
       ]
@@ -440,6 +425,10 @@
         },
         {
           "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         },
         {
@@ -576,13 +565,9 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "annotation",
-          "named": true
-        },
         {
           "type": "block",
           "named": true
@@ -748,10 +733,6 @@
       "multiple": true,
       "required": true,
       "types": [
-        {
-          "type": "annotation",
-          "named": true
-        },
         {
           "type": "comma_expr",
           "named": true
@@ -1852,11 +1833,11 @@
       "required": true,
       "types": [
         {
-          "type": "prefix_expr",
+          "type": "type",
           "named": true
         },
         {
-          "type": "type",
+          "type": "unary_expr",
           "named": true
         }
       ]
@@ -1930,7 +1911,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "basic_type",
@@ -2010,6 +1991,10 @@
       "types": [
         {
           "type": "prefix_expr",
+          "named": true
+        },
+        {
+          "type": "unary_expr",
           "named": true
         }
       ]
@@ -2319,10 +2304,6 @@
   },
   {
     "type": "array",
-    "named": false
-  },
-  {
-    "type": "auto",
     "named": false
   },
   {

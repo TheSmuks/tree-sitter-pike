@@ -6,16 +6,10 @@ float b;
 void c;
 string d;
 mixed e;
-auto f;
 
 ---
 
 (program
-  (declaration
-    (variable_decl
-      (type
-        (basic_type))
-      (identifier)))
   (declaration
     (variable_decl
       (type

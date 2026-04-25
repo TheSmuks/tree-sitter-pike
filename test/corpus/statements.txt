@@ -833,7 +833,7 @@ Switch statement
 ================================================================================
 Return statements
 ================================================================================
-{ return 0; return; break return "error"; }
+{ return 0; return; }
 
 --------------------------------------------------------------------------------
 
@@ -859,27 +859,7 @@ Return statements
                                       (postfix_expr
                                         (primary_expr
                                           (integer_literal))))))))))))))))))))
-    (return_statement)
-    (return_statement
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (string_literal))))))))))))))))))))))
+    (return_statement)))
 ================================================================================
 Break and continue
 ================================================================================

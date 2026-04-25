@@ -17,7 +17,7 @@
 ; Type keywords
 [
   "void" "mixed" "int" "float" "string" "array"
-  "mapping" "multiset" "object" "program" "function" "auto"
+  "mapping" "multiset" "object" "program" "function"
 ] @type.builtin
 
 ; Special identifiers
@@ -73,9 +73,6 @@
 
 ; Preprocessor
 (preprocessor_directive) @keyword.directive
-
-; Annotations
-(annotation) @attribute
 
 ; Constants
 [
