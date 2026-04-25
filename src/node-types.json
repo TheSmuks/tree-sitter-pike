@@ -397,7 +397,7 @@
       "required": true,
       "types": [
         {
-          "type": "cast_expr",
+          "type": "prefix_expr",
           "named": true
         },
         {
@@ -1587,7 +1587,15 @@
       "required": true,
       "types": [
         {
+          "type": "cast_expr",
+          "named": true
+        },
+        {
           "type": "chain_expr",
+          "named": true
+        },
+        {
+          "type": "soft_cast_expr",
           "named": true
         }
       ]
@@ -1627,10 +1635,6 @@
         },
         {
           "type": "call_expr",
-          "named": true
-        },
-        {
-          "type": "cast_expr",
           "named": true
         },
         {
@@ -1691,10 +1695,6 @@
         },
         {
           "type": "scope_expr",
-          "named": true
-        },
-        {
-          "type": "soft_cast_expr",
           "named": true
         },
         {
@@ -1852,7 +1852,7 @@
       "required": true,
       "types": [
         {
-          "type": "cast_expr",
+          "type": "prefix_expr",
           "named": true
         },
         {

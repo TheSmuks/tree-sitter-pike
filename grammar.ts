@@ -7,6 +7,7 @@ export default grammar({
   conflicts: $ => [
     // expression vs declaration ambiguity at statement level
     [$.expression_statement, $.local_declaration],
+    [$.expression_statement, $.declaration],
     // type vs expression in cast context
     [$.type, $._expr],
     // identifier used as both expression and type
@@ -87,17 +88,24 @@ export default grammar({
     char_literal: _ => token(seq("'", choice(/[^'\\]/, /\\./), "'")),
 
     float_literal: _ => token(
-      /[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/,
+      /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/
     ),
 
-    string_literal: _ => token(seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')),
+    string_literal: _ => token(choice(
+      seq('"', repeat(choice(/[^"\\]/, /\\./)), '"'),
+      seq('#"', repeat(/[^\x22]/), '"'),
+    )),
 
     // Adjacent string concatenation: "hello" "world" -> "helloworld"
     string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    backtick_identifier: _ => token(choice(
+      seq('`', /[a-zA-Z_][a-zA-Z0-9_]*/),
+      '`[]', '`[]=', '`()', '`->', '`->=', '`[..]',
+      seq('`', /[-+&|^*\/%~!=<>]+/),
+    )),
 
-    backtick_identifier: _ => token(seq('`', /[^ \t\n\r(){}\[\];,."'\\]+/)),
 
     // ── Collection literals ──
 
@@ -197,6 +205,8 @@ export default grammar({
       $.chain_expr,
       seq('++', $.chain_expr),
       seq('--', $.chain_expr),
+      $.cast_expr,
+      $.soft_cast_expr,
     ),
 
     chain_expr: $ => choice(
@@ -231,8 +241,7 @@ export default grammar({
       $.dot_expr,
       $.arrow_expr,
       $.automap_expr,
-      $.cast_expr,
-      $.soft_cast_expr,
+      $.catch_expr,
       $.catch_expr,
       $.gauge_expr,
       $.typeof_expr,
@@ -271,7 +280,7 @@ export default grammar({
 
     automap_expr: $ => seq($.postfix_expr, '[', '*', ']'),
 
-    cast_expr: $ => prec.dynamic(2, seq('(', $.type, ')', $._expr)),
+    cast_expr: $ => seq('(', $.type, ')', $.prefix_expr),
 
     soft_cast_expr: $ => prec(1, seq('[', $.type, ']', $.prefix_expr)),
 
@@ -427,6 +436,7 @@ export default grammar({
     _int_range: $ => seq('(', choice(
       seq(optional($._int_range_val), '..', optional($._int_range_val)),
       seq('bits', $.integer_literal),
+      /[0-9]+bit/
     ), ')'),
 
     _int_range_val: $ => choice($.integer_literal, seq('-', $.integer_literal)),
@@ -495,7 +505,7 @@ export default grammar({
     parameters: $ => seq('(', optional(commaSep1($.parameter)), ')'),
 
     parameter: $ => seq(
-      $.type, optional('...'), $.identifier,
+      $.type, optional('...'), optional($.identifier),
       optional(seq('=', $._expr)),
     ),
 
