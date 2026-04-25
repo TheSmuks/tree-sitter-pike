@@ -1,6 +1,6 @@
 # ast-grep configuration for tree-sitter-pike
 # Usage: build the parser first with `tree-sitter build --output pike.so`
-ruleDirs: ["./rules"]
+ruleDirs: []
 customLanguages:
   pike:
     libraryPath: pike.so
