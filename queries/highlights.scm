@@ -39,7 +39,8 @@
 
 ; Function declarations
 (function_decl (identifier) @function)
-(call_expr (postfix_expr (primary_expr (identifier_expr (identifier) @function.call))))
+; Function calls — postfix_expr may be transparent, so match directly
+(primary_expr (identifier_expr (identifier) @function.call))
 
 ; Class declarations
 (class_decl (identifier) @type)

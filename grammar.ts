@@ -12,7 +12,7 @@ export default grammar({
     // identifier used as both expression and type
     [$._id_expr, $.primary_expr],
     [$.identifier_expr, $._id_expr],
-    [$.comma_expr],
+    [$.comma_expr, $._expr],
     [$.typedef_decl],
     [$.inherit_decl],
     [$.import_decl],
@@ -20,11 +20,6 @@ export default grammar({
     [$.class_decl],
     [$.enum_decl],
     [$.enum_decl, $.anon_enum],
-    [$.chain_expr],
-    [$.call_expr],
-    [$.typeof_expr, $.typeof_type_expr],
-    [$.assign_expr],
-    [$.if_statement],
     // _definition vs declaration (block appears in both)
     [$._definition, $.declaration],
     // inherit/import can look like expressions
@@ -115,9 +110,10 @@ export default grammar({
 
     _expr: $ => $.comma_expr,
 
+    // Left-recursive for unlimited chaining: a, b, c, d
     comma_expr: $ => choice(
       $.assign_expr,
-      prec.left(seq($.assign_expr, ',', $.assign_expr)),
+      prec.left(seq($.comma_expr, ',', $.assign_expr)),
     ),
 
     assign_expr: $ => choice(
@@ -126,7 +122,7 @@ export default grammar({
       seq($.array_destructure, '=', $.assign_expr),
     ),
 
-    array_destructure: $ => seq('[', commaSep1($._expr), ']'),
+    array_destructure: $ => seq('[', commaSep1(choice($._expr, seq($.type, $.identifier))), ']'),
 
     _assign_op: _ => choice(
       '=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=',
@@ -190,31 +186,50 @@ export default grammar({
 
     // Unary operators: !, ~, -, @ — self-recursive to allow chaining (!x, !!x, -~x)
     unary_expr: $ => choice(
-      $.prefix_expr,
+      $.postfix_expr,
       prec(1, seq('!', $.unary_expr)),
       prec(1, seq('~', $.unary_expr)),
       prec(1, seq('-', $.unary_expr)),
       prec(1, seq('@', $.unary_expr)),
-    ),
-
-    prefix_expr: $ => choice(
-      $.chain_expr,
-      seq('++', $.chain_expr),
-      seq('--', $.chain_expr),
+      // Prefix increment/decrement
+      seq('++', $.postfix_expr),
+      seq('--', $.postfix_expr),
       $.cast_expr,
       $.soft_cast_expr,
     ),
 
-    chain_expr: $ => choice(
-      $.postfix_expr,
-      seq($.chain_expr, '->?', choice($.identifier, $.magic_identifier)),
-      seq($.chain_expr, '[?', $._expr, ']'),
-      seq($.chain_expr, '[?', optional(choice($._expr, seq('<', $._expr))), '..', optional(choice($._expr, seq('<', $._expr))), ']'),
-    ),
-
+    // Postfix operations: all chaining happens here (arrow, index, call, dot, range, automap, safe-access)
     postfix_expr: $ => choice(
       $.primary_expr,
+      // Postfix increment/decrement
       seq($.postfix_expr, choice('++', '--')),
+      // Arrow: obj->field
+      seq($.postfix_expr, '->', choice($.identifier, $.magic_identifier)),
+      // Safe arrow: obj->?field
+      seq($.postfix_expr, '->?', choice($.identifier, $.magic_identifier)),
+      // Call: f(args) and f(args) { block }
+      seq($.postfix_expr, '(', optional($.argument_list), ')', optional($.block)),
+      // Dot access: obj.field
+      seq($.postfix_expr, '.', $.identifier),
+      // Index: arr[i]
+      seq($.postfix_expr, '[', $._expr, ']'),
+      // Safe index: arr[?i]
+      seq($.postfix_expr, '[?', $._expr, ']'),
+      // Range: arr[a..b], arr[..b], arr[a..], arr[<a..<b]
+      seq($.postfix_expr, '[',
+        optional(choice($._expr, seq('<', $._expr))),
+        choice('..', '...'),
+        optional(choice($._expr, seq('<', $._expr))),
+        ']'),
+      // Safe range: arr[?a..b], arr[?..b], arr[?a..]
+      seq($.postfix_expr, '[?',
+        optional(choice($._expr, seq('<', $._expr))),
+        choice('..', '...'),
+        optional(choice($._expr, seq('<', $._expr))),
+        ']'),
+      // Automap: arr[*]
+      seq($.postfix_expr, '[', '*', ']'),
+      // Generic bindings: f(<int>)
       seq($.postfix_expr, $.generic_bindings),
     ),
 
@@ -231,12 +246,6 @@ export default grammar({
       $.backtick_identifier,
       seq('.', $.identifier),
       seq('(', $.comma_expr, ')'),
-      $.call_expr,
-      $.index_expr,
-      $.range_expr,
-      $.dot_expr,
-      $.arrow_expr,
-      $.automap_expr,
       $.catch_expr,
       $.gauge_expr,
       $.typeof_expr,
@@ -246,34 +255,14 @@ export default grammar({
       $.anon_enum,
       $.scope_expr,
       $.this_expr,
+      // global.identifier — resolve in top-level scope
+      seq('global', '.', $.identifier),
       '__func__',
     ),
 
     identifier_expr: $ => field('name', $.identifier),
 
-    call_expr: $ => seq(
-      field('function', $.postfix_expr),
-      '(',
-      optional($.argument_list),
-      ')',
-      optional($.block),
-    ),
-
     argument_list: $ => trailingCommaSep1(choice($._expr, seq('@', $._expr))),
-
-    index_expr: $ => seq($.postfix_expr, '[', $._expr, ']'),
-
-    range_expr: $ => seq(
-      $.postfix_expr, '[',
-      optional(choice($._expr, seq('<', $._expr))), choice('..', '...'), optional(choice($._expr, seq('<', $._expr))),
-      ']',
-    ),
-
-    dot_expr: $ => seq($.primary_expr, '.', $.identifier),
-
-    arrow_expr: $ => seq($.postfix_expr, '->', choice($.identifier, $.magic_identifier)),
-
-    automap_expr: $ => seq($.postfix_expr, '[', '*', ']'),
 
     // Cast takes unary_expr to allow (int)!x, (string)-y etc.
     cast_expr: $ => seq('(', $.type, ')', $.unary_expr),
@@ -325,7 +314,7 @@ export default grammar({
       'void', 'mixed', 'int', 'float', 'string', 'array',
       'mapping', 'multiset', 'object', 'program', 'function',
       'private', 'protected', 'public', 'static', 'extern',
-      'inline', 'local', 'final', 'variant', 'optional', 'global', 'nomask',
+      'inline', 'local', 'final', 'variant', 'optional', 'nomask',
       '__attribute__', '__deprecated__',
       '__func__',
       'predef', 'bits',
@@ -351,6 +340,12 @@ export default grammar({
       $.continue_statement,
       $.labeled_statement,
       $.local_declaration,
+      // Declarations valid at statement level
+      $.constant_decl,
+      $.import_decl,
+      $.class_decl,
+      $.enum_decl,
+      $.typedef_decl,
     ),
 
     block: $ => seq('{', repeat($._stmt), '}'),
@@ -417,7 +412,7 @@ export default grammar({
 
     basic_type: $ => choice(
       'float', 'void', 'mixed',
-      seq('string', optional($._string_width)),
+      seq('string', optional($._int_range)),
       seq('int', optional($._int_range)),
       seq('mapping', optional($._mapping_type)),
       seq('function', optional($._function_type)),
@@ -432,26 +427,25 @@ export default grammar({
     _int_range: $ => seq('(', choice(
       seq(optional($._int_range_val), '..', optional($._int_range_val)),
       seq('bits', $.integer_literal),
-      /[0-9]+bit/
+      /[0-9]+bits?/
     ), ')'),
 
     _int_range_val: $ => choice($.integer_literal, seq('-', $.integer_literal)),
 
-    _string_width: $ => choice(
-      $._int_range,
-      seq('(', optional($._int_range), ':', optional($._int_range), ')'),
-    ),
-
     _mapping_type: $ => seq('(', $.type, ':', $.type, ')'),
 
-    _function_type: $ => seq('(', commaSep($.type), optional('...'), ':', $.type, ')'),
+    // trailing comma before '...' allowed: function(int, string, ...:void)
+    _function_type: $ => seq(
+      '(',
+      optional(trailingCommaSep1($.type)),
+      optional('...'),
+      ':', $.type,
+      ')',
+    ),
 
     _program_type: $ => choice(seq('(', $.type, ')'), seq('(', $.string_literal, ')')),
 
-    _array_type: $ => choice(
-      seq('(', $.type, ')'),
-      seq('(', optional($._int_range), ':', $.type, ')'),
-    ),
+    _array_type: $ => seq('(', $.type, ')'),
 
     _multiset_type: $ => seq('(', $.type, ')'),
 
@@ -471,6 +465,7 @@ export default grammar({
 
     declaration: $ => seq(
       repeat($._modifier),
+      optional($.attribute),
       choice(
         $.function_decl,
         $.variable_decl,
@@ -484,14 +479,17 @@ export default grammar({
       ),
     ),
 
+    // __attribute__("name") as declaration modifier
+    attribute: $ => seq('__attribute__', '(', $.string_literal, ')'),
+
     _modifier: _ => choice(
       'private', 'protected', 'public', 'static', 'extern',
-      'inline', 'local', 'final', 'variant', 'optional', 'global', 'nomask',
+      'inline', 'local', 'final', 'variant', 'optional', 'nomask',
       '__deprecated__',
     ),
 
     function_decl: $ => seq(
-      $.type, choice($.identifier, $.backtick_identifier),
+      $.type, optional('constant'), choice($.identifier, $.backtick_identifier),
       field('parameters', $.parameters),
       choice($.block, ';'),
     ),
@@ -520,7 +518,7 @@ export default grammar({
     ),
 
     constant_decl: $ => seq(
-      'constant', optional($.type),
+      'constant',
       commaSep1(seq($.identifier, '=', $._expr)),
       ';',
     ),
