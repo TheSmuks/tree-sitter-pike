@@ -1267,3 +1267,79 @@ Case range
         (break_statement)
         (default_clause)
         (break_statement)))))
+
+================================================================================
+Empty statement in block
+================================================================================
+{ ; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block))
+
+================================================================================
+Do-while with semicolon body
+================================================================================
+do ; while(1);
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier)))))))))))))))))))
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))
+                                  (argument_list
+                                    (comma_expr
+                                      (assign_expr
+                                        (cond_expr
+                                          (lor_expr
+                                            (land_expr
+                                              (bitor_expr
+                                                (bitxor_expr
+                                                  (bitand_expr
+                                                    (eq_expr
+                                                      (rel_expr
+                                                        (shift_expr
+                                                          (add_expr
+                                                            (mul_expr
+                                                              (unary_expr
+                                                                (postfix_expr
+                                                                  (primary_expr
+                                                                    (integer_literal)))))))))))))))))))))))))))))))))))

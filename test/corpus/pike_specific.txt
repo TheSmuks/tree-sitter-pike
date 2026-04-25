@@ -1113,3 +1113,164 @@ Scope expression
                                                                   (postfix_expr
                                                                     (primary_expr
                                                                       (string_literal))))))))))))))))))))))))))))))))))))
+
+================================================================================
+__func__ expression
+================================================================================
+{ string s = __func__; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (local_declaration
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr)))))))))))))))))))
+
+================================================================================
+Chained inherit_specifier scope
+================================================================================
+{ Foo::Bar::baz; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (expression_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (scope_expr
+                                        scope: (inherit_specifier
+                                          (inherit_specifier
+                                            (identifier))
+                                          (identifier))
+                                        name: (identifier)))))))))))))))))))))
+
+================================================================================
+Bare scope expression
+================================================================================
+{ ::foo; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (expression_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (scope_expr
+                                        scope: (inherit_specifier)
+                                        name: (identifier)))))))))))))))))))))
+
+================================================================================
+Global identifier expression
+================================================================================
+{ global.foo; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (expression_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier))))))))))))))))))))
+
+
+================================================================================
+Line continuation in expression
+================================================================================
+{ int x = 1 + \
+2; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (local_declaration
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal))))))
+                              (line_continuation)
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))

@@ -1863,3 +1863,98 @@ call_out(write, 0, "hi") { result = 1; };
                                                                     (postfix_expr
                                                                       (primary_expr
                                                                         (integer_literal)))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Dot access expression
+================================================================================
+{ obj.field; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (expression_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))
+                                    (identifier)))))))))))))))))))
+
+================================================================================
+Dot identifier primary expression
+================================================================================
+{ .foo; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (expression_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier))))))))))))))))))))
+
+================================================================================
+__func__ in expression context
+================================================================================
+{ string s = __func__ + "()"; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (local_declaration
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr)))))
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_literal))))))))))))))))))))
