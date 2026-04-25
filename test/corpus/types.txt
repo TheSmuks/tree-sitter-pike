@@ -12,29 +12,29 @@ mixed e;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Container types - unparameterized
@@ -51,34 +51,34 @@ function f;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Parameterized container types
@@ -92,27 +92,27 @@ multiset(string) c;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
           (type
             (basic_type))))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Union types
@@ -125,15 +125,15 @@ array(int)|mapping(string:mixed) b;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (type
           (basic_type))
         (type
           (basic_type)))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (type
           (basic_type
             (type
@@ -144,7 +144,7 @@ array(int)|mapping(string:mixed) b;
               (basic_type))
             (type
               (basic_type)))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Function type annotation
@@ -156,7 +156,7 @@ function(int, string:void) cb;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
@@ -164,7 +164,7 @@ function(int, string:void) cb;
             (basic_type))
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Int range types
@@ -177,17 +177,17 @@ int(8..) offset;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)
           (integer_literal)))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Int bits type
@@ -199,10 +199,10 @@ int(bits 8) flags;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 String width type
@@ -214,11 +214,11 @@ string(0..255) narrow;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Object and program type with identifier
@@ -231,20 +231,20 @@ program(Bar) prog;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (id_type
               (identifier)))))
-      (identifier)))
+      name: (identifier)))
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (id_type
               (identifier)))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Attribute type
@@ -256,12 +256,12 @@ __attribute__("deprecated", int) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (string_literal)
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Types in function parameters
@@ -275,27 +275,27 @@ void process(int count, string name, mapping(string:int) data) {
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier))
+          name: (identifier))
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier))
+          name: (identifier))
         (parameter
-          (type
+          type: (type
             (basic_type
               (type
                 (basic_type))
               (type
                 (basic_type))))
-          (identifier)))
-      (block
+          name: (identifier)))
+      body: (block
         (return_statement)))))
 
 ================================================================================
@@ -308,9 +308,9 @@ int(8bit) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Int range with bits plural
@@ -322,9 +322,9 @@ int(8bits) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Int range negative
@@ -336,11 +336,11 @@ int(-1..255) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Int range open-ended
@@ -352,10 +352,10 @@ int(0..) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Function type variadic
@@ -367,13 +367,13 @@ function(int...:void) cb;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Function type trailing comma varargs
@@ -385,13 +385,13 @@ function(int,...:void) cb;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Object type with identifier
@@ -403,12 +403,12 @@ object(Foo) obj;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (id_type
               (identifier)))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Union type 3-way
@@ -420,7 +420,7 @@ int|string|float x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (type
           (type
             (basic_type))
@@ -428,7 +428,7 @@ int|string|float x;
             (basic_type)))
         (type
           (basic_type)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Array of mapping
@@ -440,7 +440,7 @@ array(mapping(string:int)) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type
@@ -448,7 +448,7 @@ array(mapping(string:int)) x;
                 (basic_type))
               (type
                 (basic_type))))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 String width
@@ -460,11 +460,11 @@ string(0..255) s;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (integer_literal)
           (integer_literal)))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Typeof as type
@@ -474,28 +474,42 @@ typeof(42) x;
 --------------------------------------------------------------------------------
 
 (program
-  (declaration
-    (variable_decl
-      (type
-        (typeof_type_expr
-          (comma_expr
-            (assign_expr
-              (cond_expr
-                (lor_expr
-                  (land_expr
-                    (bitor_expr
-                      (bitxor_expr
-                        (bitand_expr
-                          (eq_expr
-                            (rel_expr
-                              (shift_expr
-                                (add_expr
-                                  (mul_expr
-                                    (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (integer_literal))))))))))))))))))))
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (typeof_expr
+                                      (comma_expr
+                                        (assign_expr
+                                          (cond_expr
+                                            (lor_expr
+                                              (land_expr
+                                                (bitor_expr
+                                                  (bitxor_expr
+                                                    (bitand_expr
+                                                      (eq_expr
+                                                        (rel_expr
+                                                          (shift_expr
+                                                            (add_expr
+                                                              (mul_expr
+                                                                (unary_expr
+                                                                  (postfix_expr
+                                                                    (primary_expr
+                                                                      (integer_literal))))))))))))))))))))))))))))))))))
+    (ERROR
       (identifier))))
 
 ================================================================================
@@ -508,8 +522,8 @@ this_program x;
 (program
   (declaration
     (variable_decl
-      (type)
-      (identifier))))
+      type: (type)
+      name: (identifier))))
 
 ================================================================================
 Attribute type
@@ -521,9 +535,9 @@ __attribute__("foo", int) x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type
           (string_literal)
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))

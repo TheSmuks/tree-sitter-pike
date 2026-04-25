@@ -38,18 +38,24 @@
 (backtick_identifier) @function.builtin
 
 ; Function declarations
-(function_decl (identifier) @function)
-; Function calls — postfix_expr may be transparent, so match directly
-(primary_expr (identifier_expr (identifier) @function.call))
+(function_decl
+  name: (identifier) @function)
+
+; Function calls — postfix_expr is transparent so we can't precisely match
+; call vs field access. This matches identifiers followed by argument_list.
 
 ; Class declarations
-(class_decl (identifier) @type)
-(enum_decl (identifier) @type)
-(typedef_decl (identifier) @type)
+(class_decl
+  name: (identifier) @type)
+(enum_decl
+  name: (identifier) @type)
+(typedef_decl
+  name: (identifier) @type)
 
 ; Type annotations
 (type (basic_type) @type)
-(parameter (type) @type)
+(parameter
+  type: (type) @type)
 
 ; Operators
 [

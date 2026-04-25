@@ -4,7 +4,9 @@
       "name": "pike",
       "scope": "source.pike",
       "file-types": ["pike", "pmod"],
-      "injection-regex": "^pike$"
+      "injection-regex": "^pike$",
+      "highlights": ["queries/highlights.scm"],
+      "tags": ["queries/tags.scm"]
     }
   ],
   "metadata": {

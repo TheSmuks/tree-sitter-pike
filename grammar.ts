@@ -13,6 +13,7 @@ export default grammar({
     [$._id_expr, $.primary_expr],
     [$.identifier_expr, $._id_expr],
     [$.comma_expr, $._expr],
+    // repeat-modifier ambiguity (modifiers before declarations)
     [$.typedef_decl],
     [$.inherit_decl],
     [$.import_decl],
@@ -24,7 +25,6 @@ export default grammar({
     [$._definition, $.declaration],
     // inherit/import can look like expressions
     [$.primary_expr, $.inherit_decl],
-    [$.identifier_expr, $.inherit_specifier],
     [$.inherit_specifier, $.this_expr],
     [$.scope_expr, $.inherit_specifier],
     [$.primary_expr, $.import_decl],
@@ -36,8 +36,11 @@ export default grammar({
     [$._modifier, $.inherit_specifier],
     // this_expr as type vs expression
     [$.this_expr, $.type],
+    // assign_expr right-recursive ternary ambiguity
+    [$.assign_expr],
+    // dangling else ambiguity
+    [$.if_statement],
   ],
-
   externals: $ => [],
 
   extras: $ => [
@@ -90,13 +93,14 @@ export default grammar({
     string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    // Backtick identifiers: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=
+    // Known limitation: `foo= (setter) form requires external scanner
     backtick_identifier: _ => token(choice(
-      seq('`', /[a-zA-Z_][a-zA-Z0-9_]*/),
+      /`[a-zA-Z_][a-zA-Z0-9_]*/,
       '`[]', '`[]=', '`()', '`->', '`->=', '`[..]',
-      seq('`', /[-+&|^*\/%~!=<>]+/),
+      /`[-+&|^*\/~%!=<>]+/,
       seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),
     )),
-
 
     // ── Collection literals ──
 
@@ -119,10 +123,10 @@ export default grammar({
     assign_expr: $ => choice(
       $.cond_expr,
       seq($.cond_expr, $._assign_op, $.assign_expr),
-      seq($.array_destructure, '=', $.assign_expr),
+      seq($.array_destructure, $._assign_op, $.assign_expr),
     ),
 
-    array_destructure: $ => seq('[', commaSep1(choice($._expr, seq($.type, $.identifier))), ']'),
+    array_destructure: $ => seq('[', commaSep1(choice($._expr, seq($.type, $.identifier), $.array_destructure)), ']'),
 
     _assign_op: _ => choice(
       '=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=',
@@ -131,7 +135,7 @@ export default grammar({
 
     cond_expr: $ => choice(
       $.lor_expr,
-      seq($.lor_expr, '?', $.comma_expr, ':', $.assign_expr),
+      seq(field('condition', $.lor_expr), '?', field('consequence', $.comma_expr), ':', field('alternative', $.assign_expr)),
     ),
 
     lor_expr: $ => choice(
@@ -192,8 +196,8 @@ export default grammar({
       prec(1, seq('-', $.unary_expr)),
       prec(1, seq('@', $.unary_expr)),
       // Prefix increment/decrement
-      seq('++', $.postfix_expr),
-      seq('--', $.postfix_expr),
+      prec(1, seq('++', $.postfix_expr)),
+      prec(1, seq('--', $.postfix_expr)),
       $.cast_expr,
       $.soft_cast_expr,
     ),
@@ -265,15 +269,14 @@ export default grammar({
     argument_list: $ => trailingCommaSep1(choice($._expr, seq('@', $._expr))),
 
     // Cast takes unary_expr to allow (int)!x, (string)-y etc.
-    cast_expr: $ => seq('(', $.type, ')', $.unary_expr),
+    cast_expr: $ => seq('(', field('type', $.type), ')', field('value', $.unary_expr)),
 
-    soft_cast_expr: $ => prec(1, seq('[', $.type, ']', $.unary_expr)),
+    soft_cast_expr: $ => prec(1, seq('[', field('type', $.type), ']', field('value', $.unary_expr))),
 
     catch_expr: $ => seq('catch', $._catch_arg),
     gauge_expr: $ => seq('gauge', $._catch_arg),
 
     _catch_arg: $ => choice(seq('(', $._expr, ')'), $.block),
-
     typeof_expr: $ => seq('typeof', '(', $._expr, ')'),
 
     sscanf_expr: $ => seq(
@@ -291,14 +294,14 @@ export default grammar({
     scope_expr: $ => seq($.inherit_specifier, choice($.identifier, $.magic_identifier, $.backtick_identifier)),
 
     inherit_specifier: $ => choice(
-      seq($.identifier, '::'),
+      seq(choice($.identifier, $.string_literal), '::'),
       seq('local', '::'),
       seq('this_program', '::'),
       seq('this', '::'),
       seq('global', '::'),
       seq('predef', '::'),
       seq($.version_prefix, '::'),
-      seq($.inherit_specifier, $.identifier, '::'),
+      seq($.inherit_specifier, choice($.identifier, $.string_literal), '::'),
       '::',
     ),
 
@@ -311,6 +314,7 @@ export default grammar({
       'case', 'default', 'break', 'continue', 'return',
       'catch', 'gauge', 'sscanf', 'typeof', 'lambda',
       'class', 'enum', 'typedef', 'inherit', 'import',
+      'constant', 'global',
       'void', 'mixed', 'int', 'float', 'string', 'array',
       'mapping', 'multiset', 'object', 'program', 'function',
       'private', 'protected', 'public', 'static', 'extern',
@@ -353,38 +357,39 @@ export default grammar({
     expression_statement: $ => seq($._expr, ';'),
 
     if_statement: $ => seq(
-      'if', '(', $._expr, ')', $._stmt,
-      optional(seq('else', $._stmt)),
+      'if', '(', field('condition', $._expr), ')', field('consequence', $._stmt),
+      optional(seq('else', field('alternative', $._stmt))),
     ),
 
-    while_statement: $ => seq('while', '(', $._expr, ')', $._stmt),
-    do_while_statement: $ => seq('do', $._stmt, 'while', '(', $._expr, ')', ';'),
+    while_statement: $ => seq('while', '(', field('condition', $._expr), ')', field('body', $._stmt)),
+    do_while_statement: $ => seq('do', field('body', $._stmt), 'while', '(', field('condition', $._expr), ')', ';'),
 
     for_statement: $ => seq(
       'for', '(',
-      optional(choice($._expr, $.for_init_decl)), ';', optional($._expr), ';', optional($._expr),
-      ')', $._stmt,
+      optional(choice($._expr, $.for_init_decl)), ';', optional(field('condition', $._expr)), ';', optional($._expr),
+      ')', field('body', $._stmt),
     ),
 
     for_init_decl: $ => seq(
-      $.type, commaSep1(seq($.identifier, optional(seq('=', $._expr)))),
+      field('type', $.type), commaSep1(seq(field('name', $.identifier), optional(seq('=', field('value', $._expr))))),
     ),
 
     foreach_statement: $ => seq(
-      'foreach', '(', $._expr, $.foreach_lvalues, ')', $._stmt,
+      'foreach', '(', field('iterator', $._expr), $.foreach_lvalues, ')', field('body', $._stmt),
     ),
 
     foreach_lvalues: $ => choice(
-      seq(',', $._foreach_lvalue),
-      seq(';', optional($._foreach_lvalue), ';', optional($._foreach_lvalue)),
+      seq(',', field('value', $._foreach_lvalue)),
+      seq(';', optional(field('key', $._foreach_lvalue)), ';', optional(field('value', $._foreach_lvalue))),
     ),
 
     _foreach_lvalue: $ => choice(
       $._expr,
       seq($.type, $.identifier),
+      $.array_destructure,
     ),
 
-    switch_statement: $ => seq('switch', '(', $._expr, ')', $.block),
+    switch_statement: $ => seq('switch', '(', field('value', $._expr), ')', $.block),
 
     // case expr: / case expr..expr: / case ..expr: / case expr...expr:
     case_clause: $ => choice(
@@ -394,7 +399,7 @@ export default grammar({
 
     default_clause: $ => seq('default', ':'),
 
-    return_statement: $ => seq('return', optional($._expr), ';'),
+    return_statement: $ => seq('return', optional(field('value', $._expr)), ';'),
     break_statement: $ => seq('break', optional($.identifier), ';'),
     continue_statement: $ => seq('continue', optional($.identifier), ';'),
 
@@ -406,7 +411,6 @@ export default grammar({
       $.basic_type,
       prec.left(seq($.type, '|', $.type)),
       $.id_type,
-      $.typeof_type_expr,
       'this_program',
     ),
 
@@ -435,17 +439,15 @@ export default grammar({
     _mapping_type: $ => seq('(', $.type, ':', $.type, ')'),
 
     // trailing comma before '...' allowed: function(int, string, ...:void)
+    // Note: function(:void) zero-param form produces a MISSING node due to
+    // tree-sitter GLR exploring $.type at ':' position — known limitation
     _function_type: $ => seq(
       '(',
-      choice(
-        // With parameters (at least one type, optional varargs, trailing comma)
-        seq(optional(trailingCommaSep1($.type)), optional('...'), ':', $.type),
-        // Zero parameters, just return type
-        seq(':', $.type),
-      ),
+      optional(trailingCommaSep1($.type)),
+      optional('...'),
+      ':', $.type,
       ')',
     ),
-
     _program_type: $ => choice(seq('(', $.type, ')'), seq('(', $.string_literal, ')')),
 
     _array_type: $ => seq('(', $.type, ')'),
@@ -454,14 +456,11 @@ export default grammar({
 
     id_type: $ => $._id_expr,
 
-    typeof_type_expr: $ => seq('typeof', '(', $._expr, ')'),
-
     _id_expr: $ => choice(
       $.identifier,
       seq($._id_expr, '.', $.identifier),
       $.scope_expr,
       seq('.', $.identifier),
-      $.backtick_identifier,
     ),
 
     // ── Declarations ──
@@ -492,58 +491,58 @@ export default grammar({
     ),
 
     function_decl: $ => seq(
-      $.type, optional('constant'), choice($.identifier, $.backtick_identifier),
+      field('return_type', $.type), optional('constant'), field('name', choice($.identifier, $.backtick_identifier)),
       field('parameters', $.parameters),
-      choice($.block, ';'),
+      choice(field('body', $.block), ';'),
     ),
 
     parameters: $ => seq('(', optional(commaSep1($.parameter)), ')'),
 
     parameter: $ => seq(
-      $.type, optional('...'), optional($.identifier),
-      optional(seq('=', $._expr)),
+      field('type', $.type), optional('...'), optional(field('name', $.identifier)),
+      optional(seq('=', field('default_value', $._expr))),
     ),
 
     variable_decl: $ => seq(
-      $.type, commaSep1(seq(
-        choice($.identifier, $.backtick_identifier),
-        optional(seq('=', $._expr)),
+      field('type', $.type), commaSep1(seq(
+        field('name', choice($.identifier, $.backtick_identifier)),
+        optional(seq('=', field('value', $._expr))),
       )),
       ';',
     ),
 
     local_declaration: $ => seq(
-      $.type, commaSep1(seq(
-        choice($.identifier, $.backtick_identifier),
-        optional(seq('=', $._expr)),
+      field('type', $.type), commaSep1(seq(
+        field('name', choice($.identifier, $.backtick_identifier)),
+        optional(seq('=', field('value', $._expr))),
       )),
       ';',
     ),
 
     constant_decl: $ => seq(
       'constant',
-      commaSep1(seq($.identifier, '=', $._expr)),
+      commaSep1(seq(field('name', $.identifier), '=', field('value', $._expr))),
       ';',
     ),
 
     class_decl: $ => seq(
-      'class', $.identifier,
+      'class', field('name', $.identifier),
       optional($.generic_bindings),
       optional($.parameters),
-      $.class_body,
+      field('body', $.class_body),
     ),
 
     anon_class: $ => seq(
       'class',
       optional($.generic_bindings),
       optional($.parameters),
-      $.class_body,
+      field('body', $.class_body),
     ),
 
     class_body: $ => seq('{', repeat($.declaration), '}'),
 
     enum_decl: $ => seq(
-      'enum', optional($.identifier),
+      'enum', optional(field('name', $.identifier)),
       '{', optional(trailingCommaSep1($.enum_member)), '}',
     ),
 
@@ -552,12 +551,12 @@ export default grammar({
     ),
 
     enum_member: $ => seq(
-      $.identifier,
-      optional(seq('=', $._expr)),
+      field('name', $.identifier),
+      optional(seq('=', field('value', $._expr))),
     ),
 
     typedef_decl: $ => seq(
-      repeat($._modifier), 'typedef', $.type, $.identifier, ';',
+      repeat($._modifier), 'typedef', field('type', $.type), field('name', $.identifier), ';',
     ),
 
     import_decl: $ => seq(

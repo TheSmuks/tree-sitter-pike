@@ -22,18 +22,16 @@ a + b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))
-                            (mul_expr
-                              (unary_expr
-                                (prefix_expr
-                                  (chain_expr
+                                  (postfix_expr
                                     (primary_expr
                                       (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                        name: (identifier)))))))
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Multiplication and addition - precedence
@@ -60,24 +58,21 @@ a * b + c;
                               (mul_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier)))))))
-                                (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
+                                    (postfix_expr
                                       (primary_expr
                                         (identifier_expr
-                                          name: (identifier))))))))
-                            (mul_expr
-                              (unary_expr
-                                (prefix_expr
-                                  (chain_expr
+                                          name: (identifier))))))
+                                (unary_expr
+                                  (postfix_expr
                                     (primary_expr
                                       (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                        name: (identifier)))))))
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Subtraction and division - precedence
@@ -103,25 +98,22 @@ a - b / c;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))
                             (mul_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))
-                              (unary_expr
-                                (prefix_expr
-                                  (chain_expr
+                                  (postfix_expr
                                     (primary_expr
                                       (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                        name: (identifier))))))
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Equality comparison
@@ -147,21 +139,19 @@ a == b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))))))))
                       (rel_expr
                         (shift_expr
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Inequality comparison
@@ -187,21 +177,19 @@ a != c;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))))))))
                       (rel_expr
                         (shift_expr
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Greater-or-equal comparison
@@ -227,19 +215,17 @@ x >= 0;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))
                         (shift_expr
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (integer_literal))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (integer_literal)))))))))))))))))))
 
 ================================================================================
 Logical AND
@@ -265,11 +251,10 @@ a && b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))))))))))))
               (bitor_expr
                 (bitxor_expr
                   (bitand_expr
@@ -279,11 +264,10 @@ a && b;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Logical OR
@@ -309,11 +293,10 @@ a || b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))))
             (land_expr
               (bitor_expr
                 (bitxor_expr
@@ -324,11 +307,10 @@ a || b;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Bitwise AND
@@ -354,22 +336,20 @@ a & b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))
                     (eq_expr
                       (rel_expr
                         (shift_expr
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Bitwise OR
@@ -395,11 +375,10 @@ a | c;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))
                 (bitxor_expr
                   (bitand_expr
                     (eq_expr
@@ -408,11 +387,10 @@ a | c;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Bitwise XOR
@@ -438,11 +416,10 @@ a ^ b;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))))))))))
                   (bitand_expr
                     (eq_expr
                       (rel_expr
@@ -450,11 +427,10 @@ a ^ b;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Ternary conditional
@@ -468,7 +444,7 @@ a ? b : c;
     (comma_expr
       (assign_expr
         (cond_expr
-          (lor_expr
+          condition: (lor_expr
             (land_expr
               (bitor_expr
                 (bitxor_expr
@@ -479,12 +455,11 @@ a ? b : c;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier))))))))))))))))
-          (comma_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier)))))))))))))))
+          consequence: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -498,12 +473,11 @@ a ? b : c;
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))
-          (assign_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))
+          alternative: (assign_expr
             (cond_expr
               (lor_expr
                 (land_expr
@@ -516,11 +490,10 @@ a ? b : c;
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier)))))))))))))))))))))))
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))))))))))))))))))))
 
 ================================================================================
 Simple assignment
@@ -545,11 +518,10 @@ x = 1;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -563,10 +535,9 @@ x = 1;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (integer_literal)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
 
 ================================================================================
 Compound assignment - addition
@@ -591,11 +562,10 @@ x += 2;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -609,10 +579,9 @@ x += 2;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (integer_literal)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
 
 ================================================================================
 Pre-increment
@@ -637,11 +606,10 @@ Pre-increment
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Post-increment
@@ -666,12 +634,11 @@ x++;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))))))))))
+                                (postfix_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))))))))))
 
 ================================================================================
 Pre-decrement
@@ -696,11 +663,10 @@ Pre-decrement
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))))))
 
 ================================================================================
 Post-decrement
@@ -725,12 +691,11 @@ y--;
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))))))))))
+                                (postfix_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))))))))))
 
 ================================================================================
 Comma expression in parentheses
@@ -755,11 +720,10 @@ x = (a, b);
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (prefix_expr
-                                  (chain_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        name: (identifier)))))))))))))))))
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -773,29 +737,10 @@ x = (a, b);
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (comma_expr
                                         (comma_expr
-                                          (comma_expr
-                                            (assign_expr
-                                              (cond_expr
-                                                (lor_expr
-                                                  (land_expr
-                                                    (bitor_expr
-                                                      (bitxor_expr
-                                                        (bitand_expr
-                                                          (eq_expr
-                                                            (rel_expr
-                                                              (shift_expr
-                                                                (add_expr
-                                                                  (mul_expr
-                                                                    (unary_expr
-                                                                      (prefix_expr
-                                                                        (chain_expr
-                                                                          (primary_expr
-                                                                            (identifier_expr
-                                                                              name: (identifier)))))))))))))))))))
                                           (assign_expr
                                             (cond_expr
                                               (lor_expr
@@ -809,11 +754,27 @@ x = (a, b);
                                                               (add_expr
                                                                 (mul_expr
                                                                   (unary_expr
-                                                                    (prefix_expr
-                                                                      (chain_expr
-                                                                        (primary_expr
-                                                                          (identifier_expr
-                                                                            name: (identifier)))))))))))))))))))))))))))))))))))))))
+                                                                    (postfix_expr
+                                                                      (primary_expr
+                                                                        (identifier_expr
+                                                                          name: (identifier))))))))))))))))))
+                                        (assign_expr
+                                          (cond_expr
+                                            (lor_expr
+                                              (land_expr
+                                                (bitor_expr
+                                                  (bitxor_expr
+                                                    (bitand_expr
+                                                      (eq_expr
+                                                        (rel_expr
+                                                          (shift_expr
+                                                            (add_expr
+                                                              (mul_expr
+                                                                (unary_expr
+                                                                  (postfix_expr
+                                                                    (primary_expr
+                                                                      (identifier_expr
+                                                                        name: (identifier)))))))))))))))))))))))))))))))))))))
 
 ================================================================================
 Cast expression - basic
@@ -839,15 +800,13 @@ Cast expression - basic
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (cast_expr
-                                      (type
-                                        (basic_type))
-                                      (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (float_literal))))))))))))))))))))))))
+                                  (cast_expr
+                                    type: (type
+                                      (basic_type))
+                                    value: (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (float_literal))))))))))))))))))))))
 
 ================================================================================
 Cast expression - with unary
@@ -873,17 +832,15 @@ Cast expression - with unary
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (cast_expr
-                                      (type
-                                        (basic_type))
+                                  (cast_expr
+                                    type: (type
+                                      (basic_type))
+                                    value: (unary_expr
                                       (unary_expr
-                                        (unary_expr
-                                          (prefix_expr
-                                            (chain_expr
-                                              (primary_expr
-                                                (identifier_expr
-                                                  name: (identifier))))))))))))))))))))))))))
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))))))))
 
 ================================================================================
 Soft cast
@@ -909,16 +866,14 @@ Soft cast
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (soft_cast_expr
-                                      (type
-                                        (basic_type))
-                                      (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier)))))))))))))))))))))))))
+                                  (soft_cast_expr
+                                    type: (type
+                                      (basic_type))
+                                    value: (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier)))))))))))))))))))))))
 
 ================================================================================
 Chained comma
@@ -946,11 +901,10 @@ Chained comma
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -964,11 +918,10 @@ Chained comma
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier)))))))))))))))))))
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -982,11 +935,10 @@ Chained comma
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))))))))))
 
 ================================================================================
 Safe arrow
@@ -1012,14 +964,13 @@ Safe arrow
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))
-                                        (identifier)))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))
+                                      (identifier))))))))))))))))))))
 
 ================================================================================
 Safe arrow chain
@@ -1045,15 +996,14 @@ Safe arrow chain
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))
-                                        (identifier))
-                                      (identifier))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))
+                                      (identifier))
+                                    (identifier)))))))))))))))))))
 
 ================================================================================
 Safe index
@@ -1079,30 +1029,28 @@ Safe index
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier))))
-                                      (comma_expr
-                                        (assign_expr
-                                          (cond_expr
-                                            (lor_expr
-                                              (land_expr
-                                                (bitor_expr
-                                                  (bitxor_expr
-                                                    (bitand_expr
-                                                      (eq_expr
-                                                        (rel_expr
-                                                          (shift_expr
-                                                            (add_expr
-                                                              (mul_expr
-                                                                (unary_expr
-                                                                  (prefix_expr
-                                                                    (chain_expr
-                                                                      (primary_expr
-                                                                        (integer_literal)))))))))))))))))))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))
+                                    (comma_expr
+                                      (assign_expr
+                                        (cond_expr
+                                          (lor_expr
+                                            (land_expr
+                                              (bitor_expr
+                                                (bitxor_expr
+                                                  (bitand_expr
+                                                    (eq_expr
+                                                      (rel_expr
+                                                        (shift_expr
+                                                          (add_expr
+                                                            (mul_expr
+                                                              (unary_expr
+                                                                (postfix_expr
+                                                                  (primary_expr
+                                                                    (integer_literal)))))))))))))))))))))))))))))))))))
 
 ================================================================================
 String concatenation
@@ -1128,12 +1076,11 @@ String concatenation
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (string_concat
-                                          (string_literal)
-                                          (string_literal))))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_concat
+                                        (string_literal)
+                                        (string_literal)))))))))))))))))))))
 
 ================================================================================
 Array destructure
@@ -1163,11 +1110,10 @@ Array destructure
                                     (add_expr
                                       (mul_expr
                                         (unary_expr
-                                          (prefix_expr
-                                            (chain_expr
-                                              (primary_expr
-                                                (identifier_expr
-                                                  name: (identifier)))))))))))))))))))
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier))))))))))))))))))
               (assign_expr
                 (cond_expr
                   (lor_expr
@@ -1181,11 +1127,10 @@ Array destructure
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))))))))))
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -1199,29 +1144,11 @@ Array destructure
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (array_literal
+                                    (postfix_expr
+                                      (primary_expr
+                                        (array_literal
+                                          (comma_expr
                                             (comma_expr
-                                              (comma_expr
-                                                (assign_expr
-                                                  (cond_expr
-                                                    (lor_expr
-                                                      (land_expr
-                                                        (bitor_expr
-                                                          (bitxor_expr
-                                                            (bitand_expr
-                                                              (eq_expr
-                                                                (rel_expr
-                                                                  (shift_expr
-                                                                    (add_expr
-                                                                      (mul_expr
-                                                                        (unary_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (primary_expr
-                                                                                (integer_literal))))))))))))))))))
                                               (assign_expr
                                                 (cond_expr
                                                   (lor_expr
@@ -1235,10 +1162,25 @@ Array destructure
                                                                   (add_expr
                                                                     (mul_expr
                                                                       (unary_expr
-                                                                        (prefix_expr
-                                                                          (chain_expr
-                                                                            (primary_expr
-                                                                              (integer_literal))))))))))))))))))))))))))))))))))))))))
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal)))))))))))))))))
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (postfix_expr
+                                                                        (primary_expr
+                                                                          (integer_literal))))))))))))))))))))))))))))))))))))))
 
 ================================================================================
 Automap
@@ -1265,18 +1207,16 @@ Automap
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (integer_literal)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
 
 ================================================================================
 Global identifier
@@ -1302,10 +1242,9 @@ Global identifier
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier))))))))))))))))))))
 
 ================================================================================
 Spread in array
@@ -1331,30 +1270,28 @@ Spread in array
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (array_literal
-                                          (comma_expr
-                                            (assign_expr
-                                              (cond_expr
-                                                (lor_expr
-                                                  (land_expr
-                                                    (bitor_expr
-                                                      (bitxor_expr
-                                                        (bitand_expr
-                                                          (eq_expr
-                                                            (rel_expr
-                                                              (shift_expr
-                                                                (add_expr
-                                                                  (mul_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (array_literal
+                                        (comma_expr
+                                          (assign_expr
+                                            (cond_expr
+                                              (lor_expr
+                                                (land_expr
+                                                  (bitor_expr
+                                                    (bitxor_expr
+                                                      (bitand_expr
+                                                        (eq_expr
+                                                          (rel_expr
+                                                            (shift_expr
+                                                              (add_expr
+                                                                (mul_expr
+                                                                  (unary_expr
                                                                     (unary_expr
-                                                                      (unary_expr
-                                                                        (prefix_expr
-                                                                          (chain_expr
-                                                                            (primary_expr
-                                                                              (identifier_expr
-                                                                                name: (identifier)))))))))))))))))))))))))))))))))))))))))
+                                                                      (postfix_expr
+                                                                        (primary_expr
+                                                                          (identifier_expr
+                                                                            name: (identifier)))))))))))))))))))))))))))))))))))))))
 
 ================================================================================
 Spread in call
@@ -1380,33 +1317,31 @@ Spread in call
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier))))
-                                      (argument_list
-                                        (comma_expr
-                                          (assign_expr
-                                            (cond_expr
-                                              (lor_expr
-                                                (land_expr
-                                                  (bitor_expr
-                                                    (bitxor_expr
-                                                      (bitand_expr
-                                                        (eq_expr
-                                                          (rel_expr
-                                                            (shift_expr
-                                                              (add_expr
-                                                                (mul_expr
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))
+                                    (argument_list
+                                      (comma_expr
+                                        (assign_expr
+                                          (cond_expr
+                                            (lor_expr
+                                              (land_expr
+                                                (bitor_expr
+                                                  (bitxor_expr
+                                                    (bitand_expr
+                                                      (eq_expr
+                                                        (rel_expr
+                                                          (shift_expr
+                                                            (add_expr
+                                                              (mul_expr
+                                                                (unary_expr
                                                                   (unary_expr
-                                                                    (unary_expr
-                                                                      (prefix_expr
-                                                                        (chain_expr
-                                                                          (primary_expr
-                                                                            (identifier_expr
-                                                                              name: (identifier))))))))))))))))))))))))))))))))))))))))
+                                                                    (postfix_expr
+                                                                      (primary_expr
+                                                                        (identifier_expr
+                                                                          name: (identifier))))))))))))))))))))))))))))))))))))))
 
 ================================================================================
 Chained arrow
@@ -1432,15 +1367,14 @@ Chained arrow
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))
-                                        (identifier))
-                                      (identifier))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))
+                                      (identifier))
+                                    (identifier)))))))))))))))))))
 
 ================================================================================
 Chained index
@@ -1466,31 +1400,12 @@ Chained index
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))
-                                        (comma_expr
-                                          (assign_expr
-                                            (cond_expr
-                                              (lor_expr
-                                                (land_expr
-                                                  (bitor_expr
-                                                    (bitxor_expr
-                                                      (bitand_expr
-                                                        (eq_expr
-                                                          (rel_expr
-                                                            (shift_expr
-                                                              (add_expr
-                                                                (mul_expr
-                                                                  (unary_expr
-                                                                    (prefix_expr
-                                                                      (chain_expr
-                                                                        (primary_expr
-                                                                          (integer_literal)))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))
                                       (comma_expr
                                         (assign_expr
                                           (cond_expr
@@ -1505,10 +1420,26 @@ Chained index
                                                             (add_expr
                                                               (mul_expr
                                                                 (unary_expr
-                                                                  (prefix_expr
-                                                                    (chain_expr
-                                                                      (primary_expr
-                                                                        (integer_literal)))))))))))))))))))))))))))))))))))))
+                                                                  (postfix_expr
+                                                                    (primary_expr
+                                                                      (integer_literal))))))))))))))))))
+                                    (comma_expr
+                                      (assign_expr
+                                        (cond_expr
+                                          (lor_expr
+                                            (land_expr
+                                              (bitor_expr
+                                                (bitxor_expr
+                                                  (bitand_expr
+                                                    (eq_expr
+                                                      (rel_expr
+                                                        (shift_expr
+                                                          (add_expr
+                                                            (mul_expr
+                                                              (unary_expr
+                                                                (postfix_expr
+                                                                  (primary_expr
+                                                                    (integer_literal)))))))))))))))))))))))))))))))))))
 
 ================================================================================
 Chained call
@@ -1534,33 +1465,12 @@ Chained call
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))
-                                        (argument_list
-                                          (comma_expr
-                                            (assign_expr
-                                              (cond_expr
-                                                (lor_expr
-                                                  (land_expr
-                                                    (bitor_expr
-                                                      (bitxor_expr
-                                                        (bitand_expr
-                                                          (eq_expr
-                                                            (rel_expr
-                                                              (shift_expr
-                                                                (add_expr
-                                                                  (mul_expr
-                                                                    (unary_expr
-                                                                      (prefix_expr
-                                                                        (chain_expr
-                                                                          (primary_expr
-                                                                            (identifier_expr
-                                                                              name: (identifier)))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))
                                       (argument_list
                                         (comma_expr
                                           (assign_expr
@@ -1576,8 +1486,26 @@ Chained call
                                                               (add_expr
                                                                 (mul_expr
                                                                   (unary_expr
-                                                                    (prefix_expr
-                                                                      (chain_expr
-                                                                        (primary_expr
-                                                                          (identifier_expr
-                                                                            name: (identifier)))))))))))))))))))))))))))))))))))))))
+                                                                    (postfix_expr
+                                                                      (primary_expr
+                                                                        (identifier_expr
+                                                                          name: (identifier))))))))))))))))))))
+                                    (argument_list
+                                      (comma_expr
+                                        (assign_expr
+                                          (cond_expr
+                                            (lor_expr
+                                              (land_expr
+                                                (bitor_expr
+                                                  (bitxor_expr
+                                                    (bitand_expr
+                                                      (eq_expr
+                                                        (rel_expr
+                                                          (shift_expr
+                                                            (add_expr
+                                                              (mul_expr
+                                                                (unary_expr
+                                                                  (postfix_expr
+                                                                    (primary_expr
+                                                                      (identifier_expr
+                                                                        name: (identifier)))))))))))))))))))))))))))))))))))))

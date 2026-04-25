@@ -8,10 +8,10 @@ int x = 1;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)
-      (comma_expr
+      name: (identifier)
+      value: (comma_expr
         (assign_expr
           (cond_expr
             (lor_expr
@@ -25,10 +25,9 @@ int x = 1;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (integer_literal)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
 
 ================================================================================
 Variable declaration - string without initializer
@@ -40,9 +39,9 @@ string name;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Variable declaration - multiple declarators
@@ -54,10 +53,10 @@ int a = 1, b = 2;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier)
-      (comma_expr
+      name: (identifier)
+      value: (comma_expr
         (comma_expr
           (assign_expr
             (cond_expr
@@ -72,10 +71,9 @@ int a = 1, b = 2;
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -89,11 +87,10 @@ int a = 1, b = 2;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier)))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -107,10 +104,9 @@ int a = 1, b = 2;
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))))))
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))))))
 
 ================================================================================
 Function declaration - with parameters and body
@@ -122,21 +118,21 @@ int add(int a, int b) { return a + b; }
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier))
+          name: (identifier))
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier)))
-      (block
+          name: (identifier)))
+      body: (block
         (return_statement
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -151,18 +147,16 @@ int add(int a, int b) { return a + b; }
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))
-                                  (mul_expr
-                                    (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
+                                        (postfix_expr
                                           (primary_expr
                                             (identifier_expr
-                                              name: (identifier))))))))))))))))))))))))
+                                              name: (identifier)))))))
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier)))))))))))))))))))))))
 
 ================================================================================
 Function declaration - void no params empty body
@@ -174,11 +168,11 @@ void foo() {}
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters)
-      (block))))
+      body: (block))))
 
 ================================================================================
 Class declaration - with members
@@ -190,24 +184,24 @@ class Foo { int x; void create(int x) { this_program::x = x; } }
 (program
   (declaration
     (class_decl
-      (identifier)
-      (class_body
+      name: (identifier)
+      body: (class_body
         (declaration
           (variable_decl
-            (type
+            type: (type
               (basic_type))
-            (identifier)))
+            name: (identifier)))
         (declaration
           (function_decl
-            (type
+            return_type: (type
               (basic_type))
-            (identifier)
+            name: (identifier)
             parameters: (parameters
               (parameter
-                (type
+                type: (type
                   (basic_type))
-                (identifier)))
-            (block
+                name: (identifier)))
+            body: (block
               (expression_statement
                 (comma_expr
                   (assign_expr
@@ -223,12 +217,11 @@ class Foo { int x; void create(int x) { this_program::x = x; } }
                                       (add_expr
                                         (mul_expr
                                           (unary_expr
-                                            (prefix_expr
-                                              (chain_expr
-                                                (primary_expr
-                                                  (scope_expr
-                                                    (inherit_specifier)
-                                                    (identifier)))))))))))))))))
+                                            (postfix_expr
+                                              (primary_expr
+                                                (scope_expr
+                                                  (inherit_specifier)
+                                                  (identifier))))))))))))))))
                     (assign_expr
                       (cond_expr
                         (lor_expr
@@ -242,11 +235,10 @@ class Foo { int x; void create(int x) { this_program::x = x; } }
                                         (add_expr
                                           (mul_expr
                                             (unary_expr
-                                              (prefix_expr
-                                                (chain_expr
-                                                  (primary_expr
-                                                    (identifier_expr
-                                                      name: (identifier))))))))))))))))))))))))))))
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier)))))))))))))))))))))))))))
 
 ================================================================================
 Enum declaration - simple
@@ -258,13 +250,13 @@ enum Color { RED, GREEN, BLUE }
 (program
   (declaration
     (enum_decl
-      (identifier)
+      name: (identifier)
       (enum_member
-        (identifier))
+        name: (identifier))
       (enum_member
-        (identifier))
+        name: (identifier))
       (enum_member
-        (identifier)))))
+        name: (identifier)))))
 
 ================================================================================
 Enum declaration - with explicit values
@@ -276,10 +268,10 @@ enum Flags { A = 1, B = 2, C = 4 }
 (program
   (declaration
     (enum_decl
-      (identifier)
+      name: (identifier)
       (enum_member
-        (identifier)
-        (comma_expr
+        name: (identifier)
+        value: (comma_expr
           (comma_expr
             (comma_expr
               (assign_expr
@@ -295,10 +287,9 @@ enum Flags { A = 1, B = 2, C = 4 }
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (integer_literal))))))))))))))))))
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -312,11 +303,10 @@ enum Flags { A = 1, B = 2, C = 4 }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))
               (assign_expr
                 (cond_expr
                   (lor_expr
@@ -330,10 +320,9 @@ enum Flags { A = 1, B = 2, C = 4 }
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (integer_literal)))))))))))))))))))
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -347,11 +336,10 @@ enum Flags { A = 1, B = 2, C = 4 }
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier)))))))))))))))))
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))))))))))))))
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -365,10 +353,9 @@ enum Flags { A = 1, B = 2, C = 4 }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))))))
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
 
 ================================================================================
 Constant declaration
@@ -380,8 +367,8 @@ constant PI = 3.14;
 (program
   (declaration
     (constant_decl
-      (identifier)
-      (comma_expr
+      name: (identifier)
+      value: (comma_expr
         (assign_expr
           (cond_expr
             (lor_expr
@@ -395,10 +382,9 @@ constant PI = 3.14;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (float_literal)))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (float_literal))))))))))))))))))))
 
 ================================================================================
 Inherit declaration - qualified path
@@ -424,13 +410,12 @@ inherit Stdio.File;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (chain_expr
-                                        (primary_expr
-                                          (identifier_expr
-                                            name: (identifier))))
-                                      (identifier))))))))))))))))))))
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))
+                                    (identifier)))))))))))))))))))
 
 ================================================================================
 Inherit declaration - string path with alias
@@ -469,11 +454,10 @@ import Stdio;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (primary_expr
-                                        (identifier_expr
-                                          name: (identifier))))))))))))))))))))))
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        name: (identifier)))))))))))))))))))))
 
 ================================================================================
 Typedef declaration - mapping type
@@ -485,13 +469,13 @@ typedef mapping(string:string) StringMap;
 (program
   (declaration
     (typedef_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Modifier - private variable
@@ -503,9 +487,9 @@ private int x;
 (program
   (declaration
     (variable_decl
-      (type
+      type: (type
         (basic_type))
-      (identifier))))
+      name: (identifier))))
 
 ================================================================================
 Modifier - protected function prototype
@@ -517,9 +501,9 @@ protected void foo();
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters))))
 
 ================================================================================
@@ -532,13 +516,13 @@ public int bar() { return 1; }
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters)
-      (block
+      body: (block
         (return_statement
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -552,10 +536,9 @@ public int bar() { return 1; }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))))))
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
 
 ================================================================================
 Variadic parameters
@@ -567,15 +550,15 @@ void foo(int ... args) {}
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier)))
-      (block))))
+          name: (identifier)))
+      body: (block))))
 
 ================================================================================
 Attribute declaration
@@ -589,11 +572,11 @@ __attribute__("test") void foo() {}
     (attribute
       (string_literal))
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters)
-      (block))))
+      body: (block))))
 
 ================================================================================
 Constant function
@@ -605,13 +588,13 @@ int constant bar() { return 1; }
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters)
-      (block
+      body: (block
         (return_statement
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -625,10 +608,9 @@ int constant bar() { return 1; }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))))))
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
 
 ================================================================================
 Deprecated modifier
@@ -640,11 +622,11 @@ __deprecated__ void old() {}
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
+      name: (identifier)
       parameters: (parameters)
-      (block))))
+      body: (block))))
 
 ================================================================================
 Backtick function
@@ -656,21 +638,21 @@ int `+(int a, int b) { return a+b; }
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (backtick_identifier)
+      name: (backtick_identifier)
       parameters: (parameters
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier))
+          name: (identifier))
         (parameter
-          (type
+          type: (type
             (basic_type))
-          (identifier)))
-      (block
+          name: (identifier)))
+      body: (block
         (return_statement
-          (comma_expr
+          value: (comma_expr
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -685,18 +667,16 @@ int `+(int a, int b) { return a+b; }
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))
-                                  (mul_expr
-                                    (unary_expr
-                                      (prefix_expr
-                                        (chain_expr
+                                        (postfix_expr
                                           (primary_expr
                                             (identifier_expr
-                                              name: (identifier))))))))))))))))))))))))
+                                              name: (identifier)))))))
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier)))))))))))))))))))))))
 
 ================================================================================
 Typedef complex
@@ -708,10 +688,10 @@ typedef mapping(string:int) StringMap;
 (program
   (declaration
     (typedef_decl
-      (type
+      type: (type
         (basic_type
           (type
             (basic_type))
           (type
             (basic_type))))
-      (identifier))))
+      name: (identifier))))
