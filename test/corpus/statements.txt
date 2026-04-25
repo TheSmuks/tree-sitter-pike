@@ -2,7 +2,9 @@
 If statement - simple
 ================================================================================
 { if (x) return 1; }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (if_statement
@@ -20,13 +22,12 @@ If statement - simple
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))))
       (return_statement
         (comma_expr
           (assign_expr
@@ -42,90 +43,18 @@ If statement - simple
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal))))))))))))))))))))))))
-
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
 ================================================================================
 If-else statement
 ================================================================================
 { if (x) return 1; else return 0; }
---------------------------------------------------------------------------------
-(program
-  (block
-    (if_statement
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))))
-      (return_statement
-        (comma_expr
-          (assign_expr
-            (cond_expr
-              (lor_expr
-                (land_expr
-                  (bitor_expr
-                    (bitxor_expr
-                      (bitand_expr
-                        (eq_expr
-                          (rel_expr
-                            (shift_expr
-                              (add_expr
-                                (mul_expr
-                                  (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal)))))))))))))))))))))
-      (return_statement
-        (comma_expr
-          (assign_expr
-            (cond_expr
-              (lor_expr
-                (land_expr
-                  (bitor_expr
-                    (bitxor_expr
-                      (bitand_expr
-                        (eq_expr
-                          (rel_expr
-                            (shift_expr
-                              (add_expr
-                                (mul_expr
-                                  (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal))))))))))))))))))))))))
 
-================================================================================
-If-else with blocks
-================================================================================
-{ if (x > 0) { return 1; } else { return 0; } }
 --------------------------------------------------------------------------------
+
 (program
   (block
     (if_statement
@@ -139,78 +68,145 @@ If-else with blocks
                     (bitand_expr
                       (eq_expr
                         (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))))
+      (return_statement
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
                           (rel_expr
                             (shift_expr
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (power_expr
                                     (prefix_expr
                                       (chain_expr
                                         (postfix_expr
                                           (primary_expr
                                             (integer_literal))))))))))))))))))))
-      (block
-        (return_statement
-          (comma_expr
-            (assign_expr
-              (cond_expr
-                (lor_expr
-                  (land_expr
-                    (bitor_expr
-                      (bitxor_expr
-                        (bitand_expr
-                          (eq_expr
-                            (rel_expr
-                              (shift_expr
-                                (add_expr
-                                  (mul_expr
-                                    (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal))))))))))))))))))))))
-      (block
-        (return_statement
-          (comma_expr
-            (assign_expr
-              (cond_expr
-                (lor_expr
-                  (land_expr
-                    (bitor_expr
-                      (bitxor_expr
-                        (bitand_expr
-                          (eq_expr
-                            (rel_expr
-                              (shift_expr
-                                (add_expr
-                                  (mul_expr
-                                    (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal)))))))))))))))))))))))))
+      (return_statement
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
+================================================================================
+If-else with blocks
+================================================================================
+{ if (x > 0) { return 1; } else { return 0; } }
 
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (if_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal)))))))))))))))))))
+      (block
+        (return_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))))
+      (block
+        (return_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))))))
 ================================================================================
 While statement
 ================================================================================
 { while (i > 0) i--; }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (while_statement
@@ -229,23 +225,21 @@ While statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (power_expr
                                     (prefix_expr
                                       (chain_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (integer_literal))))))))))))))))))))
+                                            (identifier_expr
+                                              name: (identifier)))))))))))
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal)))))))))))))))))))
       (expression_statement
         (comma_expr
           (assign_expr
@@ -261,20 +255,20 @@ While statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
                                           (postfix_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (identifier_expr
-                                                  name: (identifier))))))))))))))))))))))))))
-
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))))))))))))))))))))))))
 ================================================================================
 Do-while statement
 ================================================================================
 { do { x++; } while (x < 10); }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (do_while_statement
@@ -294,14 +288,13 @@ Do-while statement
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
                                             (postfix_expr
-                                              (postfix_expr
-                                                (primary_expr
-                                                  (identifier_expr
-                                                    name: (identifier))))))))))))))))))))))))
+                                              (primary_expr
+                                                (identifier_expr
+                                                  name: (identifier)))))))))))))))))))))))
       (comma_expr
         (assign_expr
           (cond_expr
@@ -317,29 +310,28 @@ Do-while statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (power_expr
                                     (prefix_expr
                                       (chain_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (integer_literal)))))))))))))))))))))))
-
+                                            (identifier_expr
+                                              name: (identifier)))))))))))
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
 ================================================================================
 For statement
 ================================================================================
 { for (i = 0; i < 10; i++) write("%d\n", i); }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (for_statement
@@ -357,13 +349,12 @@ For statement
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -377,39 +368,6 @@ For statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal)))))))))))))))))))))
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (rel_expr
-                            (shift_expr
-                              (add_expr
-                                (mul_expr
-                                  (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (power_expr
                                     (prefix_expr
                                       (chain_expr
                                         (postfix_expr
@@ -425,18 +383,47 @@ For statement
                     (bitand_expr
                       (eq_expr
                         (rel_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))
                           (shift_expr
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal)))))))))))))))))))
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
                                         (postfix_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))))))))))))
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))))))))))))
       (expression_statement
         (comma_expr
           (assign_expr
@@ -452,63 +439,61 @@ For statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (call_expr
-                                                function: (postfix_expr
-                                                  (primary_expr
-                                                    (identifier_expr
-                                                      name: (identifier))))
-                                                (argument_list
-                                                  (comma_expr
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (string_literal)))))))))))))))))))
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (identifier_expr
-                                                                                          name: (identifier))))))))))))))))))))))))))))))))))))))))))))))
-
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (call_expr
+                                              function: (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))
+                                              (argument_list
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (string_literal))))))))))))))))))
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (identifier_expr
+                                                                                      name: (identifier))))))))))))))))))))))))))))))))))))))))))))
 ================================================================================
 Foreach two-arg
 ================================================================================
 { foreach(arr, val) write("%O\n", val); }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (foreach_statement
@@ -526,13 +511,12 @@ Foreach two-arg
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))))
       (foreach_lvalues
         (comma_expr
           (assign_expr
@@ -548,13 +532,12 @@ Foreach two-arg
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))))))))))))
       (expression_statement
         (comma_expr
           (assign_expr
@@ -570,63 +553,61 @@ Foreach two-arg
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (call_expr
-                                                function: (postfix_expr
-                                                  (primary_expr
-                                                    (identifier_expr
-                                                      name: (identifier))))
-                                                (argument_list
-                                                  (comma_expr
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (string_literal)))))))))))))))))))
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (identifier_expr
-                                                                                          name: (identifier))))))))))))))))))))))))))))))))))))))))))))))
-
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (call_expr
+                                              function: (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))
+                                              (argument_list
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (string_literal))))))))))))))))))
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (identifier_expr
+                                                                                      name: (identifier))))))))))))))))))))))))))))))))))))))))))))
 ================================================================================
 Foreach three-arg
 ================================================================================
 { foreach(data; key; val) write("%O: %O\n", key, val); }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (foreach_statement
@@ -644,13 +625,12 @@ Foreach three-arg
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))))
       (foreach_lvalues
         (comma_expr
           (assign_expr
@@ -666,13 +646,12 @@ Foreach three-arg
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier)))))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))))
         (comma_expr
           (assign_expr
             (cond_expr
@@ -687,13 +666,12 @@ Foreach three-arg
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier))))))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier)))))))))))))))))))))
       (expression_statement
         (comma_expr
           (assign_expr
@@ -709,84 +687,81 @@ Foreach three-arg
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (call_expr
-                                                function: (postfix_expr
-                                                  (primary_expr
-                                                    (identifier_expr
-                                                      name: (identifier))))
-                                                (argument_list
-                                                  (comma_expr
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (string_literal)))))))))))))))))))
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (identifier_expr
-                                                                                          name: (identifier)))))))))))))))))))))
-                                                  (comma_expr
-                                                    (assign_expr
-                                                      (cond_expr
-                                                        (lor_expr
-                                                          (land_expr
-                                                            (bitor_expr
-                                                              (bitxor_expr
-                                                                (bitand_expr
-                                                                  (eq_expr
-                                                                    (rel_expr
-                                                                      (shift_expr
-                                                                        (add_expr
-                                                                          (mul_expr
-                                                                            (unary_expr
-                                                                              (power_expr
-                                                                                (prefix_expr
-                                                                                  (chain_expr
-                                                                                    (postfix_expr
-                                                                                      (primary_expr
-                                                                                        (identifier_expr
-                                                                                          name: (identifier))))))))))))))))))))))))))))))))))))))))))))))
-
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (call_expr
+                                              function: (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))
+                                              (argument_list
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (string_literal))))))))))))))))))
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (identifier_expr
+                                                                                      name: (identifier))))))))))))))))))))
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (prefix_expr
+                                                                              (chain_expr
+                                                                                (postfix_expr
+                                                                                  (primary_expr
+                                                                                    (identifier_expr
+                                                                                      name: (identifier))))))))))))))))))))))))))))))))))))))))))))
 ================================================================================
 Switch statement
 ================================================================================
 { switch(x) { case 1: break; case 2: return; default: break; } }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (switch_statement
@@ -804,13 +779,12 @@ Switch statement
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))))
       (block
         (case_clause
           (comma_expr
@@ -827,12 +801,11 @@ Switch statement
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal)))))))))))))))))))))
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))
         (break_statement)
         (case_clause
           (comma_expr
@@ -849,21 +822,21 @@ Switch statement
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal)))))))))))))))))))))
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))
         (return_statement)
         (default_clause)
         (break_statement)))))
-
 ================================================================================
 Return statements
 ================================================================================
 { return 0; return; break return "error"; }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (return_statement
@@ -881,12 +854,11 @@ Return statements
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))
     (return_statement)
     (return_statement
       (comma_expr
@@ -903,30 +875,31 @@ Return statements
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (string_literal)))))))))))))))))))))))
-
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (string_literal))))))))))))))))))))))
 ================================================================================
 Break and continue
 ================================================================================
 { break; continue; break label; }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (break_statement)
     (continue_statement)
     (break_statement
       (identifier))))
-
 ================================================================================
 Labeled statement
 ================================================================================
 { label: for (;;) break label; }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (labeled_statement
@@ -934,12 +907,13 @@ Labeled statement
       (for_statement
         (break_statement
           (identifier))))))
-
 ================================================================================
 Block statement
 ================================================================================
 { { x = 1; x++; } }
+
 --------------------------------------------------------------------------------
+
 (program
   (block
     (block
@@ -958,13 +932,12 @@ Block statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier)))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -978,12 +951,11 @@ Block statement
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal))))))))))))))))))))))
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))))
       (expression_statement
         (comma_expr
           (assign_expr
@@ -999,12 +971,10 @@ Block statement
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
                                           (postfix_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (identifier_expr
-                                                  name: (identifier))))))))))))))))))))))))))
-
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))))))))))))))))))))))))

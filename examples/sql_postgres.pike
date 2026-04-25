@@ -7,7 +7,7 @@
 
 // Cannot dump this since the #if constant(...) check below may depend
 // on the presence of system libs at runtime.
-optional constant dont_dump_program = 1;
+constant dont_dump_program = 1;
 
 #if constant(Postgres.postgres)
 
@@ -129,7 +129,7 @@ private string has_relexpires = "unknown";
 //! Should you need to report a bug to the author, please submit along with
 //! the report the driver version number, as returned by this call.
 
-private protected string|zero glob_to_regexp (string glob) {
+private protected string glob_to_regexp (string glob) {
 	if (!glob||!sizeof(glob))
 		return 0;
 	return "^"+replace(glob,({"*","?","'","\\"}),({".*",".","\\'","\\\\"}))+"$";
@@ -174,8 +174,8 @@ protected private int mkbool(string s) {
 //!
 //! @seealso
 //!   @[Sql.pgsql], @[Postgres.postgres], @[Sql.Sql], @[postgres->select_db]
-protected void create(void|string host, void|string database, void|string user,
-		      void|string _pass, void|mapping options) {
+void create(void|string host, void|string database, void|string user,
+	    void|string _pass, void|mapping options) {
 	string pass = _pass;
 	_pass = "CENSORED";
 	string real_host=host, real_db=database;
@@ -184,7 +184,7 @@ protected void create(void|string host, void|string database, void|string user,
 	if (stringp(host)&&(search(host,":")>=0))
 		if (sscanf(host,"%s:%d",real_host,port)!=2)
 			ERROR("Error in parsing the hostname argument.\n");
-
+	
 	mo::create(real_host||"",real_db||"",user||"",pass||"",port);
 }
 
@@ -205,8 +205,8 @@ protected void poll (int delay)
 //! put previously, and any polling cycle.
 //!
 //! With one argument, sets the notification callback (there can be only
-//! one for each sqlobject).
-//!
+//! one for each sqlobject). 
+//! 
 //! With two arguments, sets a notification callback and sets a polling
 //! cycle.
 //!
@@ -214,7 +214,7 @@ protected void poll (int delay)
 //! delivered, that is piggyback with a query result. This means that
 //! if you don't do any query, you'll receive no notification. The polling
 //! cycle starts a call_out cycle which will do an empty query when
-//! the specified interval expires, so that pending notifications
+//! the specified interval expires, so that pending notifications 
 //! may be delivered.
 //!
 //! The callback function must return no value, and takes a string argument,
@@ -242,7 +242,7 @@ void set_notify_callback(int|function f, int|float|void poll_delay) {
 		return;
 	}
 	mo::_set_notify_callback(f);
-	if(poll_delay>0)
+	if(poll_delay>0) 
 		poll(poll_delay);
 }
 
@@ -394,8 +394,8 @@ array(mapping(string:mixed)) list_fields (string table, void|string wild)
 //!
 //! It returns a postgres_result object (which conforms to the
 //! @[Sql.sql_result] standard interface for accessing data). I
-//! recommend using @[Sql.Connection()->query()] for simpler queries
-//! (because it is easier to handle, but stores all the result in memory), and
+//! recommend using @[Sql.Sql()->query()] for simpler queries (because it is
+//! easier to handle, but stores all the result in memory), and
 //! @[big_query()] for queries you expect to return huge amounts of
 //! data (it's harder to handle, but fetches results on demand).
 //!
@@ -405,7 +405,7 @@ array(mapping(string:mixed)) list_fields (string table, void|string wild)
 //! @seealso
 //!   @[Sql.Sql], @[Sql.sql_result]
 int|object big_query(object|string q, mapping(string|int:mixed)|void bindings)
-{
+{  
   if(stringp(q) && String.width(q)>8)
     q=string_to_utf8(q);
   if (!bindings)

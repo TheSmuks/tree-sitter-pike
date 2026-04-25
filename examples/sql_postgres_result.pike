@@ -6,6 +6,6 @@
 
 // Cannot dump this since the #require check may depend on the
 // presence of system libs at runtime.
-optional constant dont_dump_program = 1;
+constant dont_dump_program = 1;
 
 inherit Postgres.postgres_result;

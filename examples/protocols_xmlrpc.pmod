@@ -51,7 +51,7 @@ class Call(string method_name, array params)
   //! datatypes have been converted to equivalent or similar datatypes
   //! in Pike.
 
-  protected string _sprintf(int t)
+  string _sprintf(int t)
   {
     return t=='O' && sprintf("%O(%O, %d param%s)", this_program,
 			     method_name, sizeof(params),
@@ -72,7 +72,7 @@ class Fault(int fault_code, string fault_string)
   //! @decl int fault_string
   //! Represents @tt{faultString@} in the XML-RPC standard.
 
-  protected string _sprintf(int t)
+  string _sprintf(int t)
   {
     return t=='O' && sprintf("%O(%O, %O)", this_program,
 			     fault_code, fault_string);
@@ -176,7 +176,7 @@ protected constant response_dtd = #"
 "+common_dtd_fragment+#"]>
 ";
 
-// One more fix because some people found the specs too easy and
+// One more fix because some people found the specs too easy and 
 // decided that you can have <value>test</value>
 // (that is omitting string inside a value).
 protected class StringWrap(string s){};
@@ -368,7 +368,7 @@ protected string encode_params(array params)
 class Client(string|Standards.URI url, int|void boolean)
 {
 
-  protected function `[](string call)
+  function `[](string call)
   {
     return lambda(mixed ... args)
 	   {
@@ -385,7 +385,7 @@ class Client(string|Standards.URI url, int|void boolean)
 	   };
   }
 
-  protected string _sprintf(int t)
+  string _sprintf(int t)
   {
     return t=='O' && sprintf("%O(%O)", this_program, url);
   }
@@ -420,7 +420,7 @@ class AsyncClient
   protected string _url;
   protected int _boolean;
 
-  protected void create(string|Standards.URI|Protocols.HTTP.Session.SessionURL url, int|void boolean)
+  void create(string|Standards.URI|Protocols.HTTP.Session.SessionURL url, int|void boolean)
   {
     _url = url;
     _boolean = boolean;
@@ -439,7 +439,7 @@ class AsyncClient
     user_data_ok(result);
   }
 
-  protected function `[](string call)
+  function `[](string call)
   {
      return lambda(function data_ok, function fail, mixed ...args)
      {

@@ -113,9 +113,9 @@ protected class StringRange
     if (high < 0) high = 0;
     if (low > len) low = len;
     if (high > len) high = len;
-    if (!low && (high == len)) return this;
+    if (!low && (high == len)) return this_object();
     if ((high - low) < 65536) return data[start+low..start+high-1];
-    return StringRange(this, low, high);
+    return StringRange(this_object(), low, high);
   }
   protected int `[](int pos)
   {
@@ -157,11 +157,26 @@ protected class StringRange
     if (c == 'O')
       return sprintf("StringRange(%d bytes[%d..%d] %O)",
 		     data && sizeof(data), start, end-1, data && data[..40]);
-    return (string)this;
+    return (string)this_object();
   }
 }
 
-private string|zero boundary_prefix;
+#if (__REAL_VERSION__ < 7.8) || ((__REAL_VERSION__) < 7.9 && (__REAL_BUILD__ < 413))
+// Compat with some older Pikes...
+
+// Support has_prefix on objects.
+protected int(0..1) has_prefix(string|object s, string prefix)
+{
+  if (!objectp(s)) return predef::has_prefix(s, prefix);
+  for(int i = 0; i < sizeof(prefix); i++) {
+    if (s[i] != prefix[i]) return 0;
+  }
+  return 1;
+}
+
+#endif
+
+private string boundary_prefix;
 
 //! Set a message boundary prefix. The @[MIME.generate_boundary()] will use this
 //! prefix when creating a boundary string.
@@ -243,7 +258,7 @@ string generate_boundary( )
 //! @seealso
 //! @[MIME.encode()]
 //!
-string|StringRange decode( string|StringRange data, void|string encoding )
+string|StringRange decode( string|StringRange data, string encoding )
 {
   switch (lower_case( encoding || "binary" )) {
   case "base64":
@@ -285,7 +300,7 @@ string|StringRange decode( string|StringRange data, void|string encoding )
 //! @seealso
 //! @[MIME.decode()]
 //!
-string encode( string data, void|string encoding, void|string filename,
+string encode( string data, string encoding, void|string filename,
 	       void|int no_linebreaks )
 {
   switch (lower_case( encoding || "binary" )) {
@@ -306,10 +321,10 @@ string encode( string data, void|string encoding, void|string filename,
 }
 
 //! Extracts the textual content and character set from an @i{encoded word@}
-//! as specified by @rfc{1522@}/@rfc{2047@}.  The result is an array where the
-//! first element is the raw text, and the second element the name of the
-//! character set. If the input string is not an encoded word, the result is
-//! still an array, but the char set element will be set to 0.
+//! as specified by @rfc{1522@}.  The result is an array where the first element
+//! is the raw text, and the second element the name of the character set.
+//! If the input string is not an encoded word, the result is still an array,
+//! but the char set element will be set to 0.
 //!
 //! @note
 //! Note that this function can only be applied to individual encoded words.
@@ -352,7 +367,7 @@ array(string) decode_word( string word )
 //! @seealso
 //! @[MIME.decode_word()]
 //!
-string encode_word( string|array(string|zero) word, string|zero encoding )
+string encode_word( string|array(string) word, string encoding )
 {
   if (stringp(word))
     return word;
@@ -377,7 +392,7 @@ string encode_word( string|array(string|zero) word, string|zero encoding )
   return "=?"+word[1]+"?"+encoding[0..0]+"?"+ enc +"?=";
 }
 
-protected string remap(array(string|zero) item)
+protected string remap(array(string) item)
 {
   if (sizeof(item)>1 && item[1])
     return Charset.decoder(item[1])->feed(item[0])->drain();
@@ -390,7 +405,7 @@ protected array(string) reremap(string word, string|function(string:string) sele
 {
   if(max(@values(word))<128)
     return ({ word,0 });
-  string s = stringp(selector)? selector : ([function]selector)(word);
+  string s = stringp(selector)? selector : selector(word);
   return s?
     ({ Charset.encoder(s,replacement,repcb)->feed(word)->drain(), s }) :
     ({ word,0 });
@@ -448,7 +463,7 @@ array(array(string)) decode_words_text( string txt )
 //!
 string decode_words_text_remapped( string txt )
 {
-  return map(decode_words_text(txt), remap)*"";
+  return Array.map(decode_words_text(txt), remap)*"";
 }
 
 //! Tokenizes a header value just like @[MIME.tokenize()], but also
@@ -464,7 +479,7 @@ string decode_words_text_remapped( string txt )
 //!
 array(array(string)|int) decode_words_tokenized( string phrase, int|void flags )
 {
-  return map(tokenize(phrase, flags),
+  return Array.map(tokenize(phrase, flags),
 		   lambda(string|int item) {
 		     return intp(item)? item : decode_word(item);
 		   });
@@ -482,7 +497,7 @@ array(array(string)|int) decode_words_tokenized( string phrase, int|void flags )
 array(string|int) decode_words_tokenized_remapped( string phrase,
 						   int|void flags )
 {
-  return map(decode_words_tokenized(phrase, flags),
+  return Array.map(decode_words_tokenized(phrase, flags),
 		   lambda(array(string)|int item) {
 		     return intp(item)? item : remap(item);
 		   });
@@ -514,7 +529,7 @@ array(string|int) decode_words_tokenized_remapped( string phrase,
 array(array(string|int|array(array(string))))
 decode_words_tokenized_labled( string phrase, int|void flags )
 {
-  return map( tokenize_labled( phrase, flags ),
+  return Array.map( tokenize_labled( phrase, flags ),
 		    lambda(array(string|int) item) {
 		      switch(item[0]) {
 		      case "encoded-word":
@@ -537,60 +552,17 @@ decode_words_tokenized_labled( string phrase, int|void flags )
 array(array(string|int))
 decode_words_tokenized_labled_remapped(string phrase, int|void flags)
 {
-  return map(decode_words_tokenized_labled(phrase, flags),
+  return Array.map(decode_words_tokenized_labled(phrase, flags),
 		   lambda(array(string|int|array(array(string|int))) item) {
 		     switch(item[0]) {
 		     case "word":
 		       return ({ "word", remap(item[1..]) });
 		     case "comment":
-		       return ({ "comment", map(item[1], remap)*"" });
+		       return ({ "comment", Array.map(item[1], remap)*"" });
 		     default:
 		       return item;
 		     }
 		   });
-}
-
-//! Decodes the given string as a key-value parameter cascade
-//! according to e.g. @rfc{7239:4@}.
-//!
-//! @note
-//! This function will decode all conforming inputs, but it will also
-//! be forgiving when presented with non-conforming inputs.
-//!
-//! @seealso
-//! @[encode_headerfield_params]
-array(ADT.OrderedMapping(<string, string>)) decode_headerfield_params (string s)
-{
-  array(ADT.OrderedMapping(<string, string>)) totres = ({});
-  ADT.OrderedMapping(<string, string>) mapres =
-    ADT.OrderedMapping(<string, string>)();
-  string key, goteq;
-  int nextset;	   // Fake a terminating ',' to ensure proper post-processing
-  foreach (MIME.tokenize(s) + ({ ',' }); ; int|string token) {
-    switch (token) {
-      case ',':
-        nextset = 1;
-      case ';':
-        token = goteq;
-        goteq = 0;
-        break;
-      case '=':
-        goteq = "";
-        continue;
-      default:
-        if (key)
-          break;
-        key = token; goteq = 0;
-        continue;
-    }
-    if (key)
-      mapres[key] = token, key = 0;
-    if (nextset && sizeof(mapres))
-      totres += ({ mapres }),
-        mapres = ADT.OrderedMapping(<string, string>)();
-    nextset = 0;
-  }
-  return totres;
 }
 
 //! The inverse of @[decode_words_text()], this function accepts
@@ -642,7 +614,7 @@ string encode_words_text(array(string|array(string)) phrase, string encoding)
 //!   The @[repcb] argument to use when calling @[Charset.encoder]
 //!
 //! @seealso
-//! @[MIME.encode_words_quoted_remapped]
+//! @[MIME.encode_words_tokenized_remapped]
 //!
 string encode_words_text_remapped(string text, string encoding,
 				  string|function(string:string) charset,
@@ -688,7 +660,7 @@ string encode_words_text_remapped(string text, string encoding,
 //!
 string encode_words_quoted(array(array(string)|int) phrase, string encoding)
 {
-  return quote(map(phrase, lambda(array(string)|int item) {
+  return quote(Array.map(phrase, lambda(array(string)|int item) {
 				   return intp(item)? item :
 				     encode_word(item, encoding);
 				 }));
@@ -734,7 +706,7 @@ string encode_words_quoted_remapped(array(string|int) phrase, string encoding,
 string encode_words_quoted_labled(array(array(string|int|array(string|array(string)))) phrase, string encoding)
 {
   return
-    quote_labled(map(phrase,
+    quote_labled(Array.map(phrase,
 			   lambda(array(string|int|array(string)) item) {
 			     switch(item[0]) {
 			     case "word":
@@ -792,31 +764,6 @@ string encode_words_quoted_labled_remapped(array(array(string|int)) phrase,
 				  }));
 }
 
-//! Encodes the given key-value parameters as a string
-//! according to e.g. @rfc{7239:4@}.
-//!
-//! @seealso
-//! @[decode_headerfield_params]
-string encode_headerfield_params(array(mapping(string:string)|
-                                       ADT.OrderedMapping(<string, string>)) params)
-{
-  array res = ({});
-  int sep;
-  foreach (params; ;
-           mapping(string:string)|ADT.OrderedMapping(<string, string>) m) {
-    foreach (m; string key; string value) {
-      if (sep)
-        res += ({ sep });
-      res += ({ (string)key });
-      if (value)
-        res += ({ '=', (string)value });
-      sep = ';';
-    }
-    sep = ',';
-  }
-  return MIME.quote(res);
-}
-
 //! Provide a reasonable default for the subtype field.
 //!
 //! Some pre-@rfc{1521@} mailers provide only a type and no subtype in the
@@ -834,7 +781,7 @@ string encode_headerfield_params(array(mapping(string:string)|
 //!     @expr{"mixed"@}
 //! @endstring
 //!
-string|zero guess_subtype( string type )
+string guess_subtype( string type )
 {
   switch (type) {
   case "text":
@@ -865,16 +812,11 @@ string|zero guess_subtype( string type )
 //! The first element is a mapping containing the headers found.  The second
 //! element is a string containing the body.
 //!
-//! Headers that occur multiple times will have their contents NUL separated,
+//! Headers that occurr multiple times will have their contents NUL separated,
 //! unless @[use_multiple] has been specified, in which case the contents will
 //! be arrays.
 //!
-//! @note
-//! Some headers (eg Subject) may include @rfc{1522@}/@rfc{2047@} encoded words. To
-//! decode these, see @[decode_words_text] and @[decode_words_tokenized] and
-//! their friends.
-//!
-array(mapping(string:string|array(string))|string|StringRange)
+array(mapping(string:string|array(string))|string|StringRange) 
   parse_headers(string|StringRange message, void|int(1..1) use_multiple)
 {
   string head, header, hname, hcontents;
@@ -900,7 +842,7 @@ array(mapping(string:string|array(string))|string|StringRange)
   }
   mapping(string:string|array) headers = ([ ]);
   foreach( replace(head, ({"\r", "\n ", "\n\t"}),
-		   ({"", " ", " "}))/"\n", header )
+		   ({"", " ", " "}))/"\n", header ) 
   {
     if(4==sscanf(header, "%[!-9;-~]%*[ \t]:%*[ \t]%s", hname, hcontents))
     {
@@ -950,11 +892,6 @@ class Message {
   //! @[type], @[subtype], @[charset], @[boundary], @[transfer_encoding],
   //! @[params], @[disposition], @[disp_params], @[setencoding()],
   //! @[setparam()], @[setdisp_param()], @[setcharset()], @[setboundary()]
-  //!
-  //! @note
-  //! Some headers (eg Subject) may include @rfc{1522@}/@rfc{2047@} encoded words. To
-  //! decode these, see @[decode_words_text] and @[decode_words_tokenized] and
-  //! their friends.
   //!
   mapping(string:string) headers;
 
@@ -1095,7 +1032,7 @@ class Message {
   //! @seealso
   //! @[MIME.reconstruct_partial()]
   //!
-  array(string|int)|zero is_partial( )
+  array(string|int) is_partial( )
   {
     return (type == "message" && subtype == "partial") &&
       ({ params["id"], (int)params["number"], (int)(params["total"]||"0") });
@@ -1110,7 +1047,7 @@ class Message {
   //! Do not use this method unless you know what you are doing.
   //!
   //! @seealso
-  //! @[getdata()], @[setencoding()], @[data]
+  //! @[getdata()], @[setencoded], @[data]
   //!
   void setdata( string data )
   {
@@ -1145,7 +1082,7 @@ class Message {
   //! be interpreted.
   //!
   //! @seealso
-  //! @[setdata()], @[setencoding()], @[data]
+  //! @[setdata()], @[getencoded()], @[data]
   //!
   string getdata( )
   {
@@ -1190,7 +1127,7 @@ class Message {
   {
     if(encoded_data && !decoded_data)
       decoded_data = getdata( );
-    headers["content-transfer-encoding"] = transfer_encoding =
+    headers["content-transfer-encoding"] = transfer_encoding = 
       lower_case( encoding );
     encoded_data = 0;
   }
@@ -1303,14 +1240,14 @@ class Message {
   {
     string data;
     object body_part;
-
+    
     if (dest_type != "string")
       return UNDEFINED;
-
+    
     data = getencoded( );
-
+    
     if (body_parts) {
-
+      
       if (!boundary) {
 	if (type != "multipart") {
 	  type = "multipart";
@@ -1318,13 +1255,13 @@ class Message {
 	}
 	setboundary( generate_boundary( ) );
       }
-
+      
       data += "\r\n";
       foreach( body_parts, body_part )
 	data += "--"+boundary+"\r\n"+((string)body_part)+"\r\n";
       data += "--"+boundary+"--\r\n";
     }
-
+    
     headers["content-length"] = ""+sizeof(data);
 
     return map( indices(headers),
@@ -1461,10 +1398,10 @@ class Message {
   //!
   //! @seealso
   //! @[cast()]
-  protected void create(void | string|StringRange message,
-			void | mapping(string:string|array(string)) hdrs,
-			void | array(object) parts,
-			void | int guess)
+  void create(void | string|StringRange message,
+	      void | mapping(string:string|array(string)) hdrs,
+	      void | array(object) parts,
+	      void | int guess)
   {
     encoded_data = 0;
     decoded_data = 0;
@@ -1535,7 +1472,7 @@ class Message {
 	arr = arr2;
 	arr2 = 0;
       }
-
+      
       array(string|int) p;
       if(sizeof(arr[0])!=1 || !stringp(arr[0][0]))
       {
@@ -1594,7 +1531,7 @@ class Message {
 
 	// Skip past the separator and any white space after it.
 	found += sizeof(separator);
-	string|zero terminator = data[found..found+1];
+	string terminator = data[found..found+1];
 	if (terminator == "--") {
 	  found += 2;
 	} else {
@@ -1642,7 +1579,7 @@ class Message {
   {
     if (c == 'O')
       return sprintf("Message(%O)", disp_params);
-    return (string)this;
+    return (string)this_object();
   }
 }
 
@@ -1712,7 +1649,7 @@ int|object reconstruct_partial(array(object) collection)
     mapping(string:string) enclosing_headers = parts[1]->headers;
 
     object reconstructed =
-      Message(`+(@map(sort(indices(parts)),
+      Message(`+(@Array.map(sort(indices(parts)),
 			    lambda(int i, mapping(int:object) parts){
 	return parts[i]->getencoded();
       }, parts)));
@@ -1728,4 +1665,18 @@ int|object reconstruct_partial(array(object) collection)
     }
     return reconstructed;
   } else return (maxgot>total? -1 : total-got);
+}
+
+//! Encode strings according to @rfc{4648@} base64url encoding.
+string(7bit) encode_base64url(string(8bit) x)
+{
+  x = replace(encode_base64(x,1),({ "+", "/" }),({ "-", "_" }));
+  while( sizeof(x) && x[-1]=='=' ) x=x[..<1];
+  return x;
+}
+
+//! Decode strings according to @rfc{4648@} base64url encoding.
+string(8bit) decode_base64url(string(7bit) x)
+{
+  return decode_base64(replace(x,({ "-", "_" }),({ "+", "/" })));
 }

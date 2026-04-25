@@ -37,8 +37,6 @@ export default grammar({
     [$.inherit_specifier, $.this_expr],
     [$.scope_expr, $.inherit_specifier],
     [$.primary_expr, $.import_decl],
-    // static_assertion can be declaration or expression
-    [$.primary_expr, $.declaration],
     // cast vs parenthesized expression
     [$.cast_expr, $.primary_expr],
     // parameter type vs expression
@@ -119,7 +117,7 @@ export default grammar({
 
     _assign_op: _ => choice(
       '=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=',
-      '<<=', '>>=', '**=', '?=',
+      '<<=', '>>=',
     ),
 
     cond_expr: $ => choice(
@@ -178,17 +176,13 @@ export default grammar({
     ),
 
     unary_expr: $ => choice(
-      $.power_expr,
+      $.prefix_expr,
       prec(1, seq('!', $.cast_expr)),
       prec(1, seq('~', $.cast_expr)),
       prec(1, seq('-', $.cast_expr)),
       prec(1, seq('+', $.cast_expr)),
     ),
 
-    power_expr: $ => choice(
-      $.prefix_expr,
-      prec.right(seq($.prefix_expr, '**', $.power_expr)),
-    ),
 
     prefix_expr: $ => choice(
       $.chain_expr,
@@ -201,7 +195,6 @@ export default grammar({
       seq($.chain_expr, '->?', $.magic_identifier),
       seq($.chain_expr, '[?', $._expr, ']'),
       seq($.chain_expr, '[?', optional(choice($._expr, seq('<', $._expr))), '..', optional(choice($._expr, seq('<', $._expr))), ']'),
-      seq($.chain_expr, '(?', optional(commaSep($._expr)), ')', optional($.block)),
     ),
 
     postfix_expr: $ => choice(
@@ -234,8 +227,6 @@ export default grammar({
       $.typeof_expr,
       $.sscanf_expr,
       $.lambda_expr,
-      $.generic_selection,
-      $.static_assertion,
       $.anon_class,
       $.anon_enum,
       $.scope_expr,
@@ -286,22 +277,11 @@ export default grammar({
     ),
 
     lambda_expr: $ => seq(
-      optional(choice('__generator__', '__async__')),
       'lambda',
       field('parameters', $.parameters),
       field('body', $.block),
     ),
 
-    generic_selection: $ => seq(
-      '_Generic', '(', $._expr, ',',
-      commaSep1($.generic_assoc), ')',
-    ),
-
-    generic_assoc: $ => seq($.type, ':', $._expr),
-
-    static_assertion: $ => seq(
-      '_Static_assert', '(', $._expr, ',', $._expr, ')',
-    ),
 
     scope_expr: $ => seq($.inherit_specifier, choice($.identifier, $.magic_identifier)),
 
@@ -330,10 +310,9 @@ export default grammar({
       'mapping', 'multiset', 'object', 'program', 'function', 'auto',
       'private', 'protected', 'public', 'static', 'extern',
       'inline', 'local', 'final', 'variant', 'optional', 'global', 'nomask',
-      '__attribute__', '__deprecated__', '__experimental__',
-      '__func__', '__async__', '__generator__', '__generic__',
-      '_Generic', '__weak__', '__unused__', '__unknown__',
-      'predef', '_Static_assert', 'bits',
+      '__attribute__', '__deprecated__',
+      '__func__',
+      'predef', 'bits',
     ),
 
     generic_bindings: $ => seq('(<', commaSep1($.type), '>)'),
@@ -420,7 +399,7 @@ export default grammar({
     ),
 
     basic_type: $ => choice(
-      'float', 'void', 'mixed', '__unknown__', 'auto',
+      'float', 'void', 'mixed', 'auto',
       seq('string', optional($._string_width)),
       seq('int', optional($._int_range)),
       seq('mapping', optional($._mapping_type)),
@@ -431,7 +410,6 @@ export default grammar({
       seq('multiset', optional($._multiset_type)),
       seq('__attribute__', '(', $.string_literal, ',', $.type, ')'),
       seq('__deprecated__', '(', $.type, ')'),
-      seq('__experimental__', '(', $.type, ')'),
     ),
 
     _int_range: $ => seq('(', choice(
@@ -483,7 +461,6 @@ export default grammar({
         $.typedef_decl,
         $.import_decl,
         $.inherit_decl,
-        $.static_assertion,
         $.block,
       ),
     ),
@@ -491,7 +468,6 @@ export default grammar({
     _modifier: _ => choice(
       'private', 'protected', 'public', 'static', 'extern',
       'inline', 'local', 'final', 'variant', 'optional', 'global', 'nomask',
-      '__generator__', '__async__',
     ),
 
     annotation: $ => seq('@', $._expr),

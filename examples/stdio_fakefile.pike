@@ -3,17 +3,13 @@
 //! A string wrapper that pretends to be a @[Stdio.File] object
 //! in addition to some features of a @[Stdio.FILE] object.
 
-@Pike.Annotations.Implements(Stdio.BlockFile);
-@Pike.Annotations.Implements(Stdio.NonblockingStream);
 
 //! This constant can be used to distinguish a FakeFile object
 //! from a real @[Stdio.File] object.
 constant is_fake_file = 1;
 
-// FIXME: These two variables ought to be changed to using Stdio.Buffer.
 protected string data;
 protected int ptr;
-
 protected int(0..1) r;
 protected int(0..1) w;
 protected int mtime;
@@ -46,7 +42,7 @@ int close(void|string direction) {
 //! @decl void create(string data, void|string type, void|int pointer)
 //! @seealso
 //!   @[Stdio.File()->create()]
-protected void create(string _data, void|string type, int|void _ptr) {
+void create(string _data, void|string type, int|void _ptr) {
   if(!_data) error("No data string given to FakeFile.\n");
   data = _data;
   ptr = _ptr;
@@ -130,11 +126,11 @@ int(-1..1) peek(int|float|void timeout) {
 //! Always returns 0.
 //! @seealso
 //!   @[Stdio.File()->query_address()]
-string|zero query_address(void|int(0..1) is_local) { return 0; }
+string query_address(void|int(0..1) is_local) { return 0; }
 
 //! @seealso
 //!   @[Stdio.File()->read()]
-string|zero read(void|int(0..) len, void|int(0..1) not_all) {
+string read(void|int(0..) len, void|int(0..1) not_all) {
   if(!r) return 0;
   if (len < 0) error("Cannot read negative number of characters.\n");
   int start=ptr;
@@ -148,7 +144,7 @@ string|zero read(void|int(0..) len, void|int(0..1) not_all) {
 
 //! @seealso
 //!   @[Stdio.FILE()->gets()]
-string|zero gets() {
+string gets() {
   if(!r) return 0;
   string ret;
   sscanf(data,"%*"+(string)ptr+"s%[^\n]",ret);
@@ -185,11 +181,10 @@ int getchar() {
 //!   @[Stdio.FILE()->unread()]
 void unread(string s) {
   if(!r) return;
-  if(data[ptr-sizeof(s)..ptr-1]==s) {
-    ptr -= sizeof(s);
-    if (read_cb)
-      call_out(read_cb, 0, id, s);
-  } else {
+  if(data[ptr-sizeof(s)..ptr-1]==s)
+    ptr-=sizeof(s);
+  else
+  {
     data=s+data[ptr..];
     ptr=0;
   }
@@ -246,41 +241,6 @@ int(0..1) truncate(int length) {
   return sizeof(data)==length;
 }
 
-private void do_call_read_cb(function(mixed, string:void) read_cb,
-			     mixed id, string s)
-{
-  mixed err = catch {
-      read_cb(id, s);
-    };
-  if (err) {
-    master()->handle_error(err);
-  }
-  do_readcb();
-}
-
-private void do_readcb() {
-  if (read_cb && ptr < sizeof(data)) {
-    string s = data[ptr..];
-    ptr = sizeof(data);
-    call_out(do_call_read_cb, 0, read_cb, id, s);
-  } else if (ptr == sizeof(data)) {
-    function cb;
-    if (write_cb) {
-      cb = write_cb;
-#if 0 // NB: write_oob() is not supported.
-    } else if (write_oob_cb) {
-      cb = write_oob_cb;
-#endif /* 0 */
-    } else if (close_cb) {
-      cb = close_cb;
-      close_cb = 0;	      // Close callback only once please
-    }
-    if (cb) {
-      call_out(cb, 0, id);
-    }
-  }
-}
-
 //! @seealso
 //!   @[Stdio.File()->write()]
 int(-1..) write(string|array(string) str, mixed ... extra) {
@@ -291,8 +251,6 @@ int(-1..) write(string|array(string) str, mixed ... extra) {
   if(ptr==sizeof(data)) {
     data += str;
     ptr = sizeof(data);
-    if (read_cb)
-      call_out(read_cb, 0, id, str);
   }
   else if(sizeof(str)==1)
     data[ptr++] = str[0];
@@ -321,72 +279,62 @@ void set_blocking_keep_callbacks() { }
 
 //! @seealso
 //!   @[Stdio.File()->set_blocking]
-void set_nonblocking(Stdio.read_callback_t rcb,
-                     Stdio.write_callback_t wcb,
-                     Stdio.close_callback_t ccb,
-                     void|Stdio.read_oob_callback_t rocb,
-                     void|Stdio.write_oob_callback_t wocb) {
+void set_nonblocking(function rcb, function wcb, function ccb,
+		     function rocb, function wocb) {
   read_cb = rcb;
   write_cb = wcb;
   close_cb = ccb;
   read_oob_cb = rocb;
   write_oob_cb = wocb;
-  do_readcb();
 }
 
 //! @seealso
 //!   @[Stdio.File()->set_blocking_keep_callbacks]
 void set_nonblocking_keep_callbacks() { }
 
-//! @seealso
-//!   @[Stdio.File()->set_nodelay]
-int(0..1) set_nodelay(int(0..1)|void state) { }
 
 //! @seealso
 //!   @[Stdio.File()->set_close_callback]
-void set_close_callback(Stdio.close_callback_t cb) { close_cb = cb; }
+void set_close_callback(function cb) { close_cb = cb; }
 
 //! @seealso
 //!   @[Stdio.File()->set_read_callback]
-void set_read_callback(Stdio.read_callback_t cb) {
-  read_cb = cb;
-  do_readcb();
-}
+void set_read_callback(function cb) { read_cb = cb; }
 
 //! @seealso
 //!   @[Stdio.File()->set_read_oob_callback]
-void set_read_oob_callback(Stdio.read_oob_callback_t cb) { read_oob_cb = cb; }
+void set_read_oob_callback(function cb) { read_oob_cb = cb; }
 
 //! @seealso
 //!   @[Stdio.File()->set_write_callback]
-void set_write_callback(Stdio.write_callback_t cb) { write_cb = cb; }
+void set_write_callback(function cb) { write_cb = cb; }
 
 //! @seealso
 //!   @[Stdio.File()->set_write_oob_callback]
-void set_write_oob_callback(Stdio.write_oob_callback_t cb) { write_oob_cb = cb; }
+void set_write_oob_callback(function cb) { write_oob_cb = cb; }
 
 
 //! @seealso
 //!   @[Stdio.File()->query_close_callback]
-function|zero query_close_callback() { return close_cb; }
+function query_close_callback() { return close_cb; }
 
 //! @seealso
 //!   @[Stdio.File()->query_read_callback]
-function|zero query_read_callback() { return read_cb; }
+function query_read_callback() { return read_cb; }
 
 //! @seealso
 //!   @[Stdio.File()->query_read_oob_callback]
-function|zero query_read_oob_callback() { return read_oob_cb; }
+function query_read_oob_callback() { return read_oob_cb; }
 
 //! @seealso
 //!   @[Stdio.File()->query_write_callback]
-function|zero query_write_callback() { return write_cb; }
+function query_write_callback() { return write_cb; }
 
 //! @seealso
 //!   @[Stdio.File()->query_write_oob_callback]
-function|zero query_write_oob_callback() { return write_oob_cb; }
+function query_write_oob_callback() { return write_oob_cb; }
 
-protected string _sprintf(int t) {
+string _sprintf(int t) {
   return t=='O' && sprintf("%O(%d,%O)", this_program, sizeof(data),
 			   make_type_str());
 }
@@ -402,14 +350,13 @@ protected mixed cast(string to) {
 }
 
 //! Sizeof on a FakeFile returns the size of its contents.
-protected int(0..) _sizeof() {
+int(0..) _sizeof() {
   return sizeof(data);
 }
 
 //! @ignore
 
-#define LOW_NOPE(X) error("This is a FakeFile. %s is not available.\n", #X)
-#define NOPE(X) mixed X (mixed ... args) { LOW_NOPE(X); }
+#define NOPE(X) mixed X (mixed ... args) { error("This is a FakeFile. %s is not available.\n", #X); }
 NOPE(assign);
 NOPE(async_connect);
 NOPE(connect);
@@ -417,18 +364,18 @@ NOPE(connect_unix);
 NOPE(open);
 NOPE(open_socket);
 NOPE(pipe);
-mapping(string(7bit):int) tcgetattr() { LOW_NOPE(tcgetattr); }
-int tcsetattr(mapping(string:int) attr, string|void when) { LOW_NOPE(tcsetattr); }
+NOPE(tcgetattr);
+NOPE(tcsetattr);
 
 // Stdio.Fd
 NOPE(dup2);
 NOPE(lock); // We could implement this
 NOPE(proxy); // We could implement this
 NOPE(query_fd);
-string read_oob(void|int(0..) nbytes) { LOW_NOPE(read_oob); }
+NOPE(read_oob);
 NOPE(set_close_on_exec);
 NOPE(set_keepalive);
 NOPE(trylock); // We could implement this
-int(-1..) write_oob(string data) { LOW_NOPE(write_oob); }
+NOPE(write_oob);
 
 //! @endignore

@@ -48,7 +48,15 @@ int id = ADT.get_item_id();
 //!   Data to be decoded and populate the struct. Can
 //!   either be a file object or a string.
 optional protected void create(void|string|object file) {
-  foreach(::_indices(this, 0), string index) {
+  foreach(
+#if __BUILD__ < 368
+	  // NB: Prior to 8.0.368 the new-style argument checking in _indices()
+	  //     was broken.
+	  ::_indices(2),
+#else
+	  ::_indices(this, 0),
+#endif
+	  string index) {
     mixed val = ::`[](index, this, 0);
     if(objectp(val) && val->is_item) names[index]=val;
   }
@@ -152,7 +160,7 @@ class Item {
   void set(mixed in) { value=in; }
   mixed get() { return value; }
 
-  protected int _sizeof() { return size; }
+  int _sizeof() { return size; }
 
   protected string _sprintf(int t) {
     return t=='O' && sprintf("%O(%O)", this_program, value);
@@ -169,7 +177,7 @@ class Byte {
   protected int(0..255) value;
 
   //! The byte can be initialized with an optional value.
-  protected void create(int(0..255) initial_value = 0) {
+  protected void create(void|int(0..255) initial_value) {
     set(initial_value);
   }
 
@@ -197,7 +205,7 @@ class SByte {
   protected int(-128..127) value;
 
   //! The byte can be initialized with an optional value.
-  protected void create(int(-128..127) initial_value = 0) {
+  protected void create(void|int(-128..127) initial_value) {
     set(initial_value);
   }
 
@@ -227,7 +235,7 @@ class Word {
   protected int(0..) value;
 
   //! The word can be initialized with an optional value.
-  protected void create(int(0..65535) initial_value = 0) {
+  protected void create(void|int(0..65535) initial_value) {
     set(initial_value);
   }
 
@@ -253,7 +261,7 @@ class SWord {
   protected int value;
 
   //! The word can be initialized with an optional value.
-  protected void create(int(-32768..32767) initial_value = 0) {
+  protected void create(void|int(-32768..32767) initial_value) {
     set(initial_value);
   }
 
@@ -293,7 +301,7 @@ class Long {
   int size = 4;
 
   //! The longword can be initialized with an optional value.
-  protected void create(int(0..) initial_value = 0) {
+  protected void create(void|int(0..) initial_value) {
     set(initial_value);
   }
 }
@@ -305,7 +313,7 @@ class SLong {
   int size = 4;
 
   //! The longword can be initialized with an optional value.
-  protected void create(int initial_value = 0) {
+  protected void create(void|int initial_value) {
     set(initial_value);
   }
 }
@@ -318,7 +326,7 @@ class Gnol {
   int size = 4;
 
   //! The longword can be initialized with an optional value.
-  protected void create(int(0..) initial_value = 0) {
+  protected void create(void|int(0..) initial_value) {
     set(initial_value);
   }
 }
@@ -376,11 +384,10 @@ class Varchars {
   inherit Chars;
   protected int min,max;
 
-  protected void create(int _min = 0, int _max = 0,
-			string _value = " " * _min) {
+  protected void create(void|int _min, void|int _max, void|string _value) {
     min = _min;
     max = _max;
-    set(_value);
+    set(_value || " "*min);
   }
 
   void set(string in) {

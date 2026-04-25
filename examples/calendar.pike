@@ -1,5 +1,3 @@
-/* -*- mode: Pike; c-basic-offset: 3; -*- */
-
 #pike __REAL_VERSION__
 
 //! This is the base class of the calendars.

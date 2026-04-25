@@ -2,6 +2,7 @@
 Variable declaration - int with initializer
 ================================================================================
 int x = 1;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -24,17 +25,16 @@ int x = 1;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))))))
-
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
 ================================================================================
 Variable declaration - string without initializer
 ================================================================================
 string name;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -43,11 +43,11 @@ string name;
       (type
         (basic_type))
       (identifier))))
-
 ================================================================================
 Variable declaration - multiple declarators
 ================================================================================
 int a = 1, b = 2;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -70,12 +70,11 @@ int a = 1, b = 2;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (integer_literal)))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))
         (assign_expr
           (cond_expr
             (lor_expr
@@ -89,13 +88,12 @@ int a = 1, b = 2;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier)))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -109,17 +107,16 @@ int a = 1, b = 2;
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal))))))))))))))))))))))))
-
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal)))))))))))))))))))))))
 ================================================================================
 Function declaration - with parameters and body
 ================================================================================
 int add(int a, int b) { return a + b; }
+
 --------------------------------------------------------------------------------
 
 (program
@@ -154,27 +151,25 @@ int add(int a, int b) { return a + b; }
                                   (add_expr
                                     (mul_expr
                                       (unary_expr
-                                        (power_expr
-                                          (prefix_expr
-                                            (chain_expr
-                                              (postfix_expr
-                                                (primary_expr
-                                                  (identifier_expr
-                                                    name: (identifier))))))))))
-                                  (mul_expr
-                                    (unary_expr
-                                      (power_expr
                                         (prefix_expr
                                           (chain_expr
                                             (postfix_expr
                                               (primary_expr
                                                 (identifier_expr
-                                                  name: (identifier))))))))))))))))))))))))))
-
+                                                  name: (identifier)))))))))
+                                  (mul_expr
+                                    (unary_expr
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))))))))))))))))))))))))
 ================================================================================
 Function declaration - void no params empty body
 ================================================================================
 void foo() {}
+
 --------------------------------------------------------------------------------
 
 (program
@@ -185,11 +180,11 @@ void foo() {}
       (identifier)
       parameters: (parameters)
       (block))))
-
 ================================================================================
 Class declaration - with members
 ================================================================================
 class Foo { int x; void create(int x) { this_program::x = x; } }
+
 --------------------------------------------------------------------------------
 
 (program
@@ -228,14 +223,13 @@ class Foo { int x; void create(int x) { this_program::x = x; } }
                                       (add_expr
                                         (mul_expr
                                           (unary_expr
-                                            (power_expr
-                                              (prefix_expr
-                                                (chain_expr
-                                                  (postfix_expr
-                                                    (primary_expr
-                                                      (scope_expr
-                                                        (inherit_specifier)
-                                                        (identifier)))))))))))))))))))
+                                            (prefix_expr
+                                              (chain_expr
+                                                (postfix_expr
+                                                  (primary_expr
+                                                    (scope_expr
+                                                      (inherit_specifier)
+                                                      (identifier))))))))))))))))))
                     (assign_expr
                       (cond_expr
                         (lor_expr
@@ -249,18 +243,17 @@ class Foo { int x; void create(int x) { this_program::x = x; } }
                                         (add_expr
                                           (mul_expr
                                             (unary_expr
-                                              (power_expr
-                                                (prefix_expr
-                                                  (chain_expr
-                                                    (postfix_expr
-                                                      (primary_expr
-                                                        (identifier_expr
-                                                          name: (identifier))))))))))))))))))))))))))))))
-
+                                              (prefix_expr
+                                                (chain_expr
+                                                  (postfix_expr
+                                                    (primary_expr
+                                                      (identifier_expr
+                                                        name: (identifier)))))))))))))))))))))))))))))
 ================================================================================
 Enum declaration - simple
 ================================================================================
 enum Color { RED, GREEN, BLUE }
+
 --------------------------------------------------------------------------------
 
 (program
@@ -273,11 +266,11 @@ enum Color { RED, GREEN, BLUE }
         (identifier))
       (enum_member
         (identifier)))))
-
 ================================================================================
 Enum declaration - with explicit values
 ================================================================================
 enum Flags { A = 1, B = 2, C = 4 }
+
 --------------------------------------------------------------------------------
 
 (program
@@ -300,12 +293,11 @@ enum Flags { A = 1, B = 2, C = 4 }
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal)))))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal))))))))))))))))))))
       (enum_member
         (identifier)
         (comma_expr
@@ -322,12 +314,11 @@ enum Flags { A = 1, B = 2, C = 4 }
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (integer_literal)))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (integer_literal))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -341,13 +332,12 @@ enum Flags { A = 1, B = 2, C = 4 }
                               (add_expr
                                 (mul_expr
                                   (unary_expr
-                                    (power_expr
-                                      (prefix_expr
-                                        (chain_expr
-                                          (postfix_expr
-                                            (primary_expr
-                                              (identifier_expr
-                                                name: (identifier)))))))))))))))))))
+                                    (prefix_expr
+                                      (chain_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))
             (assign_expr
               (cond_expr
                 (lor_expr
@@ -361,17 +351,16 @@ enum Flags { A = 1, B = 2, C = 4 }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal)))))))))))))))))))))))))
-
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))))))
 ================================================================================
 Constant declaration
 ================================================================================
 constant PI = 3.14;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -392,17 +381,16 @@ constant PI = 3.14;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (float_literal)))))))))))))))))))))))
-
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (float_literal))))))))))))))))))))))
 ================================================================================
 Inherit declaration - qualified path
 ================================================================================
 inherit Stdio.File;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -422,21 +410,20 @@ inherit Stdio.File;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (dot_expr
-                                              (primary_expr
-                                                (identifier_expr
-                                                  name: (identifier)))
-                                              (identifier))))))))))))))))))))))))
-
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (dot_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))
+                                            (identifier)))))))))))))))))))))))
 ================================================================================
 Inherit declaration - string path with alias
 ================================================================================
 inherit "foo.pike" : bar;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -444,11 +431,11 @@ inherit "foo.pike" : bar;
     (inherit_decl
       (string_literal)
       (identifier))))
-
 ================================================================================
 Import declaration
 ================================================================================
 import Stdio;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -468,18 +455,17 @@ import Stdio;
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))))))))))))))))))))))
-
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier)))))))))))))))))))))))
 ================================================================================
 Typedef declaration - mapping type
 ================================================================================
 typedef mapping(string:string) StringMap;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -492,11 +478,11 @@ typedef mapping(string:string) StringMap;
           (type
             (basic_type))))
       (identifier))))
-
 ================================================================================
 Modifier - private variable
 ================================================================================
 private int x;
+
 --------------------------------------------------------------------------------
 
 (program
@@ -505,11 +491,11 @@ private int x;
       (type
         (basic_type))
       (identifier))))
-
 ================================================================================
 Modifier - protected function prototype
 ================================================================================
 protected void foo();
+
 --------------------------------------------------------------------------------
 
 (program
@@ -519,11 +505,11 @@ protected void foo();
         (basic_type))
       (identifier)
       parameters: (parameters))))
-
 ================================================================================
 Modifier - public function with body
 ================================================================================
 public int bar() { return 1; }
+
 --------------------------------------------------------------------------------
 
 (program
@@ -549,17 +535,16 @@ public int bar() { return 1; }
                                 (add_expr
                                   (mul_expr
                                     (unary_expr
-                                      (power_expr
-                                        (prefix_expr
-                                          (chain_expr
-                                            (postfix_expr
-                                              (primary_expr
-                                                (integer_literal)))))))))))))))))))))))))
-
+                                      (prefix_expr
+                                        (chain_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))))))
 ================================================================================
 Annotation - deprecated function
 ================================================================================
 @deprecated void old_func() {}
+
 --------------------------------------------------------------------------------
 
 (program
@@ -579,24 +564,23 @@ Annotation - deprecated function
                             (add_expr
                               (mul_expr
                                 (unary_expr
-                                  (power_expr
-                                    (prefix_expr
-                                      (chain_expr
-                                        (postfix_expr
-                                          (primary_expr
-                                            (identifier_expr
-                                              name: (identifier))))))))))))))))))))))
+                                  (prefix_expr
+                                    (chain_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            name: (identifier)))))))))))))))))))))
     (function_decl
       (type
         (basic_type))
       (identifier)
       parameters: (parameters)
       (block))))
-
 ================================================================================
 Variadic parameters
 ================================================================================
 void foo(int ... args) {}
+
 --------------------------------------------------------------------------------
 
 (program

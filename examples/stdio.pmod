@@ -1,4 +1,3 @@
-#charset utf-8
 #pike __REAL_VERSION__
 
 inherit _Stdio;
@@ -11,9 +10,9 @@ inherit _Stdio;
 
 //#define BACKEND_DEBUG
 #ifdef BACKEND_DEBUG
-#define BE_WERR(X ...) werror("FD %O: %s\n", _fd, sprintf(X))
+#define BE_WERR(X) werror("FD %O: %s\n", _fd, X)
 #else
-#define BE_WERR(X ...)
+#define BE_WERR(X)
 #endif
 
 // TRACK_OPEN_FILES is a debug tool to track down where a file is
@@ -27,73 +26,9 @@ inherit _Stdio;
 
 constant LineIterator = __builtin.file_line_iterator;
 
-// Avoid dependency circularity.
-// NB: This is safe as we only use various errnos and cp() from System.
-private constant System = _system;
-
 final constant DATA_CHUNK_SIZE = 64 * 1024;
 //! Size used in various places to divide incoming or outgoing data
 //! into chunks.
-
-//! The Stdio.InputStream API.
-//!
-//! This class exists purely for typing reasons.
-//!
-//! Use in types in place of @[Stdio.File] where only blocking
-//! stream-oriented I/O in the read direction is done with the object.
-//!
-//! This class lists the minimum functionality guaranteed to exist in
-//! all Stream objects that are opened for reading.
-//!
-//! @seealso
-//! @[Stream], @[NonblockingInputStream], @[InputBlockFile], @[File], @[FILE]
-//!
-class InputStream(<string StringType = string(8bit)>)
-{
-  //!
-  StringType|zero read(int(0..)|void nbytes);
-
-  function(:StringType|zero) read_function(int nbytes)
-  //! Returns a function that when called will call @[read] with
-  //! nbytes as argument. Can be used to get various callback
-  //! functions, eg for the fourth argument to
-  //! @[String.SplitIterator].
-  {
-    return lambda()
-    {
-      return read(nbytes);
-    };
-  }
-
-  //! Close the stream.
-  int close();
-
-  //!
-  optional StringType|zero read_oob(int(0..)|void nbytes);
-  optional mapping(string(7bit):int)|zero tcgetattr();
-  optional int tcsetattr(mapping(string(7bit):int) attr,
-                         string(7bit)|void when);
-}
-
-//! Mixin for converting an @[InputStream] into a @[Stream].
-//!
-//! This class exists purely for typing reasons.
-//!
-//! @note
-//!   Typically you will not want to use this class
-//!   directly, but instead use one of the classes
-//!   that inherits it.
-//!
-//! @seealso
-//!   @[InputStream], @[Stream], @[BlockFile]
-class OutputStreamMixin(<string StringType = string(8bit)>)
-{
-  //!
-  int(-1..) write(StringType data);
-
-  //!
-  optional int(-1..) write_oob(StringType data);
-}
 
 //! The Stdio.Stream API.
 //!
@@ -106,16 +41,24 @@ class OutputStreamMixin(<string StringType = string(8bit)>)
 //! all Stream objects.
 //!
 //! @seealso
-//! @[InputStream], @[NonblockingStream], @[BlockFile], @[File], @[FILE]
+//! @[NonblockingStream], @[BlockFile], @[File], @[FILE]
 //!
-class Stream(<string StringType>)
+class Stream
 {
-  inherit InputStream(<StringType>);
+  //!
+  string read(int nbytes);
 
-  inherit OutputStreamMixin(<StringType>);
+  //!
+  int write(string data);
 
-  //! @decl @Pike.Annotations.Implements(InputStream)
-  @__builtin.Implements(InputStream);
+  //!
+  void close();
+
+  //!
+  optional string read_oob(int nbytes);
+  optional int write_oob(string data);
+  optional mapping(string:int) tcgetattr();
+  optional int tcsetattr(mapping(string:int) attr, string|void when);
 }
 
 //! Argument to @[Stdio.File()->tcsetattr()].
@@ -134,10 +77,69 @@ constant TCSADRAIN = "TCSADRAIN";
 //! and empty the input buffers.
 constant TCSAFLUSH = "TCSAFLUSH";
 
+//! The Stdio.NonblockingStream API.
+//!
+//! This class exists purely for typing reasons.
+//!
+//! Use in types in place of @[Stdio.File] where nonblocking and/or
+//! blocking stream-oriented I/O is done with the object.
+//!
+//! @seealso
+//! @[Stream], @[BlockFile], @[File], @[FILE]
+//!
+class NonblockingStream
+{
+  inherit Stream;
+
+  //!
+  NonblockingStream set_read_callback( function f, mixed ... rest );
+  NonblockingStream set_write_callback( function f, mixed ... rest );
+  NonblockingStream set_close_callback( function f, mixed ... rest );
+  NonblockingStream set_fs_event_callback( function f, int event_mask, mixed ... rest );
+
+  //!
+  optional NonblockingStream set_read_oob_callback(function f, mixed ... rest)
+  {
+    error("OOB not implemented for this stream type\n");
+  }
+  optional NonblockingStream set_write_oob_callback(function f, mixed ... rest)
+  {
+    error("OOB not implemented for this stream type\n");
+  }
+
+  //!
+  void set_nonblocking( function a, function b, function c,
+                        function|void d, function|void e);
+
+  //!
+  void set_blocking();
+}
+
+//! The Stdio.BlockFile API.
+//!
+//! This class exists purely for typing reasons.
+//!
+//! Use in types in place of @[Stdio.File] where only blocking
+//! I/O is done with the object.
+//!
+//! @seealso
+//! @[Stream], @[NonblockingStream], @[File], @[FILE]
+//!
+class BlockFile
+{
+  inherit Stream;
+
+  //!
+  int seek(int to, string|void how);
+
+  //!
+  int tell();
+}
+
 //! The various read_callback signatures.
 //!
 //! The string (or void) version is used when buffer mode (see
-//! @[File()->set_buffer_mode()]) has not been enabled for reading.
+//! @[set_buffer_mode]) has not been enabled for reading.
 //!
 //! The @[Buffer] version is used when a @[Buffer] has been enabled
 //! for reading.
@@ -148,172 +150,19 @@ constant TCSAFLUSH = "TCSAFLUSH";
 local typedef
   function(mixed|void,string:int|void)|
   function(mixed|void,Buffer:int|void)|
-  function(mixed|void:int|void)|zero read_callback_t;
+  function(mixed|void:int|void) read_callback_t;
 
 //! The various write_callback signatures.
 //!
 //! The void version is used when buffer mode (see
-//! @[File()->set_buffer_mode()]) has not been enabled for writing.
+//! @[set_buffer_mode]) has not been enabled for writing.
 //!
 //! The @[Buffer] version is used when a @[Buffer] has been enabled
 //! for writing, add data to that buffer to send it.
 local typedef
   function(mixed|void:int|void) |
-  function(mixed|void,Buffer:int|void)|zero write_callback_t;
+  function(mixed|void,Buffer:int|void) write_callback_t;
 
-//! The type for close callback functions.
-local typedef function(mixed|void:int)|zero close_callback_t;
-
-//! The type for read out of band callback functions.
-local typedef function(mixed|void,string|void:int)|zero read_oob_callback_t;
-
-//! The type for write out of band callback functions.
-local typedef function(mixed|void:int)|zero write_oob_callback_t;
-
-//! The type for fs_event callback function functions.
-local typedef function(mixed|void,int:int)|zero fs_event_callback_t;
-
-//! The Stdio.NonblockingInputStream API.
-//!
-//! This class exists purely for typing reasons.
-//!
-//! Use in types in place of @[Stdio.File] where nonblocking and/or
-//! blocking stream-oriented I/O is done with the object.
-//!
-//! @seealso
-//! @[InputStream], @[NonblockingStream], @[InputBlockFile], @[File], @[FILE]
-//!
-class NonblockingInputStream(<string StringType = string(8bit)>)
-{
-  inherit InputStream(<StringType>);
-
-  //! @decl @Pike.Annotations.Implements(InputStream)
-  @__builtin.Implements(InputStream);
-
-  //!
-  void set_read_callback( read_callback_t f );
-  void set_close_callback( close_callback_t f );
-  optional void set_fs_event_callback( fs_event_callback_t f, int event_mask);
-
-  //!
-  optional void set_read_oob_callback(read_oob_callback_t f)
-  {
-    error("OOB not implemented for this stream type\n");
-  }
-
-  //!
-  void set_nonblocking( read_callback_t a, write_callback_t b,
-                        close_callback_t c,
-                        read_oob_callback_t|void d, write_oob_callback_t|void e);
-
-  //!
-  void set_nonblocking_keep_callbacks();
-
-  //!
-  void set_blocking();
-
-  //!
-  void set_blocking_keep_callbacks();
-
-  //!
-  int(0..1) set_nodelay(int(0..1)|void state);
-}
-
-//! Mixin for converting a @[NonblockingInputStream]
-//! into a @[NonblockingStream].
-//!
-//! This class exists purely for typing reasons.
-//!
-//! @note
-//!   Typically you will not want to use this class
-//!   directly, but instead use one of the classes
-//!   that inherits it.
-//!
-//! @seealso
-//!   @[NonblockingInputStream], @[NonblockingStream]
-class NonblockingOutputStreamMixin(<string StringType = string(8bit)>)
-{
-  inherit OutputStreamMixin(<StringType>);
-
-  //!
-  void set_write_callback( write_callback_t f );
-
-  //!
-  optional void set_write_oob_callback(write_oob_callback_t f)
-  {
-    error("OOB not implemented for this stream type\n");
-  }
-}
-
-//! The Stdio.NonblockingStream API.
-//!
-//! This class exists purely for typing reasons.
-//!
-//! Use in types in place of @[Stdio.File] where nonblocking and/or
-//! blocking stream-oriented I/O is done with the object.
-//!
-//! @seealso
-//! @[Stream], @[NonblockingInputStream], @[BlockFile], @[File], @[FILE]
-//!
-class NonblockingStream(<string StringType = string(8bit)>)
-{
-  inherit NonblockingInputStream(<StringType>);
-
-  //! @decl @Pike.Annotations.Implements(Stream)
-  @__builtin.Implements(Stream);
-
-  inherit NonblockingOutputStreamMixin(<StringType>);
-}
-
-//! The Stdio.InputBlockFile API.
-//!
-//! This class exists purely for typing reasons.
-//!
-//! Use in types in place of @[Stdio.File] where only blocking
-//! I/O in the read direction is done with the object.
-//!
-//! @seealso
-//! @[InputStream], @[NonblockingInputStream], @[BlockFile], @[File], @[FILE]
-//!
-class InputBlockFile(<string StringType = string(8bit)>)
-{
-  inherit InputStream(<StringType>);
-
-  //! @decl @Pike.Annotations.Implements(InputStream)
-  @__builtin.Implements(InputStream);
-
-  //!
-  int seek(int to, string(7bit)|void how);
-
-  //!
-  int tell();
-}
-
-// Name reserved for future compat.
-constant OutputBlockFileMixin = OutputStreamMixin;
-
-//! The Stdio.BlockFile API.
-//!
-//! This class exists purely for typing reasons.
-//!
-//! Use in types in place of @[Stdio.File] where only blocking
-//! I/O is done with the object.
-//!
-//! @seealso
-//! @[Stream], @[NonblockingStream], @[InputBlockFile], @[File], @[FILE]
-//!
-class BlockFile(<string StringType = string(8bit)>)
-{
-  inherit InputBlockFile(<StringType>);
-
-  inherit OutputStreamMixin(<StringType>);
-
-  //! @decl @Pike.Annotations.Implements(InputBlockFile)
-  @__builtin.Implements(InputBlockFile);
-
-  //! @decl @Pike.Annotations.Implements(Stream)
-  @__builtin.Implements(Stream);
-}
 
 //! This is the basic I/O object, it provides socket and pipe
 //! communication as well as file access. It does not buffer reads and
@@ -331,14 +180,7 @@ class BlockFile(<string StringType = string(8bit)>)
 //! @[Stdio.FILE]
 class File
 {
-  //!
   optional inherit Fd;
-
-  //! @decl @Pike.Annotations.Implements(NonblockingStream)
-  @__builtin.Implements(NonblockingStream);
-
-  //! @decl @Pike.Annotations.Implements(BlockFile)
-  @__builtin.Implements(BlockFile);
 
   // This is needed in case we get overloaded by strange code
   // (socktest.pike).
@@ -349,36 +191,16 @@ class File
 
   protected Stdio.Buffer inbuffer, outbuffer;
 
-  protected void buffer_write()
-  {
-      if ((::mode() & PROP_IS_NONBLOCKING)) {
-        ::set_write_callback (___write_callback && __stdio_write_callback);
-      } else {
-        // We may get called internally with empty buffers. Shouldn't happen
-        // in calls actually coming from Stdio.Buffer().
-        if (sizeof(outbuffer)) {
-          int written = ::write(outbuffer);
-
-          if (written >= 0)
-            outbuffer->consume(written);
-        }
-
-        outbuffer->__set_on_write(buffer_write);
-      }
-  }
-
   //! Toggle the file to Buffer mode.
   //!
   //! In this mode reading and writing will be done via Buffer
   //! objects, in the directions you included buffers.
   //!
   //! @param in
-  //!   Input buffer. If this buffer is non-empty, its contents
-  //!   will be returned after any already received data.
+  //!   Input buffer.
   //!
   //! @param out
-  //!   Output buffer. If this buffer is non-empty, its contents
-  //!   will be sent after any data already queued for sending.
+  //!   Output buffer.
   //!
   //! @note
   //!  Normally you call @[write] to re-trigger the write callback if
@@ -389,25 +211,15 @@ class File
   //!  adding more data to the output buffer will work as well.
   //!
   //! @seealso
-  //!  @[query_buffer_mode()]
+  //!  @[get_buffer_mode()]
   void set_buffer_mode( Stdio.Buffer|int(0..0) in,Stdio.Buffer|int(0..0) out )
   {
-    if (in && inbuffer && sizeof(inbuffer)) {
-      // Behave as if any data in the new buffer was appended
-      // to the old input buffer.
-      in->add(inbuffer->read(), in->read());
-    }
+    // FIXME: Document the semantics for non-empty buffers above.
     inbuffer = in;
-    if (outbuffer) {
-      outbuffer->__set_on_write( 0 );
-      if (out && sizeof(outbuffer)) {
-	// Behave as if any data in the new output buffer was
-	// appended to the old output buffer.
-	out->add(outbuffer->read(), out->read());
-      }
-    }
+    if (outbuffer)
+      outbuffer->__fd_set_output( 0 );
     if( outbuffer = out )
-      buffer_write();
+      outbuffer->__fd_set_output( ::write );
   }
 
   //! Get the active input and output buffers that have been
@@ -438,10 +250,10 @@ class File
 
   protected read_callback_t ___read_callback;
   protected write_callback_t ___write_callback;
-  protected close_callback_t ___close_callback;
-  protected read_oob_callback_t ___read_oob_callback;
-  protected write_oob_callback_t ___write_oob_callback;
-  protected fs_event_callback_t ___fs_event_callback;
+  protected function(mixed|void:int) ___close_callback;
+  protected function(mixed|void,string|void:int) ___read_oob_callback;
+  protected function(mixed|void:int) ___write_oob_callback;
+  protected function(mixed|void,int:int) ___fs_event_callback;
   protected mixed ___id;
 
 #ifdef __STDIO_DEBUG
@@ -469,18 +281,18 @@ class File
     return ::errno();
   }
 
-  protected string(8bit)|int debug_file;
-  protected string|zero debug_mode;
+  protected string|int debug_file;
+  protected string debug_mode;
   protected int debug_bits;
 
-  optional void _setup_debug( string(8bit) f, string(7bit)|zero m, int|void b )
+  optional void _setup_debug( string f, string m, int|void b )
   {
     debug_file = f;
     debug_mode = m;
     debug_bits = b;
   }
 
-  protected string|zero _sprintf( int type, mapping flags )
+  protected string _sprintf( int type, mapping flags )
   {
     if(type!='O') return 0;
     return sprintf("%O(%O, %O, %o /* fd=%d */)",
@@ -491,8 +303,8 @@ class File
   }
 
   // @decl int open(int fd, string mode)
-  //! @decl int open(string(8bit) filename, string(7bit) mode)
-  //! @decl int open(string(8bit) filename, string(7bit) mode, int mask)
+  //! @decl int open(string filename, string mode)
+  //! @decl int open(string filename, string mode, int mask)
   //!
   //! Open a file for read, write or append. The parameter @[mode] should
   //! contain one or more of the following letters:
@@ -524,7 +336,7 @@ class File
   //! @seealso
   //! @[close()], @[create()]
   //!
-  int open(string(8bit) file, string(7bit) mode, void|int bits)
+  int open(string file, string mode, void|int bits)
   {
     is_file = 1;
 #ifdef __STDIO_DEBUG
@@ -542,7 +354,7 @@ class File
   }
 
 #if constant(_Stdio.__HAVE_OPENPT__)
-  //! @decl int openpt(string(7bit) mode)
+  //! @decl int openpt(string mode)
   //!
   //! Open the master end of a pseudo-terminal pair.  The parameter
   //! @[mode] should contain one or more of the following letters:
@@ -559,7 +371,7 @@ class File
   //! @seealso
   //! @[grantpt()]
   //!
-  int openpt(string(7bit) mode)
+  int openpt(string mode)
   {
     is_file = 0;
 #ifdef __STDIO_DEBUG
@@ -605,8 +417,8 @@ class File
   //! @seealso
   //! @[connect()], @[set_nonblocking()], @[set_blocking()]
   //!
-  int open_socket(int|string(8bit)|void port, string(7bit)|void address,
-                  int|string(8bit)|void family_hint)
+  int open_socket(int|string|void port, string|void address,
+		  int|string|void family_hint)
   {
     is_file = 0;
 #ifdef __STDIO_DEBUG
@@ -655,16 +467,12 @@ class File
   //!
   //! Note that TCP_FAST_OPEN requires server support, the connection
   //! might fail even though the remote server exists. It might be
-  //! advisable to retry without TCP_FAST_OPEN (and remember this
+  //! advicable to retry without TCP_FAST_OPEN (and remember this
   //! fact)
   //!
   //! @returns
-  //! This function returns @expr{1@} or the remaining @[data] for success,
-  //! @expr{0@} otherwise.
-  //!
-  //! @note
-  //!   To use nonblocking mode, @[open_socket()] and @[set_nonblocking()]
-  //!   (or equivalent) need to be called before this function.
+  //! This function returns 1 or the remaining @[data] for success, 0
+  //! otherwise.
   //!
   //! @note
   //!
@@ -677,10 +485,9 @@ class File
   //! or not.
   //!
   //! @seealso
-  //!   @[query_address()], @[async_connect()], @[connect_unix()],
-  //!   @[open_socket()], @[::connect()]
+  //! @[query_address()], @[async_connect()], @[connect_unix()]
   //!
-  variant int connect(string(7bit) host, int(0..)|string(7bit) port)
+  variant int connect(string host, int(0..)|string port)
   {
 #ifdef __STDIO_DEBUG
     __closed_backtrace=0;
@@ -697,15 +504,15 @@ class File
     }
     return 0;
   }
-  variant int connect(string(7bit) host, int(0..)|string(7bit) port,
-                      string(7bit) client, int(0..)|string(7bit) client_port)
+  variant int connect(string host, int(0..)|string port,
+                      string client, int(0..)|string client_port)
   {
 #ifdef __STDIO_DEBUG
     __closed_backtrace=0;
 #endif
     is_file = 0;
     debug_file = "socket";
-    debug_mode = host+":"+port;
+    debug_mode = host+":"+port; 
     debug_bits = 0;
     if (::connect(host, port, client, client_port))
     {
@@ -715,15 +522,13 @@ class File
     }
     return 0;
   }
-  variant string connect(string(7bit) host, int(0..)|string(7bit) port,
-                         string(8bit) data)
+  variant string connect(string host, int(0..)|string port, string data)
   {
     return connect(host,port,0,0,data);
   }
-  variant string|zero connect(string(7bit) host, int(0..)|string(7bit) port,
-                              int(0..0)|string(7bit) client,
-                              int(0..)|string(7bit) client_port,
-                              string(8bit) data)
+  variant string connect(string host, int(0..)|string port,
+                         int(0..0)|string client, int(0..)|string client_port,
+                         string data)
   {
 #ifdef __STDIO_DEBUG
     __closed_backtrace=0;
@@ -742,9 +547,9 @@ class File
   }
 
 #if constant(_Stdio.__HAVE_CONNECT_UNIX__)
-  int connect_unix(string(8bit) path)
+  int connect_unix(string path)
   //! Open a UNIX domain socket connection to the specified destination.
-  //!
+  //! 
   //! @returns
   //!  Returns @expr{1@} on success, and @expr{0@} on failure.
   //!
@@ -767,13 +572,13 @@ class File
   }
 #endif
 
-  private function(int, __unknown__ ...:void) _async_cb;
+  private function(int, mixed ...:void) _async_cb;
   private array(mixed) _async_args;
   private void _async_check_cb(mixed|void ignored)
   {
     // Copy the args to avoid races.
-    function(int, __unknown__ ...:void) cb = _async_cb;
-    array args = _async_args;
+    function(int, mixed ...:void) cb = _async_cb;
+    array(mixed) args = _async_args;
     _async_cb = 0;
     _async_args = 0;
     set_callbacks (0,0,0,0,0);
@@ -797,7 +602,7 @@ class File
   //!
   //! @seealso
   //!   @[read_function()], @[write()], @[Fd::read()]
-  string(8bit)|zero read(int|void nbytes, int(0..1)|void not_all)
+  string(8bit) read(int|void nbytes, int(0..1)|void not_all)
   {
     if (inbuffer) {
       if (!nbytes) return "";
@@ -816,7 +621,7 @@ class File
     return ::read(nbytes, not_all);
   }
 
-  function(:string(8bit)|zero) read_function(int nbytes)
+  function(:string) read_function(int nbytes)
   //! Returns a function that when called will call @[read] with
   //! nbytes as argument. Can be used to get various callback
   //! functions, eg for the fourth argument to
@@ -829,7 +634,7 @@ class File
   }
 
   String.SplitIterator|LineIterator line_iterator( int|void trim )
-  //! Returns an iterator that will loop over the lines in this file.
+  //! Returns an iterator that will loop over the lines in this file. 
   //! If trim is true, all @tt{'\r'@} characters will be removed from
   //! the input.
   {
@@ -862,8 +667,8 @@ class File
   //!   Extra arguments to pass to @[callback].
   //!
   //! @returns
-  //!   Returns @expr{0@} on failure to open a socket, and @expr{1@}
-  //!   if @[callback] will be used.
+  //!   Returns @expr{0@} on failure, and @expr{1@} if @[callback]
+  //!   will be used.
   //!
   //! @note
   //!   The socket may be opened with @[open_socket()] ahead of
@@ -881,8 +686,8 @@ class File
   //!
   //! @seealso
   //!   @[connect()], @[open_socket()], @[set_nonblocking()]
-  int async_connect(string(7bit) host, int|string(7bit) port,
-		    function(int, __unknown__ ...:void) callback,
+  int async_connect(string host, int|string port,
+		    function(int, mixed ...:void) callback,
 		    mixed ... args)
   {
     if (!is_open() ||
@@ -905,45 +710,18 @@ class File
     _async_cb = callback;
     _async_args = args;
     set_nonblocking(0, _async_check_cb, _async_check_cb, _async_check_cb, 0);
-
+    mixed err;
     int res;
-    mixed err = catch(res = connect(host, port));
-
-    if (err || !res) {
+    if (err = catch(res = connect(host, port))) {
+      // Illegal format. -- Bad hostname?
+      set_callbacks (0, 0, 0, 0, 0);
+      call_out(_async_check_cb, 0);
+    } else if (!res) {
+      // Connect failed.
       set_callbacks (0, 0, 0, 0, 0);
       call_out(_async_check_cb, 0);
     }
-
-    return 1;	// The callback will be used.
-  }
-
-  //! Opens a TCP connection asynchronously using a Concurrent Future
-  //! object.
-  //!
-  //! @param host
-  //!   Hostname or IP to connect to.
-  //!
-  //! @param port
-  //!   Port number or service name to connect to.
-  //!
-  //! @returns
-  //!   Returns a @[Concurrent.Future] that resolves into the
-  //!   connection object at success.
-  variant Concurrent.Future(<this_program>)
-    async_connect(string(7bit) host, int|string(7bit) port)
-  {
-    void attempt_connect(function success, function failure) {
-      void callback(int done) {
-        if( done ) {
-          success(this);
-        } else {
-          failure("Failed to connect to "+host+":"+port+".\n");
-        }
-      }
-      if( !async_connect(host, port, callback) )
-        failure("Failed to open socket.\n");
-    }
-    return Concurrent.Promise(attempt_connect)->future();
+    return 1;	// OK so far. (Or rather the callback will be used).
   }
 
   //! This function creates a pipe between the object it was called in
@@ -997,7 +775,7 @@ class File
   //!   @[PROP_SHUTDOWN], @[PROP_BUFFERED], @[PROP_REVERSE],
   //!   @[PROP_BIDIRECTIONAL], @[PROP_TTY]
   //!
-  object(File)|zero pipe(void|int required_properties)
+  File pipe(void|int required_properties)
   {
 #ifdef __STDIO_DEBUG
     __closed_backtrace=0;
@@ -1018,16 +796,15 @@ class File
   }
 
 #if constant(_Stdio.__HAVE_OPENAT__)
-  //! @decl File openat(string(8bit) filename)
-  //! @decl File openat(string(8bit) filename, string(7bit) mode)
-  //! @decl File openat(string(8bit) filename, string(7bit) mode, int mask)
+  //! @decl File openat(string filename)
+  //! @decl File openat(string filename, string mode)
+  //! @decl File openat(string filename, string mode, int mask)
   //!
   //! Open a file relative to an open directory.
   //!
   //! @seealso
   //!   @[File.statat()], @[File.unlinkat()]
-  object(File)|zero openat(string(8bit) filename,
-                           string(7bit)|void mode, int|void mask)
+  File openat(string filename, string|void mode, int|void mask)
   {
     if(Fd fd = ::openat(filename, mode, mask))
     {
@@ -1050,12 +827,12 @@ class File
 #endif
 
   //! @decl void create()
-  //! @decl void create(string(8bit) filename)
-  //! @decl void create(string(8bit) filename, string(7bit) mode)
-  //! @decl void create(string(8bit) filename, string(7bit) mode, int mask)
-  //! @decl void create(string(8bit) descriptorname)
+  //! @decl void create(string filename)
+  //! @decl void create(string filename, string mode)
+  //! @decl void create(string filename, string mode, int mask)
+  //! @decl void create(string descriptorname)
   //! @decl void create(int fd)
-  //! @decl void create(int fd, string(7bit) mode)
+  //! @decl void create(int fd, string mode)
   //!
   //! There are four basic ways to create a Stdio.File object.
   //! The first is calling it without any arguments, in which case the you'd
@@ -1082,13 +859,12 @@ class File
   //!
   //! @seealso
   //! @[open()], @[connect()], @[Stdio.FILE],
-  protected void create(int|string(8bit)|void file,
-                        void|string(7bit) mode, void|int bits)
+  protected void create(int|string|void file,void|string mode,void|int bits)
   {
     if (undefinedp(file))
       return;
 
-    debug_file = file;
+    debug_file = file;  
     debug_mode = mode;
     debug_bits = bits;
     switch(file)
@@ -1100,7 +876,7 @@ class File
       case "stdout":
 	create(1, mode, bits);
 	break;
-
+	
       case "stderr":
 	create(2, mode, bits);
 	break;
@@ -1122,8 +898,8 @@ class File
 	if(query_num_arg()<3) bits=0666;
 	if(!mode) mode="r";
 	if (!::open(file,mode,bits))
-          error("Failed to open %O mode %O : %s.\n", file, mode,
-                strerror(errno()));
+	   error("Failed to open %O mode %O : %s\n",
+		 file,mode,strerror(errno()));
 	register_open_file (file, open_file_id, backtrace());
         break;
     }
@@ -1160,7 +936,7 @@ class File
 
 
   //! @decl int close()
-  //! @decl int close(string(7bit) direction)
+  //! @decl int close(string direction)
   //!
   //! Close the file. Optionally, specify "r", "w" or "rw" to close just
   //! the read, just the write or both read and write directions of the file
@@ -1178,7 +954,7 @@ class File
   //! @seealso
   //! @[open], @[open_socket]
   //!
-  int close(void|string(7bit) how)
+  int close(void|string how)
   {
     if(::close(how||"rw"))
     {
@@ -1204,34 +980,34 @@ class File
   // writes write more than one byte. Useful to test that the callback
   // stuff really handles packets cut at odd positions.
 
-  int(-1..) write (sprintf_format|array(string(8bit)) s, sprintf_args... args)
+  int write (sprintf_format|array(string) s, sprintf_args... args)
   {
     if (!(::mode() & PROP_IS_NONBLOCKING)) {
       if (outbuffer && sizeof(outbuffer)) {
-	outbuffer->__set_on_write(0);
+	outbuffer->__fd_set_output(0);
 
-	int actual_bytes = ::write(outbuffer);
+	int actual_bytes = outbuffer->output_to(::write);
 
-        outbuffer->__set_on_write(buffer_write);
-
-	if (actual_bytes <= 0)
+	outbuffer->__fd_set_output(::write);
+	if (actual_bytes <= 0) {
+	  if (actual_bytes) _errno = predef::errno();
 	  return actual_bytes;
-	else
-	  outbuffer->consume(actual_bytes);
+	}
 	if (sizeof(outbuffer)) return 0;
       }
       return ::write (s, @args);
     }
 
     if (outbuffer && sizeof(outbuffer)) {
-      outbuffer->__set_on_write(0);
+      outbuffer->__fd_set_output(0);
 
-      int actual_bytes = ::write(outbuffer->read_buffer(1));
+      string byte = outbuffer->read(1);
 
-      outbuffer->__set_on_write(buffer_write);
+      int actual_bytes = ::write(byte);
+      outbuffer->__fd_set_output(::write);
 
       if (actual_bytes <= 0) {
-	outbuffer->unread(1);
+	outbuffer->unread(sizeof(byte));
 	return actual_bytes;
       }
       if (sizeof(outbuffer)) return 0;
@@ -1242,7 +1018,7 @@ class File
     return ::write (s[..0]);
   }
 
-  int write_oob (string(8bit) s, mixed... args)
+  int write_oob (string s, mixed... args)
   {
     if (!(::mode() & PROP_IS_NONBLOCKING))
       return ::write_oob (s, @args);
@@ -1253,25 +1029,28 @@ class File
 
 #else /* !STDIO_CALLBACK_TEST_MODE */
 
-  int(-1..) write(sprintf_format|array(string(8bit))|object data_or_format,
-                  sprintf_args ... args)
+  int write(sprintf_format|array(string) data_or_format,
+	    sprintf_args ... args)
   {
     if (outbuffer) {
-      outbuffer->__set_on_write(0);
+      outbuffer->__fd_set_output(0);
 
       if (sizeof(outbuffer)) {
 	// The write buffer isn't empty, so try to empty it. */
-	int bytes = ::write(outbuffer);
-        if (bytes > 0)
-          outbuffer->consume(bytes);
+	int bytes = outbuffer->output_to( ::write );
 	if (sizeof(outbuffer) && (bytes > 0)) {
 	  // Not all was written. Probably EWOULDBLOCK.
+	  // We propagate errno below.
 	  bytes = 0;
 	}
 	if (bytes <= 0) {
-          outbuffer->__set_on_write(buffer_write);
-	  return bytes;
-        }
+	  if (bytes) {
+	    // EWOULDBLOCK or other error.
+	    _errno = predef::errno();
+	  }
+	  outbuffer->__fd_set_output(::write);
+	  return 0;
+	}
       }
 
       // NB: Invariant: outbuffer is empty here.
@@ -1286,18 +1065,15 @@ class File
       }
       int bytes = sizeof(outbuffer);
 
-      int actual_bytes = ::write(outbuffer);
-      if (actual_bytes <= 0)
+      int actual_bytes = outbuffer->output_to( ::write );
+      if (actual_bytes <= 0) {
+	// Write failure. Unwrite the outbuffer.
+	_errno = predef::errno();
+	outbuffer->clear();
 	return actual_bytes;
-      else
-        outbuffer->consume(actual_bytes);
+      }
 
-      // In the case above (non-empty buffer on function entry), we don't stop
-      // sending from buffer on error. Why do we here?
-      if (actual_bytes <= 0)
-            return actual_bytes;
-
-      outbuffer->__set_on_write(buffer_write);
+      outbuffer->__fd_set_output(::write);
 
       return bytes;
     }
@@ -1306,21 +1082,12 @@ class File
 
 #endif /* !STDIO_CALLBACK_TEST_MODE */
 
-  private int __read_callback_error()
+  __deprecated__ this_program set_peek_file_before_read_callback(int(0..1) ignored)
   {
-#if constant(_system.EWOULDBLOCK)
-    if (errno() == System.EWOULDBLOCK) {
-      // Necessary to reregister since the callback is disabled
-      // until a successful read() has been done.
-      ::set_read_callback(__stdio_read_callback);
-      return 0;
-    }
-#endif
-    ::set_read_callback(0);
-    if (___close_callback) {
-      BE_WERR ("  calling close callback");
-      return ___close_callback(___id||this);
-    }
+    // This hack is not necessary anymore - the backend now properly
+    // ignores events if other callbacks/threads have managed to read
+    // the data before the read callback.
+    return this;
   }
 
   // FIXME: No way to specify the maximum to read.
@@ -1336,22 +1103,32 @@ class File
     }
 
     if (!errno()) {
-      if( object buffer = inbuffer )
+      if( inbuffer )
       {
-        buffer->allocate(DATA_CHUNK_SIZE);
-
-        int bytes = ::read(buffer);
-
-        if (bytes > 0)
+        switch( inbuffer->input_from( this,UNDEFINED,1 ) )
         {
-          return ___read_callback( ___id||this, buffer );
-        }
-        else
-        {
-          return __read_callback_error();
+        case 1..:
+          return ___read_callback( ___id||this, inbuffer );
+        case 0:
+	  ::set_read_callback(__stdio_read_callback);
+	  return 0;
+        case ..-1:
+#if constant(System.EWOULDBLOCK)
+          if (errno() == System.EWOULDBLOCK) {
+            // Necessary to reregister since the callback is disabled
+            // until a successful read() has been done.
+            ::set_read_callback(__stdio_read_callback);
+            return 0;
+          }
+#endif
+          ::set_read_callback(0);
+          if (___close_callback) {
+            BE_WERR ("  calling close callback");
+            return ___close_callback(___id||this);
+          }
         }
       }
-      string(8bit) s;
+      string s;
 #ifdef STDIO_CALLBACK_TEST_MODE
       s = ::read (1, 1);
 #else
@@ -1360,18 +1137,34 @@ class File
       if (s) {
 	if(sizeof(s))
 	{
-          BE_WERR("  calling read callback with %O", s);
+	  BE_WERR(sprintf("  calling read callback with %O", s));
 	  return ___read_callback(___id||this, s);
 	}
 	BE_WERR ("  got eof");
       }
-      else
-        BE_WERR ("  got error %s from read()", strerror(errno()));
+
+      else {
+#if constant(System.EWOULDBLOCK)
+	if (errno() == System.EWOULDBLOCK) {
+	  // Necessary to reregister since the callback is disabled
+	  // until a successful read() has been done.
+	  ::set_read_callback(__stdio_read_callback);
+	  return 0;
+	}
+#endif
+	BE_WERR ("  got error " + strerror (errno()) + " from read()");
+      }
     }
     else
-      BE_WERR ("  got error %s from backend", strerror(errno()));
+      BE_WERR ("  got error " + strerror (errno()) + " from backend");
 
-    return __read_callback_error();
+    ::set_read_callback(0);
+    if (___close_callback) {
+      BE_WERR ("  calling close callback");
+      return ___close_callback(___id||this);
+    }
+
+    return 0;
   }
 
   protected int __stdio_fs_event_callback(int event_mask)
@@ -1381,7 +1174,7 @@ class File
     if (!___fs_event_callback) return 0;
 
   	if(errno())
-        BE_WERR ("  got error %s from read()", strerror(errno()));
+    	BE_WERR ("  got error " + strerror (errno()) + " from read()");
 
     return ___fs_event_callback(___id||this, event_mask);
   }
@@ -1410,7 +1203,7 @@ class File
     {
 #ifdef BACKEND_DEBUG
       if (errno())
-        BE_WERR ("  got error %s from backend", strerror(errno()));
+	BE_WERR ("  got error " + strerror (errno()) + " from backend");
       else
 	BE_WERR ("  got eof");
 #endif
@@ -1429,36 +1222,27 @@ class File
     if (!errno()) {
       if (!___write_callback) return 0;
 
+      BE_WERR ("  calling write callback");
       if( outbuffer )
       {
         int res;
-
-        if( !sizeof( outbuffer ) )
+        if( sizeof( outbuffer ) )
+          res = outbuffer->output_to( ::write );
+        else
         {
-          BE_WERR ("  calling write callback");
+          outbuffer->__fd_set_output( 0 );
           res = ___write_callback(___id||this,outbuffer);
           if( !this ) return res;
-          if (!sizeof( outbuffer ) )
-            outbuffer->__set_on_write(buffer_write);
-          // A thread may have written to the buffer between the above
-          // check and our registering of buffer_write()...
-          if( !sizeof( outbuffer ) )
-            return res;
-          outbuffer->__set_on_write(0);
+          if( sizeof( outbuffer ) )
+            outbuffer->output_to( ::write );
+          outbuffer->__fd_set_output( ::write );
         }
-
-        int bytes = ::write(outbuffer);
-
-        if (bytes > 0)
-          outbuffer->consume(bytes);
-
         return res;
       }
-      BE_WERR ("  calling write callback");
       return ___write_callback(___id||this);
     }
 
-    BE_WERR ("  got error %s from backend", strerror(errno()));
+    BE_WERR ("  got error " + strerror (errno()) + " from backend");
     // Don't need to report the error to ___close_callback here - we
     // know it isn't installed. If it were, either
     // __stdio_read_callback or __stdio_close_callback would be
@@ -1470,7 +1254,7 @@ class File
   {
     BE_WERR ("__stdio_read_oob_callback()");
 
-    string(8bit) s;
+    string s;
     if (!___read_oob_callback) {
       // The out of band callback was probably removed after the backend
       // was started. Propagate the event to __stdio_read_callback().
@@ -1486,7 +1270,7 @@ class File
     if(s)
     {
       if (sizeof(s)) {
-        BE_WERR ("  calling read oob callback with %O", s);
+	BE_WERR (sprintf ("  calling read oob callback with %O", s));
 	return ___read_oob_callback(___id||this, s);
       }
 
@@ -1501,9 +1285,9 @@ class File
     }
 
     else {
-      BE_WERR ("  got error %s from read_oob()", strerror(errno()));
+      BE_WERR ("  got error " + strerror (errno()) + " from read_oob()");
 
-#if constant(_system.EWOULDBLOCK)
+#if constant(System.EWOULDBLOCK)
       if (errno() == System.EWOULDBLOCK) {
 	// Necessary to reregister since the callback is disabled
 	// until a successful read() has been done.
@@ -1532,14 +1316,14 @@ class File
     return ___write_oob_callback(___id||this);
   }
 
-  //! @decl void set_read_callback(function(mixed,string(8bit):int)|zero read_cb)
-  //! @decl void set_read_callback(function(mixed,Buffer:int)|zero read_cb)
-  //! @decl void set_write_callback(function(mixed:int)|zero write_cb)
-  //! @decl void set_write_callback(function(mixed,Buffer:int)|zero write_cb)
-  //! @decl void set_read_oob_callback(function(mixed, string(8bit):int)|zero read_oob_cb)
-  //! @decl void set_write_oob_callback(function(mixed:int)|zero write_oob_cb)
-  //! @decl void set_close_callback(function(mixed:int)|zero close_cb)
-  //! @decl void set_fs_event_callback(function(mixed,int:int)|zero fs_event_cb, int event_mask)
+  //! @decl void set_read_callback(function(mixed,string:int) read_cb)
+  //! @decl void set_read_callback(function(mixed,Buffer:int) read_cb)
+  //! @decl void set_write_callback(function(mixed:int) write_cb)
+  //! @decl void set_write_callback(function(mixed,Buffer:int) write_cb)
+  //! @decl void set_read_oob_callback(function(mixed, string:int) read_oob_cb)
+  //! @decl void set_write_oob_callback(function(mixed:int) write_oob_cb)
+  //! @decl void set_close_callback(function(mixed:int) close_cb)
+  //! @decl void set_fs_event_callback(function(mixed,int:int) fs_event_cb, int event_mask)
   //!
   //! These functions set the various callbacks, which will be called
   //! when various events occur on the stream. A zero as argument will
@@ -1619,7 +1403,7 @@ class File
   //!   deregistered if an end-of-stream occurs, and all events in the
   //!   case of an error. I.e. there won't be any more calls to the
   //!   callbacks unless they are reinstalled. This doesn't affect the
-  //!   callback settings - @[query_read_callback] etÂ al will still
+  //!   callback settings - @[query_read_callback] et al will still
   //!   return the installed callbacks.
   //! @endul
   //!
@@ -1640,7 +1424,7 @@ class File
   //! @param event_mask
   //!  An event mask specifing bitwise OR of one or more event types to
   //!  monitor, selected from @[Stdio.NOTE_WRITE] and friends.
-  //!
+  //! 
   //! @note
   //!   These functions do not set the file nonblocking.
   //!
@@ -1664,7 +1448,7 @@ class File
   //! that the callbacks can be called immediately by the backend
   //! thread, so it might not be safe to continue using the stream in
   //! this thread.
-  //!
+  //! 
   //! Because of that, it's useful to talk about "callback mode" when
   //! any callback is installed. In callback mode the stream should be
   //! seen as "bound" to the backend thread. For instance, it's only
@@ -1701,9 +1485,9 @@ class File
 
    void set_callbacks (read_callback_t|void read_cb,
                        write_callback_t|void write_cb,
-                       close_callback_t|void close_cb,
-                       read_oob_callback_t|void read_oob_cb,
-                       write_oob_callback_t|void write_oob_cb)
+                       void|function(mixed:int) close_cb,
+                       void|function(mixed, string:int) read_oob_cb,
+                       void|function(mixed:int) write_oob_cb)
   //! Installs all the specified callbacks at once. Use @[UNDEFINED]
   //! to keep the current setting for a callback.
   //!
@@ -1740,10 +1524,10 @@ class File
 
   //! @decl read_callback_t query_read_callback()
   //! @decl write_callback_t query_write_callback()
-  //! @decl read_oob_callback_t query_read_oob_callback()
-  //! @decl write_oob_callback_t query_write_oob_callback()
-  //! @decl close_callback_t query_close_callback()
-  //! @decl array(function(mixed,void|string(8bit):int)|zero) query_callbacks()
+  //! @decl function(mixed, string:int) query_read_oob_callback()
+  //! @decl function(mixed:int) query_write_oob_callback()
+  //! @decl function(mixed:int) query_close_callback()
+  //! @decl array(function(mixed,void|string:int)) query_callbacks()
   //!
   //! These functions return the currently installed callbacks for the
   //! respective events.
@@ -1759,36 +1543,36 @@ class File
 
   //! @ignore
 
-  void set_read_callback(read_callback_t|zero read_cb)
+  void set_read_callback(read_callback_t read_cb)
   {
-    BE_WERR("setting read_callback to %O\n", read_cb);
+    BE_WERR(sprintf("setting read_callback to %O\n", read_cb));
     ::set_read_callback(((___read_callback = read_cb) &&
 			 __stdio_read_callback) ||
 			(___close_callback && __stdio_close_callback));
   }
 
-  read_callback_t|zero query_read_callback()
+  read_callback_t query_read_callback()
   {
     return ___read_callback;
   }
 
 #define CBFUNC(TYPE, X)					\
-  void set_##X (TYPE|zero l##X)				\
+  void set_##X (TYPE l##X)				\
   {							\
-    BE_WERR("setting " #X " to %O\n", l##X);            \
+    BE_WERR(sprintf("setting " #X " to %O\n", l##X));	\
     SET( X , l##X );					\
   }							\
 							\
-  TYPE|zero query_##X ()				\
+  TYPE query_##X ()					\
   {							\
     return ___##X;					\
   }
 
   CBFUNC(write_callback_t, write_callback)
-  CBFUNC(read_oob_callback_t, read_oob_callback)
-  CBFUNC(write_oob_callback_t, write_oob_callback)
+  CBFUNC(function(mixed|void,string|void:int), read_oob_callback)
+  CBFUNC(function(mixed|void:int), write_oob_callback)
 
-  void set_fs_event_callback(fs_event_callback_t c, int event_mask)
+  void set_fs_event_callback(function(mixed|void,int:int) c, int event_mask)
   {
     ___fs_event_callback=c;
     if(c)
@@ -1801,7 +1585,7 @@ class File
     }
   }
 
-  void set_close_callback(close_callback_t c)  {
+  void set_close_callback(function(mixed|void:int) c)  {
     ___close_callback=c;
     if (!___read_callback) {
       if (c) {
@@ -1812,9 +1596,9 @@ class File
     }
   }
 
-  close_callback_t query_close_callback() { return ___close_callback; }
+  function(mixed|void:int) query_close_callback() { return ___close_callback; }
 
-  fs_event_callback_t query_fs_event_callback()
+  function(mixed|void,int:int) query_fs_event_callback()
   {
     return ___fs_event_callback;
   }
@@ -1823,7 +1607,7 @@ class File
   // this getter is provided by Stdio.Fd.
   // function(mixed|void:int) query_fs_event_callback() { return ___fs_event_callback; }
 
-  array(function(mixed,void|string(8bit)|Buffer:int)|zero) query_callbacks()
+  array(function(mixed,void|string|Buffer:int)) query_callbacks()
   {
     return ({
       ___read_callback,
@@ -1866,12 +1650,12 @@ class File
 
   //! @decl void set_nonblocking(read_callback_t read_callback, @
   //!                            write_callback_t write_callback, @
-  //!                            close_callback_t close_callback)
+  //!                            function(mixed:int) close_callback)
   //! @decl void set_nonblocking(read_callback_t read_callback, @
   //!                            write_callback_t write_callback, @
-  //!                            close_callback_t close_callback, @
-  //!                            read_oob_callback_t read_oob_callback, @
-  //!                            write_oob_callback_t write_oob_callback)
+  //!                            function(mixed:int) close_callback, @
+  //!                            function(mixed, string:int) read_oob_callback, @
+  //!                            function(mixed:int) write_oob_callback)
   //! @decl void set_nonblocking()
   //!
   //! This function sets a stream to nonblocking mode and installs the
@@ -1921,14 +1705,12 @@ class File
 #ifdef __STDIO_DEBUG
     if(mixed x=catch { ::set_nonblocking(); })
     {
-      x[0]+=(__closed_backtrace ?
+      x[0]+=(__closed_backtrace ? 
 	   sprintf("File was closed from:\n    %-=200s\n",__closed_backtrace) :
 	   "This file has never been open.\n" );
       throw(x);
     }
 #else
-    if (outbuffer)
-      outbuffer->__set_on_write(0);
     ::set_nonblocking();
 #endif
 
@@ -1969,8 +1751,6 @@ class File
     //       we don't care about in this case, since we've
     //       just cleared all the callbacks anyway.
     catch { ::_enable_callbacks(); };
-    if (outbuffer)
-      buffer_write();
   }
 
   //! @decl void set_nonblocking_keep_callbacks()
@@ -1985,23 +1765,17 @@ class File
   {
      CHECK_OPEN();
      ::set_blocking();
-     if (outbuffer)
-        buffer_write();
   }
 
   void set_nonblocking_keep_callbacks()
   {
      CHECK_OPEN();
      ::set_nonblocking();
-     if (outbuffer)
-       buffer_write();
   }
 
-  protected void _destruct()
+  protected void destroy()
   {
-    BE_WERR("_destruct()");
-    if (outbuffer)
-      outbuffer->__set_on_write(0);
+    BE_WERR("destroy()");
     register_close_file (open_file_id);
   }
 }
@@ -2026,12 +1800,6 @@ class Port
   //!
   //! This function is called by @[accept()] when it needs to create
   //! a new file.
-  //!
-  //! The default implementation returns the @[Fd] inherit in
-  //! an empty @[File] object.
-  //!
-  //! @seealso
-  //!   @[accept()]
   protected Fd fd_factory()
   {
     return File()->_fd;
@@ -2049,8 +1817,7 @@ class Port
   //!
   //! When create is called with @expr{"stdin"@} as the first argument, a
   //! socket is created out of the file descriptor @expr{0@}. This is only
-  //! useful if it actually is a socket to begin with, and is equivalent to
-  //! creating a port and initializing it with @[listen_fd](0).
+  //! useful if it actually is a socket to begin with.
   //!
   //! @seealso
   //! @[bind]
@@ -2082,9 +1849,9 @@ class Port
   //! @[Stdio.File]. The new file is by initially set to blocking mode.
   //!
   //! @seealso
-  //!   @[Stdio.File], @[fd_factory()]
+  //! @[Stdio.File]
   //!
-  object(File)|zero accept()
+  File accept()
   {
     if(object(Fd) x=::accept())
     {
@@ -2109,9 +1876,6 @@ class FILE
 {
   inherit File : file;
 
-  //! @decl @Pike.Annotations.Implements(NonblockingStream)
-  @__builtin.Implements(NonblockingStream);
-
   // This is needed since it was overloaded in File above.
   protected Fd fd_factory()
   {
@@ -2128,9 +1892,8 @@ class FILE
   // and should not be used.
   private array(string) cached_lines = ({});
 
-  private function(string:string(8bit)) output_conversion;
-  private function(string(8bit):string) input_conversion;
-
+  private function(string:string) output_conversion, input_conversion;
+  
   protected string _sprintf( int type, mapping flags )
   {
     return ::_sprintf( type, flags );
@@ -2148,7 +1911,7 @@ class FILE
     }
     return 0;
   }
-
+ 
   inline private int get_data()
   {
     if( bpos )
@@ -2194,7 +1957,7 @@ class FILE
 
   /* Public functions. */
 
-  void set_charset( string(8bit)|void charset )
+  void set_charset( string|void charset )
   //! Sets the input and output charset of this file to the specified
   //! @[charset]. If @[charset] is 0 or not specified the environment
   //! is used to try to detect a suitable charset.
@@ -2222,11 +1985,10 @@ class FILE
   {
     if( !charset ) // autodetect.
     {
-      string locale;
       if( getenv("CHARSET") )
         charset = getenv("CHARSET");
-      else if( (locale = getenv("LC_ALL") || getenv("LC_CTYPE") || getenv("LANG") ) )
-        sscanf( locale, "%*s.%s", charset );
+      else if( getenv("LANG") )
+        sscanf(getenv("LANG"), "%*s.%s", charset );
       if( !charset )
         return;
     }
@@ -2235,16 +1997,16 @@ class FILE
     if( charset != "iso-8859-1" &&
 	charset != "ascii")
     {
-      object in =  Pike.Lazy.Charset.decoder( charset );
-      object out = Pike.Lazy.Charset.encoder( charset );
+      object in =  master()->resolv("Charset.decoder")( charset );
+      object out = master()->resolv("Charset.encoder")( charset );
 
       input_conversion =
-        lambda(string(8bit) s) {
-          return [string]in->feed(s)->drain();
+	[function(string:string)]lambda( string s ) {
+	  return in->feed( s )->drain();
 	};
       output_conversion =
-        lambda(string s) {
-          return [string(8bit)]out->feed(s)->drain();
+	[function(string:string)]lambda( string s ) {
+	  return out->feed( s )->drain();
 	};
     }
     else
@@ -2264,7 +2026,7 @@ class FILE
   //! @seealso
   //!   @[ngets()], @[read()], @[line_iterator()], @[set_charset()]
   //!
-  string|zero gets(int(0..1)|void not_all)
+  string gets(int(0..1)|void not_all)
   {
     string r;
     if( (sizeof(cached_lines) <= lp+1) &&
@@ -2284,7 +2046,7 @@ class FILE
     return r;
   }
 
-  int seek(int pos, string(7bit)|void how)
+  int seek(int pos, string|void how)
   {
     bpos=0;  b=""; cached_lines = ({}); lp=0;
     if( how )
@@ -2292,10 +2054,10 @@ class FILE
     return file::seek(pos);
   }
 
-  int(-1..1) peek(void|int|float timeout, void|int not_eof)
+  int(-1..1) peek(void|int|float timeout)
   {
     if(sizeof(b)-bpos) return 1;
-    return file::peek(timeout, not_eof);
+    return file::peek(timeout);
   }
 
   int tell()
@@ -2303,22 +2065,21 @@ class FILE
     return file::tell()-sizeof(b)+bpos;
   }
 
-  int close(void|string(7bit) mode)
+  int close(void|string mode)
   {
     bpos=0; b="";
     if(!mode) mode="rw";
     file::close(mode);
   }
 
-  int open(string(8bit) file, void|string(7bit) mode, void|int bits)
+  int open(string file, void|string mode)
   {
     bpos=0; b="";
     if(!mode) mode="rwc";
-    return file::open(file, mode, bits);
+    return file::open(file,mode);
   }
 
-  int open_socket(int|string(7bit)|void port, string(7bit)|void address,
-                  int|string(7bit)|void family_hint)
+  int open_socket(int|string|void port, string|void address, int|string|void family_hint)
   {
     bpos=0;  b="";
     if(undefinedp(port))
@@ -2334,10 +2095,10 @@ class FILE
   //! @param not_all
   //!   Set this parameter to ignore partial lines at EOF. This
   //!   is useful for eg monitoring a growing logfile.
-  array(string)|zero ngets(void|int(1..) n, int(0..1)|void not_all)
+  array(string) ngets(void|int(1..) n, int(0..1)|void not_all)
   {
     array(string) res;
-    if (!n)
+    if (!n) 
     {
        res=read()/"\n";
        if (res[-1]=="" || not_all) return res[..<1];
@@ -2386,22 +2147,21 @@ class FILE
   }
 
 #if constant(_Stdio.__HAVE_OPENAT__)
-  //! @decl FILE openat(string(8bit) filename)
-  //! @decl FILE openat(string(8bit) filename, string(7bit) mode)
-  //! @decl FILE openat(string(8bit) filename, string(7bit) mode, int mask)
+  //! @decl FILE openat(string filename)
+  //! @decl FILE openat(string filename, string mode)
+  //! @decl FILE openat(string filename, string mode, int mask)
   //!
   //! Same as @[Stdio.File()->openat()], but returns an @[Stdio.FILE]
   //! object.
   //!
   //! @seealso
   //!   @[Stdio.File()->openat()]
-  object(FILE)|zero openat(string(8bit) filename,
-                           string(7bit)|void mode, int|void mask)
+  FILE openat(string filename, string|void mode, int|void mask)
   {
     if(Fd fd=[object(Fd)]_fd->openat(filename, mode, mask))
     {
       FILE o = function_object(fd->read);
-      string(8bit) path = combine_path(debug_file||"", filename);
+      string path = combine_path(debug_file||"", filename);
       o->_setup_debug(path, mode, mask);
       register_open_file(path, o->open_file_id, backtrace());
       return o;
@@ -2410,7 +2170,7 @@ class FILE
   }
 #endif
 
-  int assign(Fd|File|FILE foo)
+  int assign(File|FILE foo)
   {
     bpos=0; cached_lines=({}); lp=0;
     b="";
@@ -2424,7 +2184,7 @@ class FILE
     return o;
   }
 
-  void set_nonblocking(mixed ... ignored)
+  void set_nonblocking()
   {
     error("Cannot use nonblocking IO with buffered files.\n");
   }
@@ -2433,7 +2193,7 @@ class FILE
   //!
   //! @seealso
   //!   @[Stdio.File()->write()]
-  int(-1..) write( array(string)|sprintf_format what, sprintf_args ... fmt  )
+  int write( array(string)|string what, mixed ... fmt  )
   {
     if( output_conversion )
     {
@@ -2463,14 +2223,14 @@ class FILE
     return ::write(format,@data);
   }
 
-  function(:string|zero) read_function(int nbytes)
+  function(:string) read_function(int nbytes)
   {
     return lambda(){
              return read( nbytes);
            };
   }
-
-  //! Returns an iterator that will loop over the lines in this file.
+    
+  //! Returns an iterator that will loop over the lines in this file. 
   //!
   //! @seealso
   //!   @[line_iterator()]
@@ -2482,8 +2242,8 @@ class FILE
     return __builtin.file_line_iterator( read_function(DATA_CHUNK_SIZE) );
   }
 
-  object(String.SplitIterator)|LineIterator line_iterator( int|void trim )
-  //! Returns an iterator that will loop over the lines in this file.
+  object line_iterator( int|void trim )
+  //! Returns an iterator that will loop over the lines in this file. 
   //! If @[trim] is true, all @tt{'\r'@} characters will be removed
   //! from the input.
   //!
@@ -2494,7 +2254,7 @@ class FILE
   //! functions that read data with the line iterator, it will produce
   //! unexpected results since the internal buffer in the iterator will not
   //! contain sequential file-data in those cases.
-  //!
+  //! 
   //! @seealso
   //!   @[_get_iterator()]
   {
@@ -2673,17 +2433,7 @@ protected void register_close_file (int id)
   }
 }
 
-//! Return an array of @[describe_backtrace()] results for the
-//! places that currently have a @[File()] or @[FILE()] object
-//! open for the path @[file].
-//!
-//! @note
-//!   Only available when the Pike runtime has been started
-//!   with @tt{-DTRACK_OPEN_FILES@}.
-//!
-//! @seealso
-//!   @[report_file_open_places()]
-array(string)|zero file_open_places (string file)
+array(string) file_open_places (string file)
 {
   file = combine_path (getcwd(), file);
   if (array(int) ids = open_files[file])
@@ -2694,16 +2444,6 @@ array(string)|zero file_open_places (string file)
   return 0;
 }
 
-//! Print a list of @[describe_backtrace()] results for the
-//! places that currently have a @[File()] or @[FILE()] object
-//! open for the path @[file] to @[stderr].
-//!
-//! @note
-//!   Only available when the Pike runtime has been started
-//!   with @tt{-DTRACK_OPEN_FILES@}.
-//!
-//! @seealso
-//!   @[file_open_places()]
 void report_file_open_places (string file)
 {
   array(string) places = file_open_places (file);
@@ -2739,7 +2479,7 @@ void report_file_open_places (string file)
 //! @seealso
 //! @[read_bytes()], @[write_file()]
 //!
-string(0..255)|zero read_file(string filename,void|int start,void|int len)
+string(0..255) read_file(string filename,void|int start,void|int len)
 {
   FILE f;
   string ret;
@@ -2748,7 +2488,7 @@ string(0..255)|zero read_file(string filename,void|int start,void|int len)
     if (f->errno() == System.ENOENT)
       return 0;
     else
-      error ("Failed to open %O: %s.\n", filename, strerror (f->errno()));
+      error ("Failed to open %O: %s\n", filename, strerror (f->errno()));
   }
 
   // Disallow devices and directories.
@@ -2762,7 +2502,7 @@ string(0..255)|zero read_file(string filename,void|int start,void|int len)
   case 1:
     ret=f->read();
     if (!ret)
-      error ("Failed to read %O: %s.\n", filename, strerror (f->errno()));
+      error ("Failed to read %O: %s\n", filename, strerror (f->errno()));
     break;
 
   case 3:
@@ -2773,7 +2513,7 @@ string(0..255)|zero read_file(string filename,void|int start,void|int len)
     while(start--) {
       if (!f->gets())
 	if (int err = f->errno())
-          error ("Failed to read %O: %s.\n", filename, strerror (err));
+	  error ("Failed to read %O: %s\n", filename, strerror (err));
 	else
 	  return "";		// EOF reached.
     }
@@ -2791,7 +2531,7 @@ string(0..255)|zero read_file(string filename,void|int start,void|int len)
 	buf->add(tmp, "\n");
       else
 	if (int err = f->errno())
-          error ("Failed to read %O: %s.\n", filename, strerror (err));
+	  error ("Failed to read %O: %s\n", filename, strerror (err));
 	else
 	  break;		// EOF reached.
     }
@@ -2827,7 +2567,7 @@ string(0..255)|zero read_file(string filename,void|int start,void|int len)
 //! @seealso
 //! @[read_file], @[write_file()], @[append_file()]
 //!
-string(0..255)|zero read_bytes(string filename, void|int start,void|int len)
+string(0..255) read_bytes(string filename, void|int start,void|int len)
 {
   string ret;
   File f = File();
@@ -2836,7 +2576,7 @@ string(0..255)|zero read_bytes(string filename, void|int start,void|int len)
     if (f->errno() == System.ENOENT)
       return 0;
     else
-      error ("Failed to open %O: %s.\n", filename, strerror (f->errno()));
+      error ("Failed to open %O: %s\n", filename, strerror (f->errno()));
   }
 
   // Disallow devices and directories.
@@ -2854,11 +2594,11 @@ string(0..255)|zero read_bytes(string filename, void|int start,void|int len)
   case 2:
     if(start)
       if (f->seek(start) < 0)
-        error ("Failed to seek in %O: %s.\n", filename, strerror(f->errno()));
+	error ("Failed to seek in %O: %s\n", filename, strerror(f->errno()));
   }
   ret = len ? f->read(len) : f->read();
   if (!ret)
-    error ("Failed to read %O: %s.\n", filename, strerror (f->errno()));
+    error ("Failed to read %O: %s\n", filename, strerror (f->errno()));
   f->close();
   return ret;
 }
@@ -2886,12 +2626,12 @@ int write_file(string filename, string str, int|void access)
     access = 0666;
 
   if(!f->open(filename, "twc", access))
-    error("Couldn't open %O: %s.\n", filename, strerror(f->errno()));
+    error("Couldn't open %O: %s\n", filename, strerror(f->errno()));
 
   while (ret < sizeof (str)) {
     int bytes = f->write(str[ret..]);
     if (bytes <= 0) {
-      error ("Couldn't write to %O: %s.\n", filename, strerror (f->errno()));
+      error ("Couldn't write to %O: %s\n", filename, strerror (f->errno()));
     }
     ret += bytes;
   }
@@ -2922,12 +2662,12 @@ int append_file(string filename, string str, int|void access)
     access = 0666;
 
   if(!f->open(filename, "awc", access))
-    error("Couldn't open %O: %s.\n", filename, strerror(f->errno()));
+    error("Couldn't open %O: %s\n", filename, strerror(f->errno()));
 
   while (ret < sizeof (str)) {
     int bytes = f->write(str[ret..]);
     if (bytes <= 0) {
-      error ("Couldn't write to %O: %s.\n", filename, strerror (f->errno()));
+      error ("Couldn't write to %O: %s\n", filename, strerror (f->errno()));
     }
     ret += bytes;
   }
@@ -2936,40 +2676,18 @@ int append_file(string filename, string str, int|void access)
   return ret;
 }
 
-//! Give the size of a file.
-//!
-//! @param filename
-//!   Path to file to check.
-//!
-//! @param do_not_follow_symlinks
-//!   Set this to @expr{1@} to inhibit following of symlinks.
-//!
-//! @returns
-//!   Returns one of:
-//!   @int
-//!     @value 0..
-//!       A non-negative value is the length (aka size) of
-//!       the regular file.
-//!     @value -1
-//!       A size of @expr{-1@} indicates that the file either
-//!       does not exist, or that it is not readable by you.
-//!     @value -2
-//!       Size @expr{-2@} indicates that it is a directory.
-//!     @value -3
-//!       @expr{-3@} means that it is a symlink. Note that
-//!       this is only returned for broken symlinks unless
-//!       @[do_not_follow_symlinks] is @expr{1@}.
-//!     @value -4
-//!       @[filename] is a device node.
-//!   @endint
+//! Give the size of a file. Size -1 indicates that the file either
+//! does not exist, or that it is not readable by you. Size -2
+//! indicates that it is a directory, -3 that it is a symlink and -4
+//! that it is a device.
 //!
 //! @seealso
 //! @[file_stat()], @[write_file()], @[read_bytes()]
 //!
-int file_size(string filename, int(1bit)|void do_not_follow_symlinks)
+int file_size(string filename)
 {
   Stat stat;
-  stat = file_stat(filename, do_not_follow_symlinks);
+  stat = file_stat(filename);
   if(!stat) return -1;
   // Please note that stat->size is not always the same thing as stat[1]. /mast
   return [int]stat[1];
@@ -2978,7 +2696,7 @@ int file_size(string filename, int(1bit)|void do_not_follow_symlinks)
 //! @decl string append_path(string absolute, string ... relative)
 //! @decl string append_path_unix(string absolute, string ... relative)
 //! @decl string append_path_nt(string absolute, string ... relative)
-//!
+//! 
 //!   Append @[relative] paths to an @[absolute] path and remove any
 //!   @expr{"//"@}, @expr{"../"@} or @expr{"/."@} to produce a
 //!   straightforward absolute path as a result.
@@ -2988,10 +2706,10 @@ int file_size(string filename, int(1bit)|void do_not_follow_symlinks)
 //!   (or so far created path).
 //!
 //!   @[append_path_nt()] fixes drive letter issues in @[relative]
-//!   by removing the colon separator @expr{":"@} if it exists (k:/fnord appends
+//!   by removing the colon separator @expr{":"@} if it exists (k:/fnord appends 
 //!   as k/fnord)
 //!
-//!   @[append_path_nt()] also makes sure that UNC path(s) in @[relative] is appended
+//!   @[append_path_nt()] also makes sure that UNC path(s) in @[relative] is appended 
 //!   correctly by removing any @expr{"\\"@} or @expr{"//"@} from the beginning.
 //!
 //!   @[append_path()] is equivalent to @[append_path_unix()] on UNIX-like
@@ -3051,20 +2769,14 @@ string simplify_path(string path)
 //!
 void perror(string s)
 {
-  stderr->write("%s: %s.\n", s, strerror(errno()));
+  stderr->write(s+": "+strerror(predef::errno())+"\n");
 }
 
 /*
  * Predicates.
  */
 
-//! Check if a @[path] is a regular file.
-//!
-//! @param path
-//!   Path to check.
-//!
-//! @param no_symlinks
-//!   Return @expr{0@} also if @[path] is a symlink to a regular file.
+//! Check if a @[path] is a file.
 //!
 //! @returns
 //! Returns true if the given path is a regular file, otherwise false.
@@ -3072,19 +2784,13 @@ void perror(string s)
 //! @seealso
 //! @[exist()], @[is_dir()], @[is_link()], @[file_stat()]
 //!
-int is_file(string path, int(1bit)|void no_symlinks)
+int is_file(string path)
 {
-  if (Stat s = file_stat(path, no_symlinks)) return [int]s->isreg;
+  if (Stat s = file_stat (path)) return [int]s->isreg;
   return 0;
 }
 
 //! Check if a @[path] is a directory.
-//!
-//! @param path
-//!   Path to check.
-//!
-//! @param no_symlinks
-//!   Return @expr{0@} also if @[path] is a symlink to a directory.
 //!
 //! @returns
 //! Returns true if the given path is a directory, otherwise false.
@@ -3092,9 +2798,9 @@ int is_file(string path, int(1bit)|void no_symlinks)
 //! @seealso
 //! @[exist()], @[is_file()], @[is_link()], @[file_stat()]
 //!
-int is_dir(string path, int(1bit)|void no_symlinks)
+int is_dir(string path)
 {
-  if (Stat s = file_stat(path, no_symlinks)) return [int]s->isdir;
+  if (Stat s = file_stat (path)) return [int]s->isdir;
   return 0;
 }
 
@@ -3114,12 +2820,6 @@ int is_link(string path)
 
 //! Check if a @[path] exists.
 //!
-//! @param path
-//!   Filesystem path to check.
-//!
-//! @param do_not_follow_symlinks
-//!   Return @expr{1@} also for broken symlinks.
-//!
 //! @returns
 //! Returns true if the given path exists (is a directory or file),
 //! otherwise false.
@@ -3130,23 +2830,23 @@ int is_link(string path)
 //!
 //! @seealso
 //! @[is_dir()], @[is_file()], @[is_link()], @[file_stat()]
-int exist(string(8bit) path, int(1bit)|void do_not_follow_symlinks)
+int exist(string path)
 {
-  return !!file_stat(path, do_not_follow_symlinks);
+  return !!file_stat(path);
 }
 
 //! Convert the mode_string string as returned by Stdio.Stat object
 //! to int suitable for chmod
-//!
+//!  
 //! @param mode_string
 //!   The string as return from Stdio.Stat()->mode_string
 //! @returns
-//!   An int matching the permission of the mode_string string suitable for
+//!   An int matching the permission of the mode_string string suitable for 
 //!   chmod
-int convert_modestring2int(string(7bit) mode_string)
+int convert_modestring2int(string mode_string)
 {
   constant user_permissions_letters2value =
-    ([
+    ([ 
       "r": 0400,
       "w": 0200,
       "x": 0100,
@@ -3208,7 +2908,7 @@ int cp(string from, string to)
 //!   7.6 and earlier.
 {
   Stat stat = file_stat(from, 1);
-  if( !stat )
+  if( !stat ) 
      return 0;
 
   if(stat->isdir)
@@ -3231,7 +2931,7 @@ int cp(string from, string to)
   }
   else
   {
-#if constant(_system.cp)
+#if constant(System.cp)
     if (!System.cp (from, to))
       return 0;
 #else
@@ -3251,7 +2951,7 @@ int cp(string from, string to)
       if(!data) return 0;
       if(w(data)!=sizeof(data)) return 0;
     }while(sizeof(data) == DATA_CHUNK_SIZE);
-
+  
     f->close();
     t->close();
 #endif
@@ -3283,7 +2983,7 @@ int file_equal (string file_1, string file_2)
   // Detect sym- or hardlinks to the same file.
   if( (s1->dev == s2->dev) && (s1->ino == s2->ino) )
     return 1;
-
+  
   function(int,int|void:string) f1_read = f1->read, f2_read = f2->read;
   string d1, d2;
   do {
@@ -3415,7 +3115,7 @@ int recursive_rm (string path)
   return rm (path);
 }
 
-//! Copy a file or a directory tree by copying and then
+//! Copy a file or a directory tree by copying and then 
 //! removing. Mode bits are preserved in the copy.
 //! It's not the fastest but works on every OS and
 //! works well across different file systems.
@@ -3614,13 +3314,13 @@ protected class nb_sendfile
     }
 
     // Make sure we get rid of any references...
-    to_write = ({});
+    to_write = 0;
     trailers = 0;
     from = 0;
     to = 0;
     backend = 0;
     array(mixed) a = args;
-    function(int, __unknown__ ...:void) cb = callback;
+    function(int, mixed ...:void) cb = callback;
     args = 0;
     callback = 0;
     if (cb) {
@@ -3726,7 +3426,7 @@ protected class nb_sendfile
   }
 
 #ifdef SENDFILE_DEBUG
-  protected void _destruct()
+  void destroy()
   {
     werror("Stdio.sendfile(): Destructed.\n");
   }
@@ -3735,11 +3435,11 @@ protected class nb_sendfile
   /* Starter */
 
   protected void create(array(string) hd,
-			object(File)|zero f, int off, int l,
-			array(string)|zero tr,
-			File t,
-			function(int, __unknown__ ...:void)|void cb,
-			mixed ... a)
+		     File f, int off, int l,
+		     array(string) tr,
+		     File t,
+		     function(int, mixed ...:void)|void cb,
+		     mixed ... a)
   {
     backend = (t->query_backend && t->query_backend()) ||
       Pike.DefaultBackend;
@@ -3777,7 +3477,7 @@ protected class nb_sendfile
       trailers = ({});
 
     to = t;
-    callback = [function(int, mixed...:void)]cb;
+    callback = cb;
     args = a;
 
     blocking_to = to->is_file ||
@@ -3881,16 +3581,16 @@ protected class nb_sendfile
 //! @seealso
 //! @[Stdio.File->set_nonblocking()]
 //!
-object sendfile(array(string)|zero headers,
-		File|zero from, int offset, int len,
-		array(string)|zero trailers,
+object sendfile(array(string) headers,
+		File from, int offset, int len,
+		array(string) trailers,
 		File to,
-		function(int, __unknown__ ...:void)|void cb,
+		function(int, mixed ...:void)|void cb,
 		mixed ... args)
 {
 #if !defined(DISABLE_FILES_SENDFILE) && constant(_Stdio.sendfile)
   // Try using files.sendfile().
-
+  
   mixed err = catch {
     return _Stdio.sendfile(headers, from, offset, len,
                            trailers, to, cb, @args);
@@ -3912,11 +3612,11 @@ class UDP
   inherit _Stdio.UDP;
 
   private array extra=0;
-  private function(mapping, __unknown__ ...:void) callback=0;
+  private function(mapping,mixed...:void) callback=0;
 
   //! @decl UDP set_nonblocking()
-  //! @decl UDP set_nonblocking(void|function(mapping(string:int|string), @
-  //!                                         mixed ...:void) read_cb, @
+  //! @decl UDP set_nonblocking(function(mapping(string:int|string), @
+  //!                                    mixed ...:void) read_cb, @
   //!                           mixed ... extra_args)
   //!
   //! Set this object to nonblocking mode.
@@ -3927,7 +3627,7 @@ class UDP
   //! @returns
   //! The called object.
   //!
-  this_program set_nonblocking(void|function(mapping,__unknown__...:void) f,
+  this_program set_nonblocking(void|function(mapping,mixed...:void) f,
 			       mixed ... stuff)
   {
     if(f)
@@ -3936,7 +3636,7 @@ class UDP
   }
 
   //! @decl UDP set_read_callback(function(mapping(string:int|string), @
-  //!                                      mixed...)|zero read_cb, @
+  //!                                      mixed...) read_cb, @
   //!                             mixed ... extra_args);
   //!
   //! The @[read_cb] function will receive a mapping similar to the mapping
@@ -3956,14 +3656,14 @@ class UDP
   //! @seealso
   //! @[read()]
   //!
-  this_program set_read_callback(function(mapping,__unknown__ ...:void)|zero f,
+  this_program set_read_callback(function(mapping,mixed ...:void) f,
 				 mixed ...ext)
   {
     extra=ext;
     _set_read_callback((callback = f) && _read_callback);
     return this;
   }
-
+   
   private void _read_callback()
   {
     mapping i;

@@ -435,10 +435,6 @@
       "required": true,
       "types": [
         {
-          "type": "block",
-          "named": true
-        },
-        {
           "type": "chain_expr",
           "named": true
         },
@@ -613,10 +609,6 @@
         },
         {
           "type": "inherit_decl",
-          "named": true
-        },
-        {
-          "type": "static_assertion",
           "named": true
         },
         {
@@ -1063,25 +1055,6 @@
     }
   },
   {
-    "type": "generic_assoc",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_expr",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "generic_bindings",
     "named": true,
     "fields": {},
@@ -1091,25 +1064,6 @@
       "types": [
         {
           "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "generic_selection",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_expr",
-          "named": true
-        },
-        {
-          "type": "generic_assoc",
           "named": true
         }
       ]
@@ -1621,25 +1575,6 @@
     }
   },
   {
-    "type": "power_expr",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "power_expr",
-          "named": true
-        },
-        {
-          "type": "prefix_expr",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "prefix_expr",
     "named": true,
     "fields": {},
@@ -1715,10 +1650,6 @@
           "named": true
         },
         {
-          "type": "generic_selection",
-          "named": true
-        },
-        {
           "type": "identifier",
           "named": true
         },
@@ -1760,10 +1691,6 @@
         },
         {
           "type": "sscanf_expr",
-          "named": true
-        },
-        {
-          "type": "static_assertion",
           "named": true
         },
         {
@@ -1935,21 +1862,6 @@
     }
   },
   {
-    "type": "static_assertion",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_expr",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "switch_statement",
     "named": true,
     "fields": {},
@@ -2062,7 +1974,7 @@
           "named": true
         },
         {
-          "type": "power_expr",
+          "type": "prefix_expr",
           "named": true
         }
       ]
@@ -2203,23 +2115,11 @@
     "named": false
   },
   {
-    "type": "(?",
-    "named": false
-  },
-  {
     "type": ")",
     "named": false
   },
   {
     "type": "*",
-    "named": false
-  },
-  {
-    "type": "**",
-    "named": false
-  },
-  {
-    "type": "**=",
     "named": false
   },
   {
@@ -2343,10 +2243,6 @@
     "named": false
   },
   {
-    "type": "?=",
-    "named": false
-  },
-  {
     "type": "@",
     "named": false
   },
@@ -2371,18 +2267,6 @@
     "named": false
   },
   {
-    "type": "_Generic",
-    "named": false
-  },
-  {
-    "type": "_Static_assert",
-    "named": false
-  },
-  {
-    "type": "__async__",
-    "named": false
-  },
-  {
     "type": "__attribute__",
     "named": false
   },
@@ -2391,31 +2275,7 @@
     "named": false
   },
   {
-    "type": "__experimental__",
-    "named": false
-  },
-  {
     "type": "__func__",
-    "named": false
-  },
-  {
-    "type": "__generator__",
-    "named": false
-  },
-  {
-    "type": "__generic__",
-    "named": false
-  },
-  {
-    "type": "__unknown__",
-    "named": false
-  },
-  {
-    "type": "__unused__",
-    "named": false
-  },
-  {
-    "type": "__weak__",
     "named": false
   },
   {

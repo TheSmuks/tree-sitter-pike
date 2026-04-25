@@ -1,7 +1,6 @@
 ================================================================================
 Integer Decimal
 ================================================================================
-
 42;
 
 ---
@@ -22,17 +21,14 @@ Integer Decimal
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))))))
 ================================================================================
 Integer Hex
 ================================================================================
-
 0xFF;
 
 ---
@@ -53,17 +49,14 @@ Integer Hex
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))))))
 ================================================================================
 Integer Binary
 ================================================================================
-
 0b1010;
 
 ---
@@ -84,17 +77,14 @@ Integer Binary
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))))))
 ================================================================================
 Integer Octal
 ================================================================================
-
 0777;
 
 ---
@@ -115,17 +105,14 @@ Integer Octal
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (integer_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))))))
 ================================================================================
 Float With Decimal Point
 ================================================================================
-
 1.5;
 
 ---
@@ -146,17 +133,14 @@ Float With Decimal Point
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (float_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (float_literal)))))))))))))))))))))
 ================================================================================
 Float Leading Dot
 ================================================================================
-
 .5;
 
 ---
@@ -177,17 +161,14 @@ Float Leading Dot
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (float_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (float_literal)))))))))))))))))))))
 ================================================================================
 Float With Exponent
 ================================================================================
-
 1.5e-3;
 
 ---
@@ -208,17 +189,14 @@ Float With Exponent
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (float_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (float_literal)))))))))))))))))))))
 ================================================================================
 String Literal
 ================================================================================
-
 "hello";
 
 ---
@@ -239,17 +217,14 @@ String Literal
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (string_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (string_literal)))))))))))))))))))))
 ================================================================================
 String With Escape
 ================================================================================
-
 "with escape \n";
 
 ---
@@ -270,17 +245,14 @@ String With Escape
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (string_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (string_literal)))))))))))))))))))))
 ================================================================================
 Empty String
 ================================================================================
-
 "";
 
 ---
@@ -301,17 +273,14 @@ Empty String
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (string_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (string_literal)))))))))))))))))))))
 ================================================================================
 Array Literal Empty
 ================================================================================
-
 ({});
 
 ---
@@ -332,17 +301,14 @@ Array Literal Empty
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (array_literal))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (array_literal)))))))))))))))))))))
 ================================================================================
 Array Literal With Elements
 ================================================================================
-
 ({1, 2, 3});
 
 ---
@@ -363,76 +329,70 @@ Array Literal With Elements
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (array_literal
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal))))))))))))))))))))
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal)))))))))))))))))))
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal))))))))))))))))))))))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (array_literal
+                                          (comma_expr
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal)))))))))))))))))))
+                                          (comma_expr
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal))))))))))))))))))
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal))))))))))))))))))))))))))))))))))))))))
 ================================================================================
 Mapping Literal Single Pair
 ================================================================================
-
 (["key": "value"]);
 
 ---
@@ -453,58 +413,53 @@ Mapping Literal Single Pair
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (mapping_literal
-                                            (mapping_pair
-                                              key: (comma_expr
-                                                (assign_expr
-                                                  (cond_expr
-                                                    (lor_expr
-                                                      (land_expr
-                                                        (bitor_expr
-                                                          (bitxor_expr
-                                                            (bitand_expr
-                                                              (eq_expr
-                                                                (rel_expr
-                                                                  (shift_expr
-                                                                    (add_expr
-                                                                      (mul_expr
-                                                                        (unary_expr
-                                                                          (power_expr
-                                                                            (prefix_expr
-                                                                              (chain_expr
-                                                                                (postfix_expr
-                                                                                  (primary_expr
-                                                                                    (string_literal))))))))))))))))))))
-                                              value: (comma_expr
-                                                (assign_expr
-                                                  (cond_expr
-                                                    (lor_expr
-                                                      (land_expr
-                                                        (bitor_expr
-                                                          (bitxor_expr
-                                                            (bitand_expr
-                                                              (eq_expr
-                                                                (rel_expr
-                                                                  (shift_expr
-                                                                    (add_expr
-                                                                      (mul_expr
-                                                                        (unary_expr
-                                                                          (power_expr
-                                                                            (prefix_expr
-                                                                              (chain_expr
-                                                                                (postfix_expr
-                                                                                  (primary_expr
-                                                                                    (string_literal)))))))))))))))))))))))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (mapping_literal
+                                          (mapping_pair
+                                            key: (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (prefix_expr
+                                                                          (chain_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (string_literal)))))))))))))))))))
+                                            value: (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (prefix_expr
+                                                                          (chain_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (string_literal)))))))))))))))))))))))))))))))))))))))))
 ================================================================================
 Multiset Literal
 ================================================================================
-
 (<1, 2, 3>);
 
 ---
@@ -525,69 +480,64 @@ Multiset Literal
                           (add_expr
                             (mul_expr
                               (unary_expr
-                                (power_expr
-                                  (prefix_expr
-                                    (chain_expr
-                                      (postfix_expr
-                                        (primary_expr
-                                          (multiset_literal
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal))))))))))))))))))))
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal)))))))))))))))))))
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (power_expr
-                                                                          (prefix_expr
-                                                                            (chain_expr
-                                                                              (postfix_expr
-                                                                                (primary_expr
-                                                                                  (integer_literal))))))))))))))))))))))))))))))))))))))))))
-
+                                (prefix_expr
+                                  (chain_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (multiset_literal
+                                          (comma_expr
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal)))))))))))))))))))
+                                          (comma_expr
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal))))))))))))))))))
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (prefix_expr
+                                                                        (chain_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (integer_literal))))))))))))))))))))))))))))))))))))))))

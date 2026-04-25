@@ -22,9 +22,8 @@
 
 ; Special identifiers
 [
-  "__attribute__" "__deprecated__" "__experimental__"
-  "__func__" "__async__" "__generator__" "__generic__"
-  "__weak__" "__unused__" "__unknown__"
+  "__attribute__" "__deprecated__"
+  "__func__"
   "predef" "bits"
 ] @keyword
 
@@ -53,19 +52,19 @@
 
 ; Operators
 [
-  "+" "-" "*" "/" "%" "**"
+  "+" "-" "*" "/" "%"
   "==" "!=" ">" ">=" "<" "<="
   "<<" ">>"
   "&" "|" "^" "~"
   "&&" "||" "!"
   ".." "..."
-  "->" "::" "->?" "[?" "(?"
-  "=" "+=" "-=" "*=" "/=" "%=" "&=" "|=" "^=" "<<=" ">>=" "**=" "?="
+  "->" "::" "->?" "[?"
+  "=" "+=" "-=" "*=" "/=" "%=" "&=" "|=" "^=" "<<=" ">>="
   "++" "--"
 ] @operator
 
 ; Punctuation
-["(" ")" "{" "}" "[" "]" "," ";" "." "@" "?="] @punctuation.delimiter
+["(" ")" "{" "}" "[" "]" "," ";" "." "@" "?"] @punctuation.delimiter
 
 ; Comments
 (line_comment) @comment.line
@@ -82,8 +81,3 @@
 [
   "this" "this_program"
 ] @constant.builtin
-
-
-; Special
-(static_assertion) @keyword
-(generic_selection) @keyword

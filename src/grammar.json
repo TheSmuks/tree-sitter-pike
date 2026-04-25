@@ -537,14 +537,6 @@
         {
           "type": "STRING",
           "value": ">>="
-        },
-        {
-          "type": "STRING",
-          "value": "**="
-        },
-        {
-          "type": "STRING",
-          "value": "?="
         }
       ]
     },
@@ -944,7 +936,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "power_expr"
+          "name": "prefix_expr"
         },
         {
           "type": "PREC",
@@ -1010,36 +1002,6 @@
               {
                 "type": "SYMBOL",
                 "name": "cast_expr"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    "power_expr": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "prefix_expr"
-        },
-        {
-          "type": "PREC_RIGHT",
-          "value": 0,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "prefix_expr"
-              },
-              {
-                "type": "STRING",
-                "value": "**"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "power_expr"
               }
             ]
           }
@@ -1206,76 +1168,6 @@
               "value": "]"
             }
           ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "chain_expr"
-            },
-            {
-              "type": "STRING",
-              "value": "(?"
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SEQ",
-                      "members": [
-                        {
-                          "type": "SYMBOL",
-                          "name": "_expr"
-                        },
-                        {
-                          "type": "REPEAT",
-                          "content": {
-                            "type": "SEQ",
-                            "members": [
-                              {
-                                "type": "STRING",
-                                "value": ","
-                              },
-                              {
-                                "type": "SYMBOL",
-                                "name": "_expr"
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            },
-            {
-              "type": "STRING",
-              "value": ")"
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "block"
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            }
-          ]
         }
       ]
     },
@@ -1439,14 +1331,6 @@
         {
           "type": "SYMBOL",
           "name": "lambda_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "generic_selection"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "static_assertion"
         },
         {
           "type": "SYMBOL",
@@ -1931,27 +1815,6 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "__generator__"
-                },
-                {
-                  "type": "STRING",
-                  "value": "__async__"
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
           "type": "STRING",
           "value": "lambda"
         },
@@ -1970,102 +1833,6 @@
             "type": "SYMBOL",
             "name": "block"
           }
-        }
-      ]
-    },
-    "generic_selection": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "_Generic"
-        },
-        {
-          "type": "STRING",
-          "value": "("
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        },
-        {
-          "type": "STRING",
-          "value": ","
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "generic_assoc"
-            },
-            {
-              "type": "REPEAT",
-              "content": {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": ","
-                  },
-                  {
-                    "type": "SYMBOL",
-                    "name": "generic_assoc"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "type": "STRING",
-          "value": ")"
-        }
-      ]
-    },
-    "generic_assoc": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "type"
-        },
-        {
-          "type": "STRING",
-          "value": ":"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        }
-      ]
-    },
-    "static_assertion": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "_Static_assert"
-        },
-        {
-          "type": "STRING",
-          "value": "("
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        },
-        {
-          "type": "STRING",
-          "value": ","
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        },
-        {
-          "type": "STRING",
-          "value": ")"
         }
       ]
     },
@@ -2460,47 +2227,11 @@
         },
         {
           "type": "STRING",
-          "value": "__experimental__"
-        },
-        {
-          "type": "STRING",
           "value": "__func__"
         },
         {
           "type": "STRING",
-          "value": "__async__"
-        },
-        {
-          "type": "STRING",
-          "value": "__generator__"
-        },
-        {
-          "type": "STRING",
-          "value": "__generic__"
-        },
-        {
-          "type": "STRING",
-          "value": "_Generic"
-        },
-        {
-          "type": "STRING",
-          "value": "__weak__"
-        },
-        {
-          "type": "STRING",
-          "value": "__unused__"
-        },
-        {
-          "type": "STRING",
-          "value": "__unknown__"
-        },
-        {
-          "type": "STRING",
           "value": "predef"
-        },
-        {
-          "type": "STRING",
-          "value": "_Static_assert"
         },
         {
           "type": "STRING",
@@ -3275,10 +3006,6 @@
         },
         {
           "type": "STRING",
-          "value": "__unknown__"
-        },
-        {
-          "type": "STRING",
           "value": "auto"
         },
         {
@@ -3484,27 +3211,6 @@
             {
               "type": "STRING",
               "value": "__deprecated__"
-            },
-            {
-              "type": "STRING",
-              "value": "("
-            },
-            {
-              "type": "SYMBOL",
-              "name": "type"
-            },
-            {
-              "type": "STRING",
-              "value": ")"
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "__experimental__"
             },
             {
               "type": "STRING",
@@ -3964,10 +3670,6 @@
             },
             {
               "type": "SYMBOL",
-              "name": "static_assertion"
-            },
-            {
-              "type": "SYMBOL",
               "name": "block"
             }
           ]
@@ -4024,14 +3726,6 @@
         {
           "type": "STRING",
           "value": "nomask"
-        },
-        {
-          "type": "STRING",
-          "value": "__generator__"
-        },
-        {
-          "type": "STRING",
-          "value": "__async__"
         }
       ]
     },
@@ -5219,10 +4913,6 @@
     [
       "primary_expr",
       "import_decl"
-    ],
-    [
-      "primary_expr",
-      "declaration"
     ],
     [
       "cast_expr",
