@@ -153,3 +153,38 @@ The grammar achieves 100% correctness when both conditions hold:
   known limitations.
 - **CONVERGED** means P1 = 0 under the expanded target (coverage + correctness
   + distribution). The convergence claim is qualified by the measurement criteria.
+### Round 14: Preprocessor Redesign Attempt
+
+Attempted to move from transparent-extras handling of `#if`/`#ifdef`/`#endif` to
+structured `preproc_if` grammar rules, following tree-sitter-c's approach.
+
+**What was tried:**
+1. Removed `#if`/`#ifdef`/`#ifndef`/`#elif`/`#else`/`#endif` from the extras-based
+   `preprocessor_directive` token.
+2. Added explicit `preproc_if` rule at statement, definition, class_body positions.
+3. Added `preproc_if_expr` rule at expression position (in `primary_expr`).
+4. Added `preproc_if` as consequence/alternative in `if_statement`.
+5. Added `preproc_if` to array/mapping/multiset literal contents.
+6. Added `preproc_if` to `argument_list`.
+
+**Result:** Regressed from 98.2% (1063/1082) to 94.3% (1021/1082) clean files.
+
+**Why it failed:**
+- `#if` in Pike can appear inside any syntactic construct: expressions, mapping
+  literals, array literals, argument lists, switch cases, enum bodies, etc.
+- Each position requires `preproc_if` as an alternative, which creates cascading
+  GLR conflicts with existing expression ambiguities.
+- The `preproc_if_in_mapping` variant (for `#if` inside mapping literals, which
+  contain `mapping_pair` → `_expr`) produced infinite conflict cascades.
+- tree-sitter-c works because C has a smaller position set (3 contexts with
+  specialized variants). Pike's permissiveness makes the approach infeasible.
+
+**Decision:** Reverted to the 98.2% extras-based baseline (commit `6180b02`,
+tagged `pre-preproc-redesign`). Preprocessor conditionals remain as transparent
+extras tokens. The 19 error files are documented in KL-007.
+
+**Future path:** To exceed 98.2%, either:
+(a) Add a permissive `preproc_skip` rule that swallows everything between `#if`
+    and `#endif` as opaque text in specific positions (loses tree fidelity).
+(b) Implement an external scanner that tracks `#if`/`#endif` nesting at the lexer
+    level and handles split cases before the parser sees them.

@@ -32,16 +32,46 @@ for 2+ rounds without progress must include a written reason or be escalated.
 - **Last validated**: Round 12
 - **Rounds active**: 1
 
-### KL-007: Remaining distribution errors (~65 files)
-- **Description**: 65 of 1082 Pike distribution files still have parse errors.
-  The largest categories are fixed (shebang: 20 files, double-backtick: 6,
-  preprocessor with spaces: 8, etc.). Remaining errors fall into smaller
-  categories: adjacent string concatenation with identifiers, module-scope
-  declarations, sscanf complex formats, and various single-file issues.
-- **Impact**: 6.0% error rate (down from 10.6% at start of Round 12).
-- **Last validated**: Round 12
-- **Rounds active**: 1
+### KL-007: Preprocessor conditional directives as transparent extras
+- **Description**: `#if`/`#ifdef`/`#ifndef`/`#elif`/`#else`/`#endif` are handled
+  as transparent extras tokens. They parse correctly when they wrap complete
+  statements or appear at definition level, but produce ERROR nodes when
+  they split mid-expression, appear inside collection literals, or straddle
+  construct boundaries (e.g., between `if` body and `else` keyword).
+- **Root cause**: Tree-sitter's extras mechanism makes tokens transparent —
+  they can appear anywhere and are consumed without affecting the parse tree.
+  This works for the ~98% of Pike files where preprocessor conditionals wrap
+  complete constructs. For the remaining ~2%, the `#if`/`#endif` split a single
+  syntactic construct across preprocessor branches.
 
+  An attempt was made in Round 14 to implement structured `preproc_if` rules
+  (following tree-sitter-c's approach) by removing conditional directives from
+  extras and adding explicit grammar rules at every position. This regressed
+  from 98.2% to 94.3% (1063→1021 clean files) because:
+  1. `#if` can appear inside expressions, mapping literals, array literals,
+     argument lists, switch cases, enum bodies, and dozens of other positions.
+     Adding `preproc_if` as an alternative in each position creates cascading
+     GLR conflicts with existing expression ambiguities.
+  2. The tree-sitter-c approach works because C has a simpler position set
+     (block items, struct fields, enum enumerators). Pike is more permissive.
+  3. The `preproc_if_in_mapping` variant (for `#if` inside mapping literals)
+     created infinite conflict cascades because `mapping_pair` contains `_expr`,
+     which has many ambiguous alternatives.
+
+  The commit `pre-preproc-redesign` (tagged at `6180b02`) marks the rollback
+  point for this attempt.
+- **Impact**: 19 distribution files have errors related to preprocessor splits:
+  - 8 files: `#if` splits an expression (e.g., `x = #ifdef FOO a #else b #endif;`)
+  - 6 files: Macro argument shape issues with `#if` inside macro calls
+  - 5 files: Other edge cases (mapping macros, bare identifier macros, etc.)
+- **Architectural decision**: Keep extras-based handling. The 98.2% baseline is
+  the ceiling for the current architecture. Going higher requires either:
+  (a) A permissive "skip everything between #if and #endif" rule in specific
+      positions (loses tree fidelity inside skipped regions), or
+  (b) An external scanner that tracks `#if`/`#endif` nesting and handles
+      the split cases at the lexer level.
+- **Last validated**: Round 14
+- **Rounds active**: 2
 ### KL-008: Invisible modifier nodes in declarations
 - **Description**: Declaration modifiers (`protected`, `private`, `public`,
   etc.) are consumed by the hidden `_modifier` rule and produce no named
