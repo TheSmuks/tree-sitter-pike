@@ -1,0 +1,15 @@
+# Canary rules for analysis-trust check.
+# These rules MUST appear as covered in any valid analysis.
+# If any show as uncovered, the analysis is broken, not the grammar.
+# One rule name per line, lines starting with # are comments.
+integer_literal
+string_literal
+identifier
+function_decl
+parameters
+block
+return_statement
+variable_decl
+basic_type
+type
+expression_statement

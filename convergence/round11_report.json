@@ -1,5 +1,5 @@
 {
-  "round": 10,
+  "round": 11,
   "seed": 42,
   "build": "clean",
   "corpus": {
@@ -440,12 +440,12 @@
       {
         "id": "KL-003",
         "reason": "Genuinely scanner-bound (validated with token ambiguity proof)",
-        "rounds_since_validation": 10
+        "rounds_since_validation": 11
       },
       {
         "id": "KL-004",
         "reason": "Semantic check beyond tree-sitter scope",
-        "rounds_since_validation": 10
+        "rounds_since_validation": 11
       }
     ],
     "removed": [
@@ -466,6 +466,7 @@
       ]
     }
   ],
+  "analysis_trust_warnings": [],
   "total_p1": 0,
   "total_p2": 1,
   "converged": true,

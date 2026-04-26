@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Round 10 convergence harness for tree-sitter-pike.
+Convergence harness for tree-sitter-pike.
 
 Implements all five process changes:
   1. Parse all example files (P1 on ERROR/MISSING)
@@ -10,7 +10,7 @@ Implements all five process changes:
   5. Branch coverage on choice() rules (P2)
 
 Usage:
-  python3 convergence/round10.py [--seed N] [--adversarial-count N]
+  python3 convergence/harness.py --round N [--seed N] [--adversarial-count N]
 """
 
 import subprocess, sys, os, re, json, random, glob, argparse
@@ -22,6 +22,7 @@ GRAMMAR = REPO / "grammar.ts"
 EXAMPLES_DIR = REPO / "examples"
 CORPUS_DIR = REPO / "test" / "corpus"
 KNOWN_LIM_FILE = REPO / "docs" / "known-limitations.md"
+CANARY_FILE = REPO / "convergence" / "canary_rules.txt"
 TS = ["bunx", "tree-sitter"]
 
 # ── helpers ──────────────────────────────────────────────────────────
@@ -420,6 +421,44 @@ def revalidate_known_limitations(round_num=10):
 
     return {"kept": kept, "removed": removed, "escalated": escalated}
 
+# ── Analysis-trust check ─────────────────────────────────────────────
+
+def load_canary_rules():
+    """Load canary rule names from config file."""
+    if not CANARY_FILE.exists():
+        return []
+    rules = []
+    for line in CANARY_FILE.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith('#'):
+            rules.append(line)
+    return rules
+
+
+def check_analysis_trust(corpus_nodes, uncovered_rules):
+    """Smoke-test the coverage analysis itself.
+
+    Canary rules are rules that MUST appear as covered in any valid analysis.
+    If any show as uncovered, the analysis is broken (e.g., regex bug), not the grammar.
+    Returns list of warnings (empty = analysis is trustworthy).
+    """
+    canaries = load_canary_rules()
+    warnings = []
+    for rule in canaries:
+        if rule in uncovered_rules:
+            warnings.append(
+                f"ANALYSIS BUG SUSPECTED: canary rule '{rule}' shows as uncovered. "
+                f"This rule appears in virtually every Pike parse tree. "
+                f"Check the corpus node extraction regex."
+            )
+        elif rule not in corpus_nodes:
+            warnings.append(
+                f"ANALYSIS BUG SUSPECTED: canary rule '{rule}' not found in corpus nodes. "
+                f"This rule appears in virtually every Pike parse tree. "
+                f"Check the corpus node extraction regex."
+            )
+    return warnings
+
 # ── Change 4 & 5: Rule and branch coverage ───────────────────────────
 
 def extract_grammar_rules():
@@ -618,7 +657,8 @@ def analyze_branch_coverage():
 # ── Main ──────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Round 10 convergence harness")
+    parser = argparse.ArgumentParser(description="Convergence harness for tree-sitter-pike")
+    parser.add_argument("--round", type=int, required=True, help="Round number for report")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--adversarial-count", type=int, default=55)
     args = parser.parse_args()
@@ -626,7 +666,7 @@ def main():
     report = []
 
     print("=" * 70)
-    print("ROUND 10 CONVERGENCE HARNESS")
+    print(f"ROUND {args.round} CONVERGENCE HARNESS")
     print(f"Seed: {args.seed}, Adversarial count: {args.adversarial_count}")
     print("=" * 70)
 
@@ -675,7 +715,7 @@ def main():
     # ── Change 3: Known limitations ───────────────────────────────────
 
     print(f"\n[3] Known-limitations re-validation (Change 3)...")
-    kl_diff = revalidate_known_limitations(round_num=10)
+    kl_diff = revalidate_known_limitations(round_num=args.round)
     print(f"  Kept: {len(kl_diff['kept'])} items")
     for item in kl_diff['kept']:
         print(f"    {item['id']}: rounds since last validation: {item['rounds_since_validation']}")
@@ -687,12 +727,22 @@ def main():
 
     print(f"\n[4] Uncovered grammar rules (Change 4)...")
     covered, uncovered, all_rules = analyze_coverage()
+    corpus_nodes = parse_corpus_node_types()
     print(f"  Total named rules: {len(all_rules)}")
     print(f"  Covered by corpus: {len(covered)}")
     print(f"  Uncovered (P2): {len(uncovered)}")
     if uncovered:
         for r in sorted(uncovered):
             print(f"    - {r}")
+
+    # Analysis-trust check
+    trust_warnings = check_analysis_trust(corpus_nodes, uncovered)
+    if trust_warnings:
+        print(f"\n  \u26a0 ANALYSIS TRUST CHECK FAILED ({len(trust_warnings)} warnings):")
+        for w in trust_warnings:
+            print(f"    \u26a0 {w}")
+    else:
+        print(f"  Analysis trust check: PASSED ({len(load_canary_rules())} canary rules verified)")
 
     # ── Change 5: Branch coverage ─────────────────────────────────────
 
@@ -706,7 +756,7 @@ def main():
     # ── Summary ───────────────────────────────────────────────────────
 
     print("\n" + "=" * 70)
-    print("ROUND 10 SUMMARY")
+    print(f"ROUND {args.round} SUMMARY")
     print("=" * 70)
 
     total_p1 = ex_p1 + adv_p1
@@ -739,7 +789,7 @@ def main():
 
     # Write JSON report
     report_data = {
-        "round": 10,
+        "round": args.round,
         "seed": args.seed,
         "build": "clean",
         "corpus": {"total": total, "passed": passed, "failed": failed},
@@ -754,13 +804,14 @@ def main():
         "known_limitations": kl_diff,
         "uncovered_rules": sorted(uncovered),
         "uncovered_branches": uncovered_branches,
+        "analysis_trust_warnings": trust_warnings,
         "total_p1": total_p1,
         "total_p2": total_p2,
         "converged": total_p1 == 0,
         "next_round_priorities": next_priorities,
     }
 
-    report_file = REPO / "convergence" / "round10_report.json"
+    report_file = REPO / "convergence" / f"round{args.round}_report.json"
     report_file.write_text(json.dumps(report_data, indent=2))
     print(f"\n  Report written to {report_file}")
 

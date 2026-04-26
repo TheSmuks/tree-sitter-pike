@@ -21,7 +21,7 @@ This design had systemic problems:
 ### Round 10: Unified Harness
 
 The multi-agent design was replaced with a single Python harness
-(`convergence/round10.py`) that runs all analyses in one deterministic pass.
+(`convergence/harness.py`) that runs all analyses in one deterministic pass.
 
 This was a **process change** from the original Round 10 specification, which
 called for seven agents. The change was made because:
@@ -83,7 +83,7 @@ The harness implements five mandatory checks:
 ### Vocabulary
 
 The term "agents" refers to the historical multi-agent design. The current
-implementation is "the harness" (`convergence/round10.py`). Future process
+implementation is "the harness" (`convergence/harness.py`). Future process
 changes (e.g., adding new analyses, changing the harness architecture) must
 be flagged in the convergence report as changes, not folded into the
 implementation status table.
@@ -92,7 +92,7 @@ implementation status table.
 
 ```bash
 cd tree-sitter-pike
-python3 convergence/round10.py --seed 42 --adversarial-count 55
+python3 convergence/harness.py --seed 42 --adversarial-count 55
 ```
 
 Output: stdout summary + `convergence/round10_report.json` (machine-readable).
