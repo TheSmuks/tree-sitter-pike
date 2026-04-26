@@ -1272,3 +1272,326 @@ Line continuation in expression
                                   (postfix_expr
                                     (primary_expr
                                       (integer_literal))))))))))))))))))))
+
+================================================================================
+Macro invocation - simple without semicolon
+================================================================================
+CBFUNC(write_callback_t, write_callback)
+
+--------------------------------------------------------------------------------
+
+(program
+  (macro_invocation
+    (identifier)
+    (macro_argument_list
+      (comma_expr
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          (identifier))))))))))))))))))
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        (identifier)))))))))))))))))))))
+
+================================================================================
+Macro invocation - with type argument and semicolon
+================================================================================
+CBFUNC(function(mixed|void:int), cb);
+
+--------------------------------------------------------------------------------
+
+(program
+  (macro_invocation
+    (identifier)
+    (macro_argument_list
+      (type
+        (basic_type
+          (type
+            (type
+              (basic_type))
+            (type
+              (basic_type)))
+          (type
+            (basic_type))))
+      (type
+        (id_type
+          (identifier))))))
+
+================================================================================
+Nested macro_statement
+================================================================================
+void f() {
+  ENTER(0) {
+    ENTER(1) {
+      int x = 1;
+    } LEAVE;
+  } LEAVE;
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_statement
+          (identifier)
+          (argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+          (block
+            (macro_statement
+              (identifier)
+              (argument_list
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (integer_literal))))))))))))))))))))))))))))))))))
+              (block
+                (local_declaration
+                  (type
+                    (basic_type))
+                  (identifier)
+                  (comma_expr
+                    (assign_expr
+                      (cond_expr
+                        (lor_expr
+                          (land_expr
+                            (bitor_expr
+                              (bitxor_expr
+                                (bitand_expr
+                                  (eq_expr
+                                    (rel_expr
+                                      (shift_expr
+                                        (add_expr
+                                          (mul_expr
+                                            (unary_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (integer_literal)))))))))))))))))))
+              (identifier)))
+          (identifier))))))
+
+================================================================================
+Macro statement - empty body
+================================================================================
+void f() {
+  ENTER(0) { } LEAVE;
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_statement
+          (identifier)
+          (argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+          (block)
+          (identifier))))))
+
+================================================================================
+Macro invocation at file scope and function scope
+================================================================================
+CBFUNC(write_callback_t, write_callback)
+
+void f() {
+  int x = 1;
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (macro_invocation
+    (identifier)
+    (macro_argument_list
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (identifier_expr
+                                        (identifier))))))))))))))))))
+      (type
+        (id_type
+          (identifier)))))
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (local_declaration
+          (type
+            (basic_type))
+          (identifier)
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (integer_literal))))))))))))))))))))))
+
+================================================================================
+#define with string containing backslash and continuation
+================================================================================
+#define FOO "a\b" \
+  + 1
+
+---
+
+(program
+  (preprocessor_directive))
