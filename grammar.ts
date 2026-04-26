@@ -319,7 +319,7 @@ export default grammar({
 
     identifier_expr: $ => field('name', $.identifier),
 
-    argument_list: $ => trailingCommaSep1(choice($._expr, seq('@', $._expr))),
+    argument_list: $ => trailingCommaSep1(choice($._expr, seq('@', $._expr), $.block, $.magic_identifier)),
 
     // Cast takes unary_expr to allow (int)!x, (string)-y etc.
     cast_expr: $ => seq('(', field('type', $.type), ')', field('value', $.unary_expr)),
@@ -374,7 +374,7 @@ export default grammar({
       'inline', 'local', 'final', 'variant', 'optional', 'nomask',
       '__attribute__', '__deprecated__',
       '__func__',
-      'predef', 'bits',
+      'predef',
     ),
 
     generic_bindings: $ => seq('(<', commaSep1($.type), '>)'),

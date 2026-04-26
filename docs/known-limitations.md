@@ -54,6 +54,14 @@ point for this attempt.
 
 - **Last validated**: Round 15
 - **Rounds active**: 3
+- **Impact**: 16 distribution files have errors (down from 19 in Round 14):
+  - KL-007a: 5 files (PP splitting expressions)
+  - KL-007b: 5 files (PP splitting control flow)
+  - KL-007c: 4 files remaining (3 fixed in Round 15)
+  - KL-007d: 2 files (adjacent macro concatenation)
+  - KL-007e: 1 file (hash-string lexer bug)
+  - KL-007f: 1 file (bare macro expanding to nothing)
+  - Some files appear in multiple sub-entries
 
 #### KL-007a: Preprocessor splitting expressions (5 files)
 
@@ -103,33 +111,39 @@ The `DO_IF_DEBUG` case is actually a macro-argument issue (see KL-007c).
 `if_statement` was tried in Round 14. It works when `#if` wraps the ENTIRE
 else body but not when it splits mid-body.
 
-#### KL-007c: Macro invocations with non-standard argument shapes (7 files)
+#### KL-007c: Macro invocations with non-standard argument shapes (4 remaining, 3 fixed in Round 15)
 
 Macro calls where the arguments have shapes that `macro_argument_list`
 doesn't accept: blocks, backtick operators, keywords as identifiers, or
 argument counts/positions that differ from standard function calls.
 
-| File | Location | Macro pattern | What macro_argument_list rejects |
-|------|----------|---------------|----------------------------------|
-| `lib/7.8/modules/SSL.pmod/sslfile.pike` | line 612 | `FIX_ERRNOS({block}, 0)` | Block `{...}` as first arg, followed by `, 0)` |
-| `lib/modules/Parser.pmod/LR.pmod/module.pmod` | line 1306 | `LR_GAUGE("LR0", {block})` | Block `{...}` as second arg after string |
-| `lib/modules/Protocols.pmod/TELNET.pmod` | line 805 | `HANDLE(remote,WILL,WONT,DO,DONT)` | 5 bare identifier args (no blocks) — `macro_statement` pattern mismatch |
-| `lib/modules/Protocols.pmod/LDAP.pmod/client.pike` | line 116 | `DO_IF_DEBUG(void|int nowarn)` | `void|int` type syntax as macro argument |
-| `lib/modules/Standards.pmod/URI.pike` | line 649 | `P(X)` → `#X:X` mapping pair | `P(scheme)` in mapping literal — grammar sees call, not pair |
-| `lib/modules/Debug.pmod/Subject.pike` | line 46 | `void PROXY(destroy, 0);` | Type + macro call as declaration; `PROXY(\`->, 0)` has backtick op |
-| `src/post_modules/GSSAPI/test.pike` | line 28 | `TEST_CODE({block})` | Block `{...}` as sole variadic arg |
+**Fixed in Round 15** (3 files):
+- `lib/modules/Protocols.pmod/TELNET.pmod` — `HANDLE(remote,WILL,WONT,DO,DONT)`: Fixed by adding `$.magic_identifier` to `argument_list`.
+- `lib/modules/Parser.pmod/LR.pmod/module.pmod` — `LR_GAUGE("LR0", {block})`: Fixed by adding `$.block` to `argument_list`.
+- `src/post_modules/GSSAPI/test.pike` — `TEST_CODE({block})`: Fixed by adding `$.block` to `argument_list`.
+- `lib/7.8/modules/SSL.pmod/sslfile.pike` — `FIX_ERRNOS({block}, 0)`: Partially fixed (fewer errors). Block args now accepted.
+
+Also fixed: removed `'bits'` from `magic_identifier` (not a Pike keyword,
+was causing `nist_primes(bits / 64 - 8)` to fail when `bits` was matched as
+a magic_identifier instead of a regular identifier expression).
+
+**Remaining (4 files):**
+
+| File | Location | Macro pattern | Status |
+|------|----------|---------------|--------|
+| `lib/modules/Protocols.pmod/LDAP.pmod/client.pike` | line 116 | `DO_IF_DEBUG(void|int nowarn)` | Unfixable — `void|int` type syntax as macro arg |
+| `lib/modules/Standards.pmod/URI.pike` | line 649 | `P(X)` → `#X:X` mapping pair | Unfixable — grammar can't know macro expands to mapping pair |
+| `lib/modules/Debug.pmod/Subject.pike` | line 46 | `void PROXY(\`->, 0);` | Unfixable — backtick operator as macro arg + type+macro as declaration |
+| `lib/7.8/modules/SSL.pmod/sslfile.pike` | line 612 | Multiple patterns | Partially fixed — remaining errors are other macro/preproc patterns |
 
 **External scanner path**: Not applicable. These are not preprocessor-split
 issues — they're about the grammar's macro invocation rules not covering
 all argument shapes found in real Pike code.
 
-**Grammar-only path**: Several of these are fixable:
-- `FIX_ERRNOS({...}, 0)` and `LR_GAUGE("...", {...})` and `TEST_CODE({...})`: `macro_argument_list` needs to accept blocks at more positions.
-- `HANDLE(remote,WILL,WONT,DO,DONT)`: Bare identifier args should already work; investigate why `macro_statement` pattern fails.
-- `DO_IF_DEBUG(void|int nowarn)`: `void|int` type in arg position — `macro_argument_list` doesn't accept type syntax.
-- `P(X)` mapping pair: Fundamentally unfixable — the grammar can't know that `P(scheme)` expands to `"scheme":scheme`.
-- `PROXY(\`->, 0)`: Backtick operator as macro argument — the grammar's `macro_argument_list` doesn't accept backtick identifiers.
-
+**Grammar-only path**: The 3 remaining individual cases are unfixable:
+- `DO_IF_DEBUG(void|int nowarn)`: Would require `argument_list` to accept full type syntax, creating massive conflicts.
+- `P(X)` mapping pair: Fundamentally requires macro expansion awareness.
+- `PROXY(\`->, 0)`: Backtick operator as macro argument + the pattern `void PROXY(...);` where `void` is a type and `PROXY(...)` is the declarator.
 #### KL-007d: Adjacent macro invocations producing implicit concatenation (2 files)
 
 Two or more macro invocations appear adjacent without an operator between them.
