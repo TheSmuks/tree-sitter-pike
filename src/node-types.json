@@ -428,6 +428,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "cond_decl",
+            "named": true
           }
         ]
       }
@@ -466,6 +470,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "backtick_identifier",
+            "named": true
+          },
           {
             "type": "identifier",
             "named": true
@@ -1305,6 +1313,10 @@
           },
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "cond_decl",
             "named": true
           }
         ]
@@ -3201,6 +3213,11 @@
   {
     "type": "return",
     "named": false
+  },
+  {
+    "type": "shebang",
+    "named": true,
+    "extra": true
   },
   {
     "type": "sscanf",

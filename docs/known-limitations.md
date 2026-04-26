@@ -6,38 +6,6 @@ for 2+ rounds without progress must include a written reason or be escalated.
 
 ## Active Limitations
 
-### KL-003: version_prefix (7.8::foo) requires external scanner
-- **Description**: The `major.minor::identifier` syntax (e.g., `7.8::foo`,
-  `inherit 7.0::Stdio;`) cannot be parsed because `7.8` is lexed as a float
-  token, not as a version prefix.
-- **Ambiguous token sequence**: `7.8::` — the lexer encounters `7.8` and must
-  decide between two token types:
-  1. `float_literal` (regex: `/[0-9]+\.[0-9]+/`)
-  2. `version_prefix` (regex: `/[0-9]+\.[0-9]+/`)
-  Both rules match the same character sequence `7.8` with identical length.
-- **Competing parses**:
-  - Parse A (correct): `(version_prefix) (::) (identifier)` → scope resolution
-  - Parse B (actual): `(float_literal) (::) (identifier)` → ERROR at `::`
-- **Why precedence cannot resolve it**: Both alternatives are `token()` rules
-  with identical regex patterns. Tree-sitter's longest-match rule produces a
-  tie. The lexer commits to the token before the parser can see `::`.
-- **Why rule restructuring cannot resolve it**: `version_prefix` and
-  `float_literal` are both atomic `token()` rules. Moving version detection
-  into the grammar (e.g., making `7.8::` a single token) would prevent `7.8`
-  from being used as a float in other contexts.
-- **Specific lookahead requirement**: The lexer must scan past `7.8` and check
-  whether `::` follows (with optional whitespace). If `::` follows, emit
-  `version_prefix`; otherwise emit `float_literal`. This is a two-token
-  lookahead that tree-sitter's default lexer architecture does not support.
-- **Pike's lexer behavior** (lexer.h L990-1030): Pike's `read_float` path
-  explicitly checks for `::` after the fractional digits using `GOBBLE` and
-  conditional logic. It emits `TOK_VERSION` or `TOK_FLOAT` based on this
-  lookahead. This is context-sensitive lexing.
-- **Impact**: ALL version-prefixed identifiers fail. Affects `7.8::Stdio`,
-  `inherit 7.0::Stdio;`, and any `major.minor::identifier` construct.
-- **Last validated**: Round 10
-- **Rounds active**: 3+
-
 ### KL-004: Top-level break/continue without enclosing loop
 - **Description**: `break` and `continue` parse at the top level of a block
   without checking for an enclosing loop/switch. Pike would reject these.
@@ -46,37 +14,72 @@ for 2+ rounds without progress must include a written reason or be escalated.
   a syntactic one.
 - **Impact**: Accepts invalid Pike code. Low severity since static analysis
   tools catch this.
-- **Last validated**: Round 10
+- **Last validated**: Round 12
 - **Rounds active**: 3+
+
+### KL-006: Complex macro invocations not fully covered
+- **Description**: Macro invocations with non-trivial bodies (e.g.,
+  `OVERLOAD_TIMEOFDAY;`, `FIX_ERRNOS({...})`, `TEST_CODE({...})`,
+  `INHERIT_MUTEX;`) produce ERROR nodes. The grammar handles the common
+  patterns (`IDENTIFIER(args);`, `IDENTIFIER(args) block IDENTIFIER;`) but
+  not all variants found in the Pike distribution.
+- **Root cause**: Without actual macro expansion, tree-sitter cannot know
+  what `OVERLOAD_TIMEOFDAY` expands to. The grammar's macro rules handle
+  patterns that look like balanced constructs (open/close pairs), but
+  bare macro names that expand to statements or expressions are
+  indistinguishable from undefined identifiers.
+- **Impact**: 8 distribution files affected.
+- **Last validated**: Round 12
+- **Rounds active**: 1
+
+### KL-007: Remaining distribution errors (~65 files)
+- **Description**: 65 of 1082 Pike distribution files still have parse errors.
+  The largest categories are fixed (shebang: 20 files, double-backtick: 6,
+  preprocessor with spaces: 8, etc.). Remaining errors fall into smaller
+  categories: adjacent string concatenation with identifiers, module-scope
+  declarations, sscanf complex formats, and various single-file issues.
+- **Impact**: 6.0% error rate (down from 10.6% at start of Round 12).
+- **Last validated**: Round 12
+- **Rounds active**: 1
+
+### KL-008: Invisible modifier nodes in declarations
+- **Description**: Declaration modifiers (`protected`, `private`, `public`,
+  etc.) are consumed by the hidden `_modifier` rule and produce no named
+  child nodes. Downstream consumers (highlighters, refactoring tools) cannot
+  see which modifiers were applied.
+- **Root cause**: The `_modifier` rule is intentionally hidden (underscore
+  prefix) to avoid polluting the parse tree with modifier nodes at every
+  declaration position. The tradeoff is correct but suboptimal for consumers.
+- **Impact**: Structural limitation, not a correctness issue. Affects all
+  declarations with modifiers.
+- **Last validated**: Round 12
+- **Rounds active**: 1
 
 ## Resolved Limitations
 
 ### KL-001: function(:void) zero-arg type — RESOLVED in Round 10
 - **Original claim**: `function(:void)` produces zero-width missing identifier.
 - **Resolution**: The `_function_type` rule with `optional(trailingCommaSep1($.type))`
-  correctly handles the zero-argument case. When the optional is empty, the parser
-  proceeds directly to `:`. GLR handles this without error recovery. The parse tree
-  is correct. The original claim was based on an earlier grammar version.
+  correctly handles the zero-argument case. GLR handles this without error recovery.
 - **Removed**: Round 10
 
 ### KL-002: `foo=` backtick setter form — RESOLVED in Round 10
 - **Original claim**: `` `foo= `` setter form requires external scanner.
-- **Resolution**: The fix was a grammar change, not an external scanner. Added
-  `=?` to the backtick identifier regex: `/`[a-zA-Z_][a-zA-Z0-9_]*=?/`. This
-  optionally consumes the trailing `=` as part of the identifier token, matching
-  Pike's lexer behavior where `GOBBLE('=')` appends `=` to identifier names.
-  The `` `->name= `` form was already working via the `seq('`', '->', regex, optional('='))`
-  alternative; the same `optional('=')` pattern was simply missing from the
-  plain identifier alternative.
+- **Resolution**: Added `=?` to the backtick identifier regex.
 - **Removed**: Round 10
 
+### KL-003: version_prefix (7.8::foo) — RESOLVED in Round 12
+- **Original claim**: `7.8::foo` requires external scanner because `7.8` is
+  lexed as float, not version prefix.
+- **Resolution**: The fix absorbs `::` into the `version_prefix` token itself:
+  `token(seq(/[0-9]+/, '.', /[0-9]+/, '::'))`. The scanner now sees `7.8::`
+  as a distinct (longer) token from `7.8`, which matches `float_literal`.
+  This mirrors Pike's lexer behavior where `TOK_VERSION` is produced by
+  lookahead for `::`. Space before `::` correctly breaks the token (float
+  then error), matching Pike's behavior.
+- **Removed**: Round 12
+
 ### KL-005: class { }() as expression — REMOVED in Round 10
-- **Original claim**: Anonymous class instantiation fails because `class` keyword
-  is not in `primary_expr`.
-- **Resolution**: False positive. The `anon_class` rule IS in `primary_expr` (line
-  264 of grammar.ts) and handles `class { body }()` correctly — the postfix `()`
-  is a call expression on the class value. The original test case
-  `class { int x; } o = class { int x; }()` was invalid Pike: `class { } o`
-  tries to use an anonymous class as a type name in a declaration, which Pike
-  itself rejects (`syntax error, unexpected TOK_IDENTIFIER`).
+- **Original claim**: Anonymous class instantiation fails.
+- **Resolution**: False positive. `anon_class` is in `primary_expr` and works.
 - **Removed**: Round 10

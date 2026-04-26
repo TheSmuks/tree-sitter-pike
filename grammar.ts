@@ -23,6 +23,8 @@ export default grammar({
     [$._modifier, $.inherit_specifier],
     // this_expr as type vs expression
     [$.this_expr, $.type],
+    // this_object standalone vs this_object() form
+    [$.this_expr],
     // assign_expr right-recursive ternary ambiguity
     [$.assign_expr],
     // dangling else ambiguity
@@ -48,6 +50,7 @@ export default grammar({
     $.block_comment,
     $.autodoc_comment,
     $.preprocessor_directive,
+    $.shebang,
   ],
 
   word: $ => $.identifier,
@@ -71,6 +74,7 @@ export default grammar({
     line_comment: _ => token(seq('//', /.*/)),
     block_comment: _ => token(seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),  
     autodoc_comment: _ => token(seq('//!', /.*/)),
+    shebang: _ => token(seq('#!', /.*/)),
 
     // ── Literals ──
 
@@ -96,13 +100,28 @@ export default grammar({
     string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-    // Backtick identifiers: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=, `foo=
-    // `foo= setter form: the = is part of the identifier name, same as `->foo=
+    // Backtick identifiers handle Pike's operator overloading syntax.
+    // Single backtick: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=, `foo=
+    // Double backtick: ``+ ``| ``* (lvalue operator forms)
+    // Triple backtick: ```+ ```| ```* (rvalue operator forms)
+    // The lexer (lexer.h L1170) supports up to three backticks followed by operator chars,
+    // named identifiers, or structural forms like [] and ().
     backtick_identifier: _ => token(choice(
+      // Named: `symbol, `symbol= (setter)
       /`[a-zA-Z_][a-zA-Z0-9_]*=?/,
-      '`[]', '`[]=', '`()', '`->', '`->=', '`[..]',
-      /`[-+&|^*\/~%!=<>]+/,
+      // Structural: `[], `[]=, `(), `[..]
+      '`[]', '`[]=', '`()', '`[..]',
+      // Arrow: `->, `->=, `->symbol, `->symbol=
+      '`->', '`->=',
       seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),
+      // Single backtick operator: `+ `- `& `| `^ `* `/ `~ `% `! `= `<> `<< `>>
+      /`[-+&|^*\/~%!=<>]+/,
+      // Double backtick named: ``symbol, ``symbol=
+      /``[a-zA-Z_][a-zA-Z0-9_]*=?/,
+      // Double backtick operator: ``+ ``| ``* etc.
+      /``[-+&|^*\/~%!=<>]+/,
+      // Triple backtick operator: ```+ ```| ```* etc.
+      /```[-+&|^*\/~%!=<>]+/,
     )),
 
 
@@ -282,7 +301,7 @@ export default grammar({
     catch_expr: $ => seq('catch', field('value', $._catch_arg)),
     gauge_expr: $ => seq('gauge', field('value', $._catch_arg)),
 
-    _catch_arg: $ => choice(seq('(', $._expr, ')'), $.block),
+    _catch_arg: $ => choice(seq('(', choice($._expr, $.cond_decl), ')'), $.block),
     typeof_expr: $ => seq('typeof', '(', field('value', $._expr), ')'),
 
     sscanf_expr: $ => seq(
@@ -306,14 +325,14 @@ export default grammar({
       seq('this', '::'),
       seq('global', '::'),
       seq('predef', '::'),
-      seq($.version_prefix, '::'),
+      $.version_prefix,
       seq($.inherit_specifier, choice($.identifier, $.string_literal), '::'),
       '::',
     ),
 
-    version_prefix: _ => token(/[0-9]+\.[0-9]+/),
+    version_prefix: _ => token(seq(/[0-9]+/, '.', /[0-9]+/, '::')),
 
-    this_expr: $ => choice('this', 'this_program', seq('this_object', '(', ')')),
+    this_expr: $ => choice('this', 'this_program', 'this_object', seq('this_object', '(', ')')),
 
     magic_identifier: _ => choice(
       'if', 'else', 'for', 'while', 'do', 'foreach', 'switch',
@@ -595,6 +614,7 @@ export default grammar({
     parameters: $ => seq('(', optional(commaSep1($.parameter)), ')'),
 
     parameter: $ => seq(
+      repeat($._modifier),
       field('type', $.type), optional('...'), optional(field('name', $.identifier)),
       optional(seq('=', field('default_value', $._expr))),
     ),
@@ -629,7 +649,7 @@ export default grammar({
     ),
 
     class_decl: $ => seq(
-      'class', field('name', $.identifier),
+      'class', field('name', choice($.identifier, $.backtick_identifier)),
       optional($.generic_bindings),
       optional($.parameters),
       field('body', $.class_body),
@@ -675,25 +695,27 @@ export default grammar({
     // Preprocessor directive token spanning continuation lines.
     // Regex (\\\n|\\[^\n]|[^\\\n])* handles: line continuation,
     // escape sequences, and plain chars. Allows multi-line #define bodies.
+    // Whitespace between # and directive keyword is allowed (Pike lexer accepts it).
     preprocessor_directive: _ => token(choice(
-      seq('#if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#elifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#elifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#else', /\s*/),
-      seq('#endif', /\s*/),
-      seq('#define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#include', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#string', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#require', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#warning', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#error', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elseif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'else', /\s*/),
+      seq('#', /\s*/, 'endif', /\s*/),
+      seq('#', /\s*/, 'define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'include', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'string', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'require', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'warning', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'error', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
     )),
   },
 });

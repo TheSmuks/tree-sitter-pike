@@ -92,7 +92,64 @@ implementation status table.
 
 ```bash
 cd tree-sitter-pike
-python3 convergence/harness.py --seed 42 --adversarial-count 55
+python3 convergence/harness.py --round N --seed 42 --adversarial-count 55
 ```
 
-Output: stdout summary + `convergence/round10_report.json` (machine-readable).
+Output: stdout summary + `convergence/roundN_report.json` (machine-readable).
+
+## Coverage and Correctness Definitions
+
+### 100% Coverage Definition
+
+The grammar achieves 100% Pike 8 coverage when all four conditions hold:
+
+1. **Rule coverage**: Every named rule in `grammar.ts` has at least one corpus test
+   that exercises it. Measured by cross-referencing grammar rules against corpus
+   test parse tree node types.
+
+2. **Branch coverage**: Every alternative in every `choice()` rule is exercised by
+   at least one corpus test. Measured by extracting alternatives from grammar.ts
+   and checking corpus parse trees.
+
+3. **Manual construct coverage**: Every language construct described in the Pike 8
+   reference documentation maps to at least one grammar rule. Gaps are tracked in
+   the coverage matrix (yacc rule → grammar rule → corpus test).
+
+4. **Distribution parse rate**: Every `.pike` and `.pmod` file in the Pike 8 source
+   distribution parses without ERROR or MISSING nodes. Files that fail are
+   categorized by error pattern, and each distinct pattern is either fixed or
+   documented as a known limitation.
+
+### 100% Correctness Definition
+
+The grammar achieves 100% correctness when both conditions hold:
+
+1. **No precedence or associativity errors**: For a sampled set of files, operator
+   expressions produce the correct tree shape. Verified by manual review of parse
+   trees against Pike's expression semantics (matching the yacc precedence
+   declarations).
+
+2. **No structural errors**: Named nodes in the parse tree faithfully represent the
+   language construct they claim to represent. Specifically:
+   - Modifiers on declarations produce visible named nodes
+   - Type annotations include all components (constraints, generic arguments)
+   - Statement structures match the language semantics
+
+### Measurement Strategy
+
+- **Rule/branch coverage**: Automated by the harness on every run
+- **Manual construct coverage**: Re-assessed when grammar rules change
+- **Distribution parse rate**: Run on every significant grammar change
+- **Correctness sampling**: Stratified by construct type — 5 files each for
+  expressions, declarations, type system, class bodies, and control flow
+
+### Convergence Criteria
+
+- **P1 = 0**: No ERROR or MISSING nodes in example files, no ERROR in
+  adversarial inputs, no escalated known limitations, no distribution files
+  with ERROR/MISSING (excluding documented known limitations).
+- **P2**: Listed but not blocking. Uncovered rules, branches, structural issues
+  (invisible named nodes), and distribution files with errors from documented
+  known limitations.
+- **CONVERGED** means P1 = 0 under the expanded target (coverage + correctness
+  + distribution). The convergence claim is qualified by the measurement criteria.
