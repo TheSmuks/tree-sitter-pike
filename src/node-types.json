@@ -72,7 +72,15 @@
       "required": true,
       "types": [
         {
+          "type": "block",
+          "named": true
+        },
+        {
           "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "magic_identifier",
           "named": true
         }
       ]
@@ -2318,6 +2326,10 @@
           "named": true
         },
         {
+          "type": "hash_string",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -2570,6 +2582,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "hash_string",
+          "named": true
+        },
         {
           "type": "identifier",
           "named": true
@@ -3194,6 +3210,10 @@
   {
     "type": "global",
     "named": false
+  },
+  {
+    "type": "hash_string",
+    "named": true
   },
   {
     "type": "identifier",

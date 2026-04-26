@@ -592,4 +592,4 @@ Raw string literal
                               (unary_expr
                                 (postfix_expr
                                   (primary_expr
-                                    (string_literal)))))))))))))))))))
+                                    (hash_string)))))))))))))))))))

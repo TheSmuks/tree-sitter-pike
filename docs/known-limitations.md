@@ -42,8 +42,8 @@ but fails when they split a syntactic structure mid-expression or mid-statement.
 Additionally, several macro invocation patterns found in real Pike code have
 argument shapes that the grammar cannot parse without macro expansion.
 
-The current extras-based approach reaches 98.5% (1066/1082 distribution files
-clean, 204/204 corpus tests passing). The remaining 16 error files fall into
+The current extras-based approach reaches 98.7% (1067/1082 distribution files
+clean, 208/208 corpus tests passing). The remaining 15 error files fall into
 5 sub-entries (KL-007a through KL-007e) plus one edge case (KL-007f).
 
 An attempt was made in Round 14 to implement structured `preproc_if` grammar
@@ -55,23 +55,23 @@ each position creates cascading GLR conflicts. The tree-sitter-c approach works
 because C has a smaller position set. The commit `pre-preproc-redesign` (tagged
 at `6180b02`) marks the rollback point.
 
-Round 14's lesson: ad-hoc architectural changes without a written design fail.
-Round 15 is design-and-prep: proper sub-categorization, scanner design document,
-and independent grammar fixes. Round 16 will implement the scanner from the
-Round 15 design.
+Round 16 attempted to implement PREPROC_BLOCK (opaque #if...#endif blocks)
+via external scanner. This was found to be incompatible with the transparent
+extras approach: 224 files contain conditional directives, and making them
+opaque would regress tree fidelity for all of them. See docs/scanner-design.md
+§10 for the analysis. The scanner was reduced to hash-string-only (HASH_STRING).
 
-- **Last validated**: Round 15
-- **Rounds active**: 4
-- **Impact**: 16 distribution files have errors:
-  - KL-007a: 5 files (PP splitting expressions) — **scanner target**
-  - KL-007b: 5 files (PP splitting control flow) — **scanner target**
-  - KL-007c: 5 files (macro argument shapes + adjacent macros) — **grammar fixes, partial**
+- **Last validated**: Round 16
+- **Rounds active**: 5
+- **Impact**: 15 distribution files have errors:
+  - KL-007a: 5 files (PP splitting expressions) — **not scanner-addressable**
+  - KL-007b: 5 files (PP splitting control flow) — **not scanner-addressable**
+  - KL-007c: 4 remaining files (macro argument shapes) — **not scanner-addressable**
   - KL-007d: 1 file (P(X) mapping pair) — **not scanner-addressable**
-  - KL-007e: 2 files (hash-string lexer) — **scanner target**
+  - KL-007e: 0 remaining files (hash-string) — **RESOLVED in Round 16**
   - KL-007f: 1 file (bare macro) — **not scanner-addressable**
-  - Some files appear in multiple sub-entries (total unique: 16)
-
-#### KL-007a: PP splitting expressions (5 files) — Scanner target
+  - Some files appear in multiple sub-entries (total unique: 15)
+#### KL-007a: PP splitting expressions (5 files) — Not scanner-addressable
 
 The `#if`/`#ifdef`/`#endif` block splits a sub-expression so that neither
 branch is a complete expression. Tree-sitter sees a dangling operator with
@@ -109,7 +109,7 @@ Tree fidelity inside the block is lost — this is the tradeoff for correctness.
 block is nested inside a larger expression context like `&&` or `||`.
 Round 14 confirmed this.
 
-#### KL-007b: PP splitting control flow (5 files) — Scanner target
+#### KL-007b: PP splitting control flow (5 files) — Not scanner-addressable
 
 The `#if`/`#endif` block splits a control-flow construct: wrapping the
 then-clause of an if-else (making `else` appear detached), emitting a
@@ -210,28 +210,23 @@ macro invocations producing implicit string concatenation (`DEC_COMB_MARK GR("\3
 and `RELAY(X)` chains). These are similar — the grammar sees two expressions
 with no operator between them. Also not scanner-addressable.
 
-#### KL-007e: Multi-line #"..." string literals (2 files) — Scanner target
+#### KL-007e: Multi-line #"..." string literals — PARTIALLY RESOLVED in Round 16
 
 Pike's hash-string syntax `#"..."` produces a string where the content
 between `#"` and `"` includes literal newlines and backslash sequences.
-The current grammar uses a regex `seq('#"', repeat(choice(/[^"\\\\]/, /\\\\\\./)), '"')`
-which works for most hash-strings but fails when the content contains
+The original regex `seq('#"', repeat(choice(/[^"\\]/, /\\\./)), '"')`
+worked for simple hash-strings but failed when the content contains
 backslash-newline combinations or preprocessor-like syntax.
 
-| # | File | Location | Issue | Token sequence |
-|---|------|----------|-------|----------------|
-| 1 | `Tools/Standalone/precompile.pike` | line 2148 | `#"` followed by backslash-newline breaks regex | `sprintf (#"\n#ifdef PIKE_DEBUG...\n", ...)` |
-| 2 | `bin/install.pike` | lines 2313, 2715, 2749 | `#"` multi-line strings with complex content | `error_msg (#"\nWarning: ...\n");` — cascading errors from 3 hash-string locations |
+**Round 16 fix**: External scanner (src/scanner.c) replaces the regex.
+The scanner handles backslash escapes, literal newlines, and EOF correctly.
+Also added `$.hash_string` to `string_concat` to support juxtaposition
+(`#"hello" "world"` concatenation pattern).
 
-**Scanner resolution**: An external scanner for hash-strings that tracks the
-opening `#"` and scans for the closing `"` without relying on regex would
-fix both cases. This is the same approach tree-sitter-rust uses for raw
-strings (`r###"..."###`).
-
-**Grammar-only path**: The regex approach works for simple hash-strings but
-the tree-sitter regex engine cannot handle line-spanning tokens with
-backslash-newline sequences correctly.
-
+| # | File | Location | Status |
+|---|------|----------|--------|
+| 1 | `Tools/Standalone/precompile.pike` | line 2149 | **FIXED** — external scanner handles `#"\n#ifdef..."` |
+| 2 | `bin/install.pike` | line 1533 | **NOT HASH-STRING** — root error is `RELAY(X)` macro arguments (KL-007c) |
 #### KL-007f: Bare macro identifiers expanding to nothing (1 file) — Not scanner-addressable
 
 | # | File | Location | Issue |

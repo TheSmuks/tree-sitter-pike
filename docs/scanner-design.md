@@ -805,3 +805,55 @@ alongside `src/parser.c`. For tree-sitter CLI, this happens automatically if
 
 5. **What about `#line` directives?** Not present in the Pike distribution's
    Pike source files. Not handled by the scanner.
+
+## 10. Post-Design Analysis (Round 16)
+
+### PREPROC_BLOCK approach is not viable
+
+The PREPROC_BLOCK token was implemented and tested. It was found to be
+incompatible with the transparent extras approach for conditional directives.
+
+**The problem**: 224 of 1082 distribution files contain conditional directives
+(`#if`, `#ifdef`, `#ifndef`). Making these opaque blocks would:
+
+1. Remove all structured parse tree content inside `#ifdef` blocks — declarations,
+   expressions, statements would become opaque text. This is a severe tree-fidelity
+   regression for downstream consumers (highlighting, navigation, indentation).
+2. Break the `string_concat` juxtaposition rule for hash-strings adjacent to
+   regular strings, causing regressions on previously-clean files.
+
+**Why it can't coexist with transparent extras**: Tree-sitter's external scanner
+fires BEFORE the default lexer. If `PREPROC_BLOCK` is in `valid_symbols` (which it
+is whenever `primary_expr` is expected — essentially all non-trivial parse states),
+the scanner consumes the entire `#if...#endif` block as opaque. The transparent
+extras never get a chance to handle it.
+
+**Attempted mitigation**: Only putting `PREPROC_BLOCK` in specific rules
+(`primary_expr` but not `_definition`/`_stmt`) doesn't help because
+`primary_expr` is reachable from `_stmt` (via `expression_statement`), so the
+scanner still fires at statement boundaries.
+
+**Decision**: PREPROC_BLOCK is dropped. The scanner only implements HASH_STRING.
+
+### Revised scanner scope
+
+| Token | Status | Impact |
+|-------|--------|--------|
+| `PREPROC_BLOCK` | Dropped | Not viable without regressing 224 files |
+| `HASH_STRING` | Implemented | Fixes 1 file (precompile.pike), no regressions |
+
+### What this means for KL-007
+
+- KL-007a (5 files, PP splitting expressions): Not fixable by scanner.
+  Would require PREPROC_BLOCK or equivalent opaque approach.
+- KL-007b (5 files, PP splitting control flow): Same as KL-007a.
+- KL-007c (3 remaining files, macro arguments): Grammar-only, not scanner-addressable.
+- KL-007d (1 file, P(X) mapping pair): Not scanner-addressable.
+- KL-007e (1 file fixed, 1 misclassified): precompile.pike fixed by HASH_STRING.
+  bin/install.pike's root error is RELAY() macro arguments, not hash-strings.
+- KL-007f (1 file, bare MUTEX): Not scanner-addressable.
+
+### Result
+
+1067/1082 (98.71%) clean, up from 1066/1082 (98.52%).
++1 file fixed, 0 regressions. 208/208 corpus tests pass.

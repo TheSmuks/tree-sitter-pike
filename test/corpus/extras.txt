@@ -201,3 +201,129 @@ Multiline #define - escaped newline in string
 
 (program
   (preprocessor_directive))
+
+
+================================================================================
+Hash string - simple
+================================================================================
+string s = #"hello";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (hash_string))))))))))))))))))))
+
+================================================================================
+Hash string - multi-line
+================================================================================
+string s = #"
+hello
+world
+";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (hash_string))))))))))))))))))))
+
+================================================================================
+Hash string - with backslash escapes
+================================================================================
+string s = #"hello\nworld\t!";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (hash_string))))))))))))))))))))
+
+================================================================================
+Hash string - juxtaposed with regular string
+================================================================================
+string s = #"hello" "world";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_concat
+                                        (hash_string)
+                                        (string_literal)))))))))))))))))))))

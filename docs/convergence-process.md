@@ -251,3 +251,61 @@ No scanner code written. Design document ready for Round 16.
 
 **Round 16 shape:** Implements the scanner from docs/scanner-design.md.
 Success criterion: 99.1%+ (1072+/1082 clean files).
+
+### Round 16: External Scanner Implementation
+
+Round 15 designed the external scanner. Round 16 implemented it, discovering
+that the PREPROC_BLOCK approach was architecturally flawed.
+
+**Work completed:**
+
+1. **PREPROC_BLOCK attempted and reverted**: The opaque block approach
+   consumed entire `#if...#endif` blocks as single tokens. This prevented
+   the parser from seeing code inside conditional blocks — a severe
+   tree-fidelity regression affecting 224 of 1082 files. Reverted.
+
+   Root cause: Tree-sitter's external scanner fires before the default lexer.
+   When PREPROC_BLOCK is valid (which it is whenever primary_expr is expected,
+   essentially all non-trivial parse states), the scanner consumes the block
+   before transparent extras can handle individual directives.
+
+2. **HASH_STRING scanner implemented** (src/scanner.c, 85 lines):
+   - External token for `#"..."` multi-line string literals
+   - Handles backslash escapes, literal newlines, EOF inside string
+   - No state required (hash-string-only, no depth counter)
+
+3. **Grammar changes**:
+   - Added `externals: [$ => [$.hash_string]]`
+   - Added `$.hash_string` to `primary_expr`
+   - Added `$.hash_string` to `string_concat` (fixes juxtaposition regression)
+   - Removed `seq('#"', ...)` from `string_literal` regex
+   - Added placeholder `hash_string` rule (required by tree-sitter for externals)
+
+4. **KL-007e resolved**: precompile.pike now parses cleanly.
+   bin/install.pike reclassified: root error is RELAY() macro, not hash-string.
+
+5. **Design doc updated**: docs/scanner-design.md §10 documents the
+   PREPROC_BLOCK analysis and the revised scanner scope.
+
+6. **Corpus tests**: 4 new tests for hash-strings (simple, multi-line,
+   backslash escapes, juxtaposition with regular string). 208/208 pass.
+
+**Result:** 1067/1082 clean (98.71%), 208/208 tests passing.
+Up from 1066/1082 (98.52%). +1 file fixed, 0 regressions.
+
+**Post-mortem on design prediction:**
+The design doc predicted 99.1-99.4% (9-12 files fixed). Actual: +1 file.
+The over-prediction was caused by:
+- PREPROC_BLOCK was assumed viable but was architecturally flawed
+- KL-007e was misclassified: bin/install.pike's root error is RELAY() macro,
+  not hash-string
+- The scanner's scope was reduced from 2 tokens to 1 after the PREPROC_BLOCK
+  analysis
+
+**Commits:**
+- scanner.c, grammar.ts changes, test updates, doc updates
+
+**Round 17 status:** Maintenance cadence. No scheduled round.
+All remaining errors are architectural (require macro expansion or opaque
+preprocessor blocks, which are not viable). The 98.71% rate is the practical
+ceiling for tree-sitter-pike without fundamental architecture changes.

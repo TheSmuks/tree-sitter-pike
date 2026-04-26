@@ -45,6 +45,12 @@ export default grammar({
     [$.string_concat, $._id_expr],
   ],
 
+
+  // External scanner tokens. See docs/scanner-design.md §10 for the
+  // post-design analysis explaining why PREPROC_BLOCK was dropped.
+  externals: $ => [
+    $.hash_string,
+  ],
   // Extras: whitespace + line continuations treated as skippable inter-token
   // material, following tree-sitter-c's approach. The regex in extras makes
   // backslash-newline invisible to every rule. Correct for both normal code
@@ -97,10 +103,13 @@ export default grammar({
       /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/
     ),
 
-    string_literal: _ => token(choice(
-      seq('"', repeat(choice(/[^"\\]/, /\\./)), '"'),
-      seq('#"', repeat(choice(/[^"\\]/, /\\./)), '"'),
-    )),
+    string_literal: _ => token(
+      seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')
+    ),
+
+    // Hash-string #"..." — tokenized by the external scanner (src/scanner.c).
+    // The rule body is a placeholder; tree-sitter replaces it with the external token.
+    hash_string: _ => token(seq('#"', repeat(choice(/[^"\\]/, /\\./)), '"')),
 
     // Adjacent string concatenation: "hello" "world" -> "helloworld"
     // String concatenation and macro-string juxtaposition.
@@ -116,8 +125,9 @@ export default grammar({
     //   1. string_literal followed by more literals/identifiers: "str" "str" IDENT
     //   2. identifier followed by string_literal (and optionally more): IDENT "str"
     string_concat: $ => choice(
-      seq($.string_literal, repeat1(choice($.string_literal, $.identifier))),
-      seq($.identifier, $.string_literal, repeat(choice($.string_literal, $.identifier))),
+      seq($.string_literal, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
+      seq($.hash_string, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
+      seq($.identifier, $.string_literal, repeat(choice($.string_literal, $.hash_string, $.identifier))),
     ),
 
 
@@ -315,6 +325,8 @@ export default grammar({
       // global.identifier — resolve in top-level scope
       seq('global', '.', $.identifier),
       '__func__',
+      // External scanner: multi-line hash-string #"..."
+      $.hash_string,
     ),
 
     identifier_expr: $ => field('name', $.identifier),
