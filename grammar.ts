@@ -392,6 +392,7 @@ export default grammar({
     ),
 
     foreach_lvalues: $ => choice(
+      seq(',', field('key', $._foreach_lvalue), ',', field('value', $._foreach_lvalue)),
       seq(',', field('value', $._foreach_lvalue)),
       seq(';', optional(field('key', $._foreach_lvalue)), ';', optional(field('value', $._foreach_lvalue))),
     ),
