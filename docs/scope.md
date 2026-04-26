@@ -1,132 +1,92 @@
-# Scope Decision: Grammar-Only vs External Scanner
+# Scope Decision: External Scanner for Preprocessor Pairing
 
 **Date**: Round 15 (2026-04-26)
-**Status**: Approved
+**Status**: Approved — design complete, implementation deferred to Round 16
 
 ## Decision
 
-Grammar-only was Phase 1. Phase 2 is targeted grammar fixes for the
-macro-argument category (KL-007c). An external scanner for preprocessor
-pairing is architecturally available but not justified by the marginal
-improvement at this time.
-
-After Phase 2, the project enters maintenance cadence.
+Grammar-only was Phase 1 (reached 98.2% in Round 13). Phase 2 is an external
+scanner for preprocessor conditional pairing and hash-string tokenization.
+Phase 2 targets 99.1%+ distribution parse rate.
 
 ## Reasoning
 
-### What an external scanner would fix
+### Why an external scanner is now justified
 
-An external scanner that tracks `#if`/`#endif` nesting and emits structured
-tokens would address:
+Round 14 proved the grammar-only ceiling exists at 98.2%. Round 15's
+sub-categorization shows that the remaining 16 error files split into clear
+categories:
 
-- **KL-007a** (5 files): PP splitting expressions. A scanner that emits a
-  single opaque `preproc_block` token would allow the grammar to accept
-  `#if`/`#endif` inside expressions. Cost: the parse tree inside the
-  preprocessor block is lost — the content is an opaque blob.
-- **KL-007e** (1 file): Hash-string with backslash-newline. A scanner that
-  handles hash-string tokenization outside the regex engine.
-- **Partially KL-007b** (2 of 5 files): The GTK if-then/else cases could be
-  addressed if the scanner understands enough Pike syntax to recognize `if`
-  statements. This is beyond simple nesting tracking.
+| Category | Files | Scanner-fixable? |
+|----------|-------|------------------|
+| KL-007a: PP splitting expressions | 5 | Yes |
+| KL-007b: PP splitting control flow | 5 | Yes (most) |
+| KL-007c: Macro argument shapes | 5 | Partial (grammar fixes) |
+| KL-007d: P(X) mapping pair | 1 | No |
+| KL-007e: Hash-string lexer | 2 | Yes |
+| KL-007f: Bare macro | 1 | No |
 
-Total: 8 of 19 error files at best. Parse rate improvement: 98.2% → ~98.9%.
+The scanner addresses KL-007a (5 files), KL-007b (3-5 files), and KL-007e
+(2 files) — 10-12 files total. With the 3 KL-007c grammar fixes already
+shipped, this brings the predicted rate to 99.1-99.4%.
 
-### What an external scanner would NOT fix
+### Cost assessment
 
-- **KL-007c** (7 files): Macro argument shape issues. These are grammar
-  rules that don't accept certain argument types (blocks, backtick operators,
-  type syntax). A scanner emits tokens; it doesn't change which tokens the
-  grammar accepts in argument position.
-- **KL-007d** (2 files): Adjacent macro invocations producing implicit
-  concatenation. Requires macro expansion awareness.
-- **KL-007f** (1 file): Bare macro identifier expanding to nothing.
-  A grammar-level decision about accepting bare identifiers.
-- **KL-007b** (remaining 3 of 5 files): Modifier blocks, compound
-  macro+preproc patterns, macro in parameter position.
+1. **C code in `src/scanner.c`**: ~200-300 lines. The tree-sitter-al reference
+   implementation for preprocessor depth tracking is ~100 lines. Pike's scanner
+   adds hash-string handling and string/comment skipping.
+2. **Build complexity**: tree-sitter CLI auto-compiles `src/scanner.c`. No
+   additional build steps.
+3. **Maintenance**: Scanner state is 1 byte (nesting depth). Serialization is
+   trivial. Changes to preprocessor handling affect the scanner, not the
+   grammar's preprocessor rules.
+4. **Testing**: External tokens are testable through corpus tests. The scanner
+   design includes 6+ corpus tests.
+5. **Tree fidelity**: `PREPROC_BLOCK` is opaque — no structured tree inside
+   conditional blocks. Acceptable tradeoff: downstream consumers that need
+   inside-`#if` detail would use the Pike compiler, not tree-sitter.
 
-### Cost of an external scanner
+### Previous incorrect scope decision
 
-1. **C code in `src/scanner.c`**: Tree-sitter external scanners are written in
-   C against tree-sitter's scanner API. This adds a compiled component to what
-   is currently a pure grammar file.
-2. **Build complexity**: The build process must compile and link the scanner.
-   Currently, `tree-sitter generate` produces everything from `grammar.ts`.
-   With a scanner, there's an additional compilation step.
-3. **Maintenance**: C code doesn't benefit from tree-sitter's grammar DSL.
-   Changes to preprocessor handling require editing both the grammar and the
-   scanner. The scanner must be kept in sync with the grammar's token
-   expectations.
-4. **Testing**: External scanners require separate test strategies. The corpus
-   test framework tests grammar rules, not scanner behavior directly.
-5. **Tree fidelity loss**: The opaque `preproc_block` token approach means no
-   parse tree inside preprocessor conditionals. This defeats the purpose of
-   structured preprocessor handling for downstream consumers.
-
-### Cost-benefit
-
-| Path | Files fixed | Parse rate | Complexity cost |
-|------|-------------|------------|-----------------|
-| Phase 2 (grammar fixes) | 4-5 of 7 in KL-007c | ~98.5-98.7% | Low — grammar.ts edits only |
-| External scanner | 8 of 19 | ~98.9% | High — C scanner + build changes |
-| Both | 12-13 of 19 | ~99.2% | High |
-
-The external scanner's marginal benefit over Phase 2 alone is 3-4 files
-(98.9% vs 98.7%). The cost is disproportionate.
-
-### Why not option (a) — grammar-only is permanent
-
-Option (a) would mean accepting 98.2% as the permanent ceiling. But the
-KL-007c analysis shows that 4-5 files are fixable with targeted grammar
-changes to `macro_argument_list`. These are not preprocessor issues — they're
-grammar bugs. Labeling them as "permanent" would be inaccurate.
+An earlier version of this document declared "maintenance cadence" and chose
+not to build the scanner. That decision was based on an incomplete analysis
+that underestimated the scanner's fixable scope (8 files vs. the actual 10-12)
+and overestimated the maintenance cost of a 1-byte-state scanner.
 
 ## Phase 2 Plan
 
-Fix the following KL-007c cases:
+### Design (Round 15, this document)
 
-1. **`FIX_ERRNOS({...}, 0)`** — block followed by additional args
-2. **`TEST_CODE({...})`** — block as sole variadic arg
-3. **`LR_GAUGE("LR0", {...})`** — block as second arg after expression
-4. **`HANDLE(remote,WILL,WONT,DO,DONT)`** — 5 bare identifier args
+1. KL-007 sub-categorization with exact token sequences — DONE
+2. Scanner design document (`docs/scanner-design.md`) — DONE
+3. Independent grammar fixes for KL-007c — DONE (3 files fixed)
+4. No scanner code written — confirmed
 
-Cases that are NOT fixable in Phase 2 (document, don't attempt):
+### Implementation (Round 16)
 
-5. **`DO_IF_DEBUG(void|int nowarn)`** — type syntax as macro arg
-6. **`P(X)` → `#X:X` mapping pair** — fundamentally requires macro expansion
-7. **`void PROXY(\`->, 0);`** — backtick operator as macro arg + type+macro as declaration
+1. Implement `src/scanner.c` per the design document
+2. Modify `grammar.ts`: add `externals`, modify `primary_expr`, `_definition`,
+   `_stmt`, remove conditional directives from `preprocessor_directive` extras
+3. Add corpus tests from the design's test plan
+4. Run distribution parse, verify no regressions
+5. Success criterion: 99.1%+ (1072+/1082 clean files)
 
-Predicted Phase 2 result: 1067-1068/1082 clean (~98.5-98.7%).
+### Post-implementation
 
-## Maintenance Cadence
+- If scanner hits 99.1%+: validate the approach, close KL-007a and KL-007e
+- If scanner falls below 99.0%: post-mortem, revise or abandon
+- Remaining errors (KL-007c/d/f) are not scanner-addressable — evaluate
+  per-case whether further grammar fixes are worth the conflict cost
 
-After Phase 2:
+## Predicted Round 16 Shape
 
-- **No scheduled rounds.** Rounds are triggered by:
-  - Regression detected (parse rate drops below Phase 2 baseline)
-  - New Pike release requiring grammar updates
-  - New bug report from a downstream consumer
-- **No new feature work.** The grammar handles Pike 8.0 comprehensively.
-  Adding Pike 9.x support would be a new project phase.
-- **Corpus growth is always in scope.** New test cases that exercise
-  uncovered grammar paths can be added at any time without a round.
+Round 16 starts from `docs/scanner-design.md` and produces:
+- `src/scanner.c` implementation
+- Grammar rule additions for `PREPROC_BLOCK` and `HASH_STRING`
+- 6+ corpus tests covering scanner behavior
+- Distribution parse results matching or exceeding the predicted rate
 
-## External scanner: not never, just not now
-
-If a downstream consumer needs structured preprocessor handling (e.g., an IDE
-that wants to gray out inactive preprocessor branches), the external scanner
-path is available. The design would be:
-
-1. Track `#if`/`#ifdef`/`#ifndef`/`#elif`/`#else`/`#endif` nesting depth.
-2. Emit structured tokens: `preproc_if_open`, `preproc_elif`, `preproc_else`,
-   `preproc_endif`.
-3. The grammar consumes these at statement/definition level (where they
-   already work as extras) and at expression level (new `preproc_if_expr` rule).
-4. At expression level, the scanner emits a single `preproc_block` token.
-   The grammar places this in `primary_expr`. Content inside is opaque.
-
-This design was not implemented because:
-- The statement/definition level already works via extras.
-- The expression level is the gap (KL-007a), but 5 files doesn't justify
-  the scanner's complexity.
-- The scanner cannot help with KL-007c/d/f, which are the majority of
-  remaining errors after Phase 2.
+Round 16's success criterion is matching or exceeding 99.1% from the design
+doc prediction. If the design predicts 99.1% and implementation hits 99.1%+,
+the scanner approach is validated. If it falls short, Round 16 produces a
+post-mortem — the same way Round 14 did for the grammar-only approach.

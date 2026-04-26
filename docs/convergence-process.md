@@ -190,37 +190,64 @@ extras tokens. The 19 error files are documented in KL-007.
     level and handles split cases before the parser sees them.
 
 
-### Round 15: Sub-categorization, Scope Decision, Targeted Fixes
+### Round 15: Design and Prep for External Scanner
 
-Round 14 proved the grammar-only ceiling exists. Round 15 decided what to do about it.
+Round 14 proved the grammar-only ceiling exists at 98.2%. Round 15 is
+design-and-prep: proper diagnosis of all error files, scanner design document,
+and independent grammar fixes. No scanner code was written.
 
 **Work completed:**
 
-1. **KL-007 sub-categorization**: Diagnosed all 19 error files and split KL-007
-   into 6 sub-entries (KL-007a through KL-007f) with exact token sequences,
-   affected files, and architectural-path analysis per sub-entry.
+1. **KL-007 sub-categorization** (docs/known-limitations.md):
+   All 16 error files diagnosed with `tree-sitter parse --debug` and exact
+   token sequences at each failure point. Split into 6 sub-entries:
+   - KL-007a: 5 files (PP splitting expressions) — scanner target
+   - KL-007b: 5 files (PP splitting control flow) — scanner target
+   - KL-007c: 5 files (macro argument shapes + adjacent macros) — grammar fixes
+   - KL-007d: 1 file (P(X) mapping pair) — not scanner-addressable
+   - KL-007e: 2 files (hash-string lexer) — scanner target
+   - KL-007f: 1 file (bare macro) — not scanner-addressable
 
-2. **Scope decision** (`docs/scope.md`): Grammar-only was Phase 1 (98.2%).
-   Phase 2 is targeted grammar fixes for macro-argument cases.
-   External scanner available but not justified (8-file marginal improvement
-   at high complexity cost). After Phase 2: maintenance cadence.
+2. **Scanner design document** (docs/scanner-design.md):
+   Complete design: tokens, state, grammar interaction, failure modes, test plan.
+   Key decisions:
+   - Opaque `PREPROC_BLOCK` token (not structured tokens) — avoids the
+     per-position rule explosion that caused Round 14's regression.
+   - Scanner tracks nesting depth (1 byte state) + string/comment opacity.
+   - `HASH_STRING` token replaces regex for `#"..."` multi-line strings.
+   - Conditional directives removed from extras, handled exclusively by scanner.
+   - Predicted post-implementation rate: 99.1-99.4% (1072-1075/1082).
+   - Reference implementation: tree-sitter-al (preprocessor depth tracking).
 
-3. **Grammar fixes** (Phase 2 execution):
-   - Added `$.block` to `argument_list` — fixes macro calls with block args
-   - Added `$.magic_identifier` to `argument_list` — fixes keyword-as-arg cases
-   - Removed `'bits'` from `magic_identifier` — not a Pike keyword, was causing
-     `nist_primes(bits / 64 - 8)` to regress
+3. **Independent grammar fixes** (KL-007c, committed as cbe3f35):
+   - Added `$.block` to `argument_list` — fixes FIX_ERRNOS, TEST_CODE, LR_GAUGE
+   - Added `$.magic_identifier` to `argument_list` — fixes HANDLE keyword args
+   - Removed `'bits'` from `magic_identifier` — was causing regression
+   - 3 files fully fixed: TELNET.pmod, LR/module.pmod, GSSAPI/test.pike
+   - 1 file partially fixed: SSL/sslfile.pike (fewer errors)
 
-   Files fixed:
-   - `Protocols/TELNET.pmod`: HANDLE(remote,WILL,WONT,DO,DONT)
-   - `Parser/LR/module.pmod`: LR_GAUGE("LR0", {...})
-   - `src/post_modules/GSSAPI/test.pike`: TEST_CODE({...})
-   - `7.8/SSL/sslfile.pike`: FIX_ERRNOS({...}, 0) partially fixed
+4. **Diagnosed unfixed patterns** (KL-007c remaining):
+   - `PROXY(\`->, 0)`: Grammar interprets as function declaration, not macro call.
+     Backtick operator as macro argument + type+macro declaration pattern.
+   - `DO_IF_DEBUG(void|int nowarn)`: `void|int` parsed as bitor expression.
+     Would require type syntax in argument_list — massive conflicts.
+   - Both confirmed unfixable without macro expansion awareness.
+
+5. **Scope decision** (docs/scope.md):
+   Grammar-only was Phase 1 (98.2%). Phase 2 is external scanner.
+   Target: 100% Pike 8 coverage, 100% correctness.
+   Round 16 implements the scanner. Round 17+ closes remaining gaps.
 
 **Result:** 1066/1082 clean (98.5%), 204/204 tests passing.
-Up from 1063/1082 (98.2%). 3 files fully fixed, 1 partially fixed.
+Up from 1063/1082 (98.2%). 3 files fully fixed by grammar changes.
+No scanner code written. Design document ready for Round 16.
 
-**Commits:** `1245f44`, `a6ced62`, `cbe3f35`
+**Commits:**
+- `1245f44`: docs: sub-categorize KL-007 into sub-entries
+- `a6ced62`: docs: scope decision (later rewritten)
+- `cbe3f35`: fix: accept blocks and magic_identifiers in argument_list
+- `f1800ec`: docs: add Round 15 summary (later rewritten)
+- `bd036a1`: docs: rewrite KL-007 sub-categorization per Round 15 spec
 
-**Round 16 status:** Maintenance cadence. No scheduled round.
-Round 16 is triggered only by regression, new Pike release, or bug report.
+**Round 16 shape:** Implements the scanner from docs/scanner-design.md.
+Success criterion: 99.1%+ (1072+/1082 clean files).
