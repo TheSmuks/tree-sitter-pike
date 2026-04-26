@@ -35,12 +35,6 @@ export default grammar({
     [$.inherit_specifier],
     // postfix_expr call-with-block ambiguity (f() {} vs f() as expr)
     [$.postfix_expr],
-    // macro_invocation vs identifier_expr: both start with identifier(
-    // macro_invocation matches at top level when no ';' follows;
-    // expression_statement (identifier call + ';') preferred when ';' present.
-    [$.macro_invocation, $.identifier_expr],
-    // macro_invocation optional ';' -- can't tell if ; belongs to macro or context
-    [$.macro_invocation],
   ],
 
   // Extras: whitespace + line continuations treated as skippable inter-token
@@ -66,14 +60,12 @@ export default grammar({
       $.expression_statement,
       $.block,
       ';',
-      // Top-level macro invocation: IDENTIFIER(args) without trailing ';'.
-      // Handles bare macro calls like CBFUNC(write_callback_t, write_callback)
-      // that expand to declarations. Arguments may include type expressions
-      // (e.g. function(mixed|void,string|void:int)) that the regular
-      // argument_list cannot parse because types are not expressions.
-      // prec(1) ensures expression_statement (which requires ';') is preferred
-      // when a semicolon is present.
-      prec(1, $.macro_invocation),
+      // Top-level macro invocation with trailing ';'.
+      // Handles bare macro calls like CBFUNC(function(mixed|void:int), x);
+      // where arguments include type expressions that regular argument_list
+      // cannot parse. Falls back to expression_statement for simple calls
+      // where ';' follows and args are plain expressions.
+      $.macro_invocation_stmt,
     ),
 
     line_comment: _ => token(seq('//', /.*/)),
@@ -435,16 +427,25 @@ export default grammar({
 
     labeled_statement: $ => seq(field('label', $.identifier), ':', field('body', $._stmt)),
 
-    // Top-level macro invocation: IDENTIFIER(args) with no semicolon.
+    // Macro invocation without trailing semicolon.
+    // Used inside class bodies (declaration context) where ';' is not required.
     // Macro arguments can include type expressions (function types, union types)
-    // that regular argument_list rejects. The macro_argument_list rule accepts
-    // both expressions and types as comma-separated arguments.
-    // Trailing semicolon is optional: CBFUNC(t, x) and CBFUNC(t, x); both valid.
+    // that regular argument_list rejects.
     macro_invocation: $ => seq(
       field('name', $.identifier),
       field('arguments', $.macro_argument_list),
-      optional(';'),
     ),
+
+    // Macro invocation with required trailing semicolon.
+    // Used at top level (_definition) for IDENTIFIER(type_args);
+    // where expression_statement fails because type expressions aren't valid
+    // expression arguments. Simple cases like CBFUNC(t, x); are handled by
+    // expression_statement instead (regular args parse fine as expressions).
+    macro_invocation_stmt: $ => prec.right(1, seq(
+      field('name', $.identifier),
+      field('arguments', $.macro_argument_list),
+      ';',
+    )),
 
     macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type)), ')'),
 
@@ -569,9 +570,10 @@ export default grammar({
         $.import_decl,
         $.inherit_decl,
         $.block,
-        // Bare macro invocation: CBFUNC(t, x) expanding to declarations.
-        // No modifiers or attributes expected before macro calls.
+        // Bare macro invocation (no trailing ';'): CBFUNC(t, x)
         $.macro_invocation,
+        // Macro invocation with trailing ';': CBFUNC(t, x);
+        $.macro_invocation_stmt,
       ),
     ),
 

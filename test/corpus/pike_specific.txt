@@ -1281,11 +1281,29 @@ CBFUNC(write_callback_t, write_callback)
 --------------------------------------------------------------------------------
 
 (program
-  (macro_invocation
-    (identifier)
-    (macro_argument_list
-      (comma_expr
+  (declaration
+    (macro_invocation
+      (identifier)
+      (macro_argument_list
         (comma_expr
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier))))))))))))))))))
           (assign_expr
             (cond_expr
               (lor_expr
@@ -1302,24 +1320,7 @@ CBFUNC(write_callback_t, write_callback)
                                     (postfix_expr
                                       (primary_expr
                                         (identifier_expr
-                                          (identifier))))))))))))))))))
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (postfix_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        (identifier)))))))))))))))))))))
+                                          (identifier))))))))))))))))))))))
 
 ================================================================================
 Macro invocation - with type argument and semicolon
@@ -1329,7 +1330,7 @@ CBFUNC(function(mixed|void:int), cb);
 --------------------------------------------------------------------------------
 
 (program
-  (macro_invocation
+  (macro_invocation_stmt
     (identifier)
     (macro_argument_list
       (type
@@ -1532,30 +1533,31 @@ void f() {
 --------------------------------------------------------------------------------
 
 (program
-  (macro_invocation
-    (identifier)
-    (macro_argument_list
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (postfix_expr
-                                    (primary_expr
-                                      (identifier_expr
-                                        (identifier))))))))))))))))))
-      (type
-        (id_type
-          (identifier)))))
+  (declaration
+    (macro_invocation
+      (identifier)
+      (macro_argument_list
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          (identifier))))))))))))))))))
+        (type
+          (id_type
+            (identifier))))))
   (declaration
     (function_decl
       (type
@@ -1595,3 +1597,87 @@ void f() {
 
 (program
   (preprocessor_directive))
+
+================================================================================
+Macro invocation - both forms in class body
+================================================================================
+class Foo {
+  CBFUNC(int, x);
+  CBFUNC(int, y)
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (class_decl
+      name: (identifier)
+      body: (class_body
+        (declaration
+          (macro_invocation_stmt
+            name: (identifier)
+            arguments: (macro_argument_list
+              (type
+                (basic_type))
+              (type
+                (id_type
+                  (identifier))))))
+        (declaration
+          (macro_invocation
+            name: (identifier)
+            arguments: (macro_argument_list
+              (type
+                (basic_type))
+              (type
+                (id_type
+                  (identifier))))))))))
+
+================================================================================
+Macro invocation - both forms at top level
+================================================================================
+CBFUNC(write_callback_t, write_callback)
+CBFUNC(function(mixed|void:int), cb);
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (macro_invocation
+      name: (identifier)
+      arguments: (macro_argument_list
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          name: (identifier))))))))))))))))))
+        (type
+          (id_type
+            (identifier))))))
+  (macro_invocation_stmt
+    name: (identifier)
+    arguments: (macro_argument_list
+      (type
+        (basic_type
+          (type
+            (type
+              (basic_type))
+            (type
+              (basic_type)))
+          (type
+            (basic_type))))
+      (type
+        (id_type
+          (identifier))))))

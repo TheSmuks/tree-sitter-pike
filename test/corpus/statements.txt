@@ -1305,44 +1305,26 @@ do ; while(1);
                                   (primary_expr
                                     (identifier_expr
                                       name: (identifier)))))))))))))))))))
-  (expression_statement
-    (comma_expr
-      (assign_expr
-        (cond_expr
-          (lor_expr
-            (land_expr
-              (bitor_expr
-                (bitxor_expr
-                  (bitand_expr
-                    (eq_expr
-                      (rel_expr
-                        (shift_expr
-                          (add_expr
-                            (mul_expr
-                              (unary_expr
-                                (postfix_expr
+  (macro_invocation_stmt
+    name: (identifier)
+    arguments: (macro_argument_list
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
                                   (postfix_expr
                                     (primary_expr
-                                      (identifier_expr
-                                        name: (identifier))))
-                                  (argument_list
-                                    (comma_expr
-                                      (assign_expr
-                                        (cond_expr
-                                          (lor_expr
-                                            (land_expr
-                                              (bitor_expr
-                                                (bitxor_expr
-                                                  (bitand_expr
-                                                    (eq_expr
-                                                      (rel_expr
-                                                        (shift_expr
-                                                          (add_expr
-                                                            (mul_expr
-                                                              (unary_expr
-                                                                (postfix_expr
-                                                                  (primary_expr
-                                                                    (integer_literal)))))))))))))))))))))))))))))))))))
+                                      (integer_literal))))))))))))))))))))
 
 ================================================================================
 Macro statement - ENTER/LEAVE pattern

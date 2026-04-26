@@ -676,6 +676,10 @@
           "named": true
         },
         {
+          "type": "macro_invocation_stmt",
+          "named": true
+        },
+        {
           "type": "typedef_decl",
           "named": true
         },
@@ -1968,6 +1972,32 @@
     }
   },
   {
+    "type": "macro_invocation_stmt",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "macro_argument_list",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "macro_statement",
     "named": true,
     "fields": {
@@ -2308,7 +2338,7 @@
           "named": true
         },
         {
-          "type": "macro_invocation",
+          "type": "macro_invocation_stmt",
           "named": true
         }
       ]
