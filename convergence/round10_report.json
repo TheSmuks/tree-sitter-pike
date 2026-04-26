@@ -1,0 +1,625 @@
+{
+  "round": 10,
+  "seed": 42,
+  "build": "clean",
+  "corpus": {
+    "total": 203,
+    "passed": 203,
+    "failed": 0
+  },
+  "example_files": {
+    "results": [
+      {
+        "file": "adt_struct.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "calendar.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "debug_tracer.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "edge_define_continuation.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "edge_define_eof_noeol.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "geography.pmod",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "git_export.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "mime.pmod",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "protocols_x.pmod",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "protocols_xmlrpc.pmod",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "shoot_arithmetics.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "sql_mysql_result.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "sql_postgres.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "sql_postgres_result.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "ssl_file.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "stdio.pmod",
+        "errors": 0,
+        "status": "CLEAN"
+      },
+      {
+        "file": "stdio_fakefile.pike",
+        "errors": 0,
+        "status": "CLEAN"
+      }
+    ],
+    "p1_count": 0
+  },
+  "adversarial": {
+    "count": 55,
+    "clean": 55,
+    "errors": 0,
+    "p1_count": 0,
+    "results": [
+      {
+        "index": 0,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f(int p0, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9, int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p20, int p21, int p"
+      },
+      {
+        "index": 1,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { mapping(string:int) x = bar(1,2); x?->foo()?->bar(); }"
+      },
+      {
+        "index": 2,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C { CBFUNC(mapping(string:int), bar); CBFUNC(string, foo) }"
+      },
+      {
+        "index": 3,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int `->name = 1; }"
+      },
+      {
+        "index": 4,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C0 {\n  class C1 {\n    class C2 {\n      class C3 {\n        class C4 {\n          class C5 {\n            class C6 {\n              class C7 {\n                class C8 {\n                  class C9 {\n"
+      },
+      {
+        "index": 5,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (1) { if (1) { if (1) { if (1) { if (1) { } } } } } }"
+      },
+      {
+        "index": 6,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C { REGISTER(function(int:int), x)\n  void g() { x?->foo(); } }"
+      },
+      {
+        "index": 7,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { do { } while(0); }"
+      },
+      {
+        "index": 8,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { mapping(string:int) x; multiset(string) y; object z; }"
+      },
+      {
+        "index": 9,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { mixed x = ((<1,2>))?->method()?->field; }"
+      },
+      {
+        "index": 10,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int x = (1 < 2) && (3 > 4) || (5 == 6) != (7 <= 8); }"
+      },
+      {
+        "index": 11,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int `->name= = 1; }"
+      },
+      {
+        "index": 12,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (1) { if (1) { if (1) { } } } }"
+      },
+      {
+        "index": 13,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "REGISTER(mixed, y)\nREGISTER(object(Fd), y);"
+      },
+      {
+        "index": 14,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C0 {\n  class C1 {\n    class C2 {\n      int x;\n    }\n  }\n}\n"
+      },
+      {
+        "index": 15,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { mixed x = obj?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo?->foo(); }"
+      },
+      {
+        "index": 16,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "typedef int myint;"
+      },
+      {
+        "index": 17,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "constant VERSION = \"1.0\";"
+      },
+      {
+        "index": 18,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "inherit Foo; Foo::bar(); ::baz();"
+      },
+      {
+        "index": 19,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "REGISTER(multiset(string), tmp)\nREGISTER(mapping(string:int), handler);"
+      },
+      {
+        "index": 20,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { string s = 1 ? \"yes\" : \"no\"; }"
+      },
+      {
+        "index": 21,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int n; string s; sscanf(\"1 hello\", \"%d %s\", n, s); }"
+      },
+      {
+        "index": 22,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "#define EMPTY\nint x = 1;"
+      },
+      {
+        "index": 23,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { array(int) a = ({1,2,3,4,5}); int x = a[0]; array(int) b = a[1..3]; }"
+      },
+      {
+        "index": 24,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { function(:void) x; function(int:void) y; function(int,int:void) z; }"
+      },
+      {
+        "index": 25,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "index": 26,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "variant void f() { }"
+      },
+      {
+        "index": 27,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C { SET_CALLBACK(object(Fd), y)\n  void g() { y?->foo(); } }"
+      },
+      {
+        "index": 28,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "enum { }"
+      },
+      {
+        "index": 29,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int x = 1 ? 2 : 3; }"
+      },
+      {
+        "index": 30,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C { }"
+      },
+      {
+        "index": 31,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (1) { } else { } }"
+      },
+      {
+        "index": 32,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { outer: for (int i = 0; i < 10; i++) { inner: for (int j = 0; j < 10; j++) { break outer; } } }"
+      },
+      {
+        "index": 33,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { while (0) { } }"
+      },
+      {
+        "index": 34,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "nomask int y = 2;"
+      },
+      {
+        "index": 35,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "__attribute__(\"deprecated\") void f() { }"
+      },
+      {
+        "index": 36,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (1) { } }"
+      },
+      {
+        "index": 37,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (object x = args[0]) while (array(int) result = \"hello\") return x; }"
+      },
+      {
+        "index": 38,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { this->x = 1; global.y = 2; }"
+      },
+      {
+        "index": 39,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f(function(mapping(string:int):function(int:int)) cb) { cb(0); }"
+      },
+      {
+        "index": 40,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "optional int z;"
+      },
+      {
+        "index": 41,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { foreach (([\"a\":1,\"b\":2]); string k; int v) { } }"
+      },
+      {
+        "index": 42,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C { DEFINE_HANDLER(string, tmp); DEFINE_HANDLER(mixed, val) }"
+      },
+      {
+        "index": 43,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (int bar = ({1,2,3})) while (mapping(string:int) y = \"hello\") return bar; }"
+      },
+      {
+        "index": 44,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { if (string val = foo()) while (function(int:int) cb = ({1,2,3})) return val; }"
+      },
+      {
+        "index": 45,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { program x; mapping(string:int) y; array(int) z; }"
+      },
+      {
+        "index": 46,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int x = 1 + 2 * 3 - 4 / 2 & 7 | 8 ^ 9 << 1 >> 2; }"
+      },
+      {
+        "index": 47,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { ENTER(1) { ENTER(2) { int x = 1; } LEAVE; } LEAVE; }"
+      },
+      {
+        "index": 48,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { typeof(1); }"
+      },
+      {
+        "index": 49,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f(function(string:function(int:int)) cb) { cb(0); }"
+      },
+      {
+        "index": 50,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { int x = 0b1010; int y = 0xff; float z = 1.0e10; }"
+      },
+      {
+        "index": 51,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "DEFINE_HANDLER(object(Fd), z)\nDEFINE_HANDLER(int, handler);"
+      },
+      {
+        "index": 52,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "void f() { foreach (({1,2}); int a; int b) { werror(\"%d %d\\n\", a, b); } }"
+      },
+      {
+        "index": 53,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "final int x = 1;"
+      },
+      {
+        "index": 54,
+        "errors": 0,
+        "status": "CLEAN",
+        "source": "class C0 {\n  int x;\n}\n"
+      }
+    ]
+  },
+  "known_limitations": {
+    "kept": [
+      {
+        "id": "KL-001",
+        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "rounds_since_validation": 10
+      },
+      {
+        "id": "KL-002",
+        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "rounds_since_validation": 10
+      },
+      {
+        "id": "KL-003",
+        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "rounds_since_validation": 10
+      },
+      {
+        "id": "KL-004",
+        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "rounds_since_validation": 10
+      },
+      {
+        "id": "KL-005",
+        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "rounds_since_validation": 10
+      }
+    ],
+    "removed": [],
+    "escalated": []
+  },
+  "uncovered_rules": [
+    "continue_statement",
+    "default_clause",
+    "local_function_decl",
+    "this_expr"
+  ],
+  "uncovered_branches": [
+    {
+      "rule": "primary_expr",
+      "branch_index": 0,
+      "alternative": "$.integer_literal",
+      "references": [
+        "integer_literal"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 1,
+      "alternative": "$.float_literal",
+      "references": [
+        "float_literal"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 2,
+      "alternative": "$.char_literal",
+      "references": [
+        "char_literal"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 3,
+      "alternative": "$.string_literal",
+      "references": [
+        "string_literal"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 9,
+      "alternative": "$.backtick_identifier",
+      "references": [
+        "backtick_identifier"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 10,
+      "alternative": "seq('.', $.identifier)",
+      "references": [
+        "identifier"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 20,
+      "alternative": "$.this_expr",
+      "references": [
+        "this_expr"
+      ]
+    },
+    {
+      "rule": "primary_expr",
+      "branch_index": 21,
+      "alternative": "seq('global', '.', $.identifier)",
+      "references": [
+        "identifier"
+      ]
+    },
+    {
+      "rule": "inherit_specifier",
+      "branch_index": 0,
+      "alternative": "seq(choice($.identifier, $.string_literal), '::')",
+      "references": [
+        "identifier",
+        "string_literal"
+      ]
+    },
+    {
+      "rule": "inherit_specifier",
+      "branch_index": 6,
+      "alternative": "seq($.version_prefix, '::')",
+      "references": [
+        "version_prefix"
+      ]
+    },
+    {
+      "rule": "_stmt",
+      "branch_index": 10,
+      "alternative": "$.default_clause",
+      "references": [
+        "default_clause"
+      ]
+    },
+    {
+      "rule": "_stmt",
+      "branch_index": 13,
+      "alternative": "$.continue_statement",
+      "references": [
+        "continue_statement"
+      ]
+    },
+    {
+      "rule": "_stmt",
+      "branch_index": 21,
+      "alternative": "$.local_function_decl",
+      "references": [
+        "local_function_decl"
+      ]
+    },
+    {
+      "rule": "_int_range_val",
+      "branch_index": 0,
+      "alternative": "$.integer_literal",
+      "references": [
+        "integer_literal"
+      ]
+    },
+    {
+      "rule": "_int_range_val",
+      "branch_index": 1,
+      "alternative": "seq('-', $.integer_literal)",
+      "references": [
+        "integer_literal"
+      ]
+    },
+    {
+      "rule": "_program_type",
+      "branch_index": 1,
+      "alternative": "seq('(', $.string_literal, ')')",
+      "references": [
+        "string_literal"
+      ]
+    },
+    {
+      "rule": "_id_expr",
+      "branch_index": 0,
+      "alternative": "$.identifier",
+      "references": [
+        "identifier"
+      ]
+    },
+    {
+      "rule": "_id_expr",
+      "branch_index": 3,
+      "alternative": "seq('.', $.identifier)",
+      "references": [
+        "identifier"
+      ]
+    }
+  ],
+  "total_p1": 0,
+  "total_p2": 22,
+  "converged": true
+}

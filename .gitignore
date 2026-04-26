@@ -5,3 +5,4 @@ grammar.js
 *.dll
 bindings/
 
+convergence/__pycache__/
