@@ -1331,7 +1331,7 @@ Macro statement - ENTER/LEAVE pattern
 ================================================================================
 void f() { ENTER(0) { int x = 1; } LEAVE; }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
@@ -1343,7 +1343,7 @@ void f() { ENTER(0) { int x = 1; } LEAVE; }
       body: (block
         (macro_statement
           macro: (identifier)
-          arguments: (argument_list
+          arguments: (macro_argument_list
             (comma_expr
               (assign_expr
                 (cond_expr
@@ -1360,23 +1360,7 @@ void f() { ENTER(0) { int x = 1; } LEAVE; }
                                       (unary_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (primary_expr
-                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+                                            (integer_literal))))))))))))))))))
           body: (block
             (local_declaration
               type: (type
@@ -1412,19 +1396,19 @@ void f() {
   } LEAVE;
 }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
-      (parameters)
-      (block
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
         (macro_statement
-          (identifier)
-          (argument_list
+          macro: (identifier)
+          arguments: (macro_argument_list
             (comma_expr
               (assign_expr
                 (cond_expr
@@ -1441,27 +1425,11 @@ void f() {
                                       (unary_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (primary_expr
-                                                                            (integer_literal))))))))))))))))))))))))))))))))))
-          (block
+                                            (integer_literal))))))))))))))))))
+          body: (block
             (macro_statement
-              (identifier)
-              (argument_list
+              macro: (identifier)
+              arguments: (macro_argument_list
                 (comma_expr
                   (assign_expr
                     (cond_expr
@@ -1478,29 +1446,13 @@ void f() {
                                           (unary_expr
                                             (postfix_expr
                                               (primary_expr
-                                                (comma_expr
-                                                  (assign_expr
-                                                    (cond_expr
-                                                      (lor_expr
-                                                        (land_expr
-                                                          (bitor_expr
-                                                            (bitxor_expr
-                                                              (bitand_expr
-                                                                (eq_expr
-                                                                  (rel_expr
-                                                                    (shift_expr
-                                                                      (add_expr
-                                                                        (mul_expr
-                                                                          (unary_expr
-                                                                            (postfix_expr
-                                                                              (primary_expr
-                                                                                (integer_literal))))))))))))))))))))))))))))))))))
-              (block
+                                                (integer_literal))))))))))))))))))
+              body: (block
                 (local_declaration
-                  (type
+                  type: (type
                     (basic_type))
-                  (identifier)
-                  (comma_expr
+                  name: (identifier)
+                  value: (comma_expr
                     (assign_expr
                       (cond_expr
                         (lor_expr
@@ -1517,8 +1469,8 @@ void f() {
                                               (postfix_expr
                                                 (primary_expr
                                                   (integer_literal)))))))))))))))))))
-              (identifier)))
-          (identifier))))))
+              end_macro: (identifier)))
+          end_macro: (identifier))))))
 
 ================================================================================
 Macro statement - BEGIN/END without args
@@ -1573,31 +1525,31 @@ protected void create (Stdio.File stream, SSL.Context ctx)
   } LEAVE;
 }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
-      (parameters
+      name: (identifier)
+      parameters: (parameters
         (parameter
-          (type
+          type: (type
             (id_type
               (identifier)
               (identifier)))
-          (identifier))
+          name: (identifier))
         (parameter
-          (type
+          type: (type
             (id_type
               (identifier)
               (identifier)))
-          (identifier)))
-      (block
+          name: (identifier)))
+      body: (block
         (macro_statement
-          (identifier)
-          (argument_list
+          macro: (identifier)
+          arguments: (macro_argument_list
             (comma_expr
               (assign_expr
                 (cond_expr
@@ -1614,24 +1566,8 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                       (unary_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (primary_expr
-                                                                            (integer_literal))))))))))))))))))))))))))))))))))
-          (block
+                                            (integer_literal))))))))))))))))))
+          body: (block
             (expression_statement
               (comma_expr
                 (assign_expr
@@ -1650,8 +1586,8 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                           (postfix_expr
                                             (primary_expr
                                               (scope_expr
-                                                (inherit_specifier)
-                                                (identifier))))))))))))))))
+                                                scope: (inherit_specifier)
+                                                name: (identifier))))))))))))))))
                   (assign_expr
                     (cond_expr
                       (lor_expr
@@ -1668,7 +1604,7 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                             (postfix_expr
                                               (primary_expr
                                                 (identifier_expr
-                                                  (identifier))))))))))))))))))))
+                                                  name: (identifier))))))))))))))))))))
             (expression_statement
               (comma_expr
                 (assign_expr
@@ -1687,8 +1623,8 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                           (postfix_expr
                                             (primary_expr
                                               (scope_expr
-                                                (inherit_specifier)
-                                                (identifier))))))))))))))))
+                                                scope: (inherit_specifier)
+                                                name: (identifier))))))))))))))))
                   (assign_expr
                     (cond_expr
                       (lor_expr
@@ -1705,7 +1641,7 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                             (postfix_expr
                                               (primary_expr
                                                 (identifier_expr
-                                                  (identifier))))))))))))))))))))
+                                                  name: (identifier))))))))))))))))))))
             (expression_statement
               (comma_expr
                 (assign_expr
@@ -1725,8 +1661,8 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                             (postfix_expr
                                               (primary_expr
                                                 (identifier_expr
-                                                  (identifier)))))))))))))))))))))
-          (identifier))))))
+                                                  name: (identifier)))))))))))))))))))))
+          end_macro: (identifier))))))
 
 ================================================================================
 Declaration-in-condition - if

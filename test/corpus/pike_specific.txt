@@ -1357,19 +1357,19 @@ void f() {
   } LEAVE;
 }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
-      (parameters)
-      (block
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
         (macro_statement
-          (identifier)
-          (argument_list
+          macro: (identifier)
+          arguments: (macro_argument_list
             (comma_expr
               (assign_expr
                 (cond_expr
@@ -1386,27 +1386,11 @@ void f() {
                                       (unary_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (primary_expr
-                                                                            (integer_literal))))))))))))))))))))))))))))))))))
-          (block
+                                            (integer_literal))))))))))))))))))
+          body: (block
             (macro_statement
-              (identifier)
-              (argument_list
+              macro: (identifier)
+              arguments: (macro_argument_list
                 (comma_expr
                   (assign_expr
                     (cond_expr
@@ -1423,29 +1407,13 @@ void f() {
                                           (unary_expr
                                             (postfix_expr
                                               (primary_expr
-                                                (comma_expr
-                                                  (assign_expr
-                                                    (cond_expr
-                                                      (lor_expr
-                                                        (land_expr
-                                                          (bitor_expr
-                                                            (bitxor_expr
-                                                              (bitand_expr
-                                                                (eq_expr
-                                                                  (rel_expr
-                                                                    (shift_expr
-                                                                      (add_expr
-                                                                        (mul_expr
-                                                                          (unary_expr
-                                                                            (postfix_expr
-                                                                              (primary_expr
-                                                                                (integer_literal))))))))))))))))))))))))))))))))))
-              (block
+                                                (integer_literal))))))))))))))))))
+              body: (block
                 (local_declaration
-                  (type
+                  type: (type
                     (basic_type))
-                  (identifier)
-                  (comma_expr
+                  name: (identifier)
+                  value: (comma_expr
                     (assign_expr
                       (cond_expr
                         (lor_expr
@@ -1462,8 +1430,8 @@ void f() {
                                               (postfix_expr
                                                 (primary_expr
                                                   (integer_literal)))))))))))))))))))
-              (identifier)))
-          (identifier))))))
+              end_macro: (identifier)))
+          end_macro: (identifier))))))
 
 ================================================================================
 Macro statement - empty body
@@ -1472,19 +1440,19 @@ void f() {
   ENTER(0) { } LEAVE;
 }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
     (function_decl
-      (type
+      return_type: (type
         (basic_type))
-      (identifier)
-      (parameters)
-      (block
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
         (macro_statement
-          (identifier)
-          (argument_list
+          macro: (identifier)
+          arguments: (macro_argument_list
             (comma_expr
               (assign_expr
                 (cond_expr
@@ -1501,25 +1469,9 @@ void f() {
                                       (unary_expr
                                         (postfix_expr
                                           (primary_expr
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (primary_expr
-                                                                            (integer_literal))))))))))))))))))))))))))))))))))
-          (block)
-          (identifier))))))
+                                            (integer_literal))))))))))))))))))
+          body: (block)
+          end_macro: (identifier))))))
 
 ================================================================================
 Macro invocation at file scope and function scope
@@ -1606,7 +1558,7 @@ class Foo {
   CBFUNC(int, y)
 }
 
---------------------------------------------------------------------------------
+---
 
 (program
   (declaration
@@ -1617,8 +1569,7 @@ class Foo {
           (macro_invocation_stmt
             name: (identifier)
             arguments: (macro_argument_list
-              (type
-                (basic_type))
+              (magic_identifier)
               (type
                 (id_type
                   (identifier))))))
@@ -1626,8 +1577,7 @@ class Foo {
           (macro_invocation
             name: (identifier)
             arguments: (macro_argument_list
-              (type
-                (basic_type))
+              (magic_identifier)
               (type
                 (id_type
                   (identifier))))))))))

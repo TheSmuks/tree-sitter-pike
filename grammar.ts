@@ -37,6 +37,12 @@ export default grammar({
     [$.inherit_specifier],
     // postfix_expr call-with-block ambiguity (f() {} vs f() as expr)
     [$.postfix_expr],
+    // bare identifier as declaration (MUTEX;) vs identifier_expr
+    [$.identifier_expr, $.declaration],
+    // magic_identifier (keywords-as-identifiers in macro args) vs primary_expr
+    [$.primary_expr, $.magic_identifier],
+    [$.basic_type, $.magic_identifier],
+    [$.string_concat, $._id_expr],
   ],
 
   // Extras: whitespace + line continuations treated as skippable inter-token
@@ -97,9 +103,30 @@ export default grammar({
     )),
 
     // Adjacent string concatenation: "hello" "world" -> "helloworld"
-    string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
+    // String concatenation and macro-string juxtaposition.
+    //
+    // Pike allows adjacent string concatenation: "hello" "world" -> "helloworld"
+    // And macro-string juxtaposition: DRIVERNAME"...", HOST ":", WS"."
+    // where the identifier is a preprocessor macro expanding to a string.
+    //
+    // Must contain at least one string_literal to prevent bare identifier pairs
+    // from being misinterpreted (e.g., "Foo x" in cond_decl: if (Foo x = y)).
+    //
+    // Two forms:
+    //   1. string_literal followed by more literals/identifiers: "str" "str" IDENT
+    //   2. identifier followed by string_literal (and optionally more): IDENT "str"
+    string_concat: $ => choice(
+      seq($.string_literal, repeat1(choice($.string_literal, $.identifier))),
+      seq($.identifier, $.string_literal, repeat(choice($.string_literal, $.identifier))),
+    ),
+
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+
+    // #string "filename" — Pike's file-contents-as-string literal.
+    // Reads the named file and evaluates to its contents as a string.
+    // Appears in expression position: constant text = #string "gpl.txt";
+    string_include: $ => seq('#string', $.string_literal),
     // Backtick identifiers handle Pike's operator overloading syntax.
     // Single backtick: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=, `foo=
     // Double backtick: ``+ ``| ``* (lvalue operator forms)
@@ -267,6 +294,7 @@ export default grammar({
       $.float_literal,
       $.char_literal,
       $.string_literal,
+      $.string_include,
       $.string_concat,
       $.array_literal,
       $.mapping_literal,
@@ -355,6 +383,8 @@ export default grammar({
 
     _stmt: $ => choice(
       ';',
+      // Ellipsis statement: ...; (placeholder/no-op, valid in switch cases)
+      seq('...', ';'),
       $.expression_statement,
       $.block,
       $.if_statement,
@@ -466,7 +496,7 @@ export default grammar({
       ';',
     )),
 
-    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type)), ')'),
+    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.magic_identifier)), ')'),
 
     // Macro statement pattern for paired begin/end macros.
     //
@@ -496,7 +526,7 @@ export default grammar({
       // IDENTIFIER(args) block IDENTIFIER ;
       seq(
         field('macro', $.identifier),
-        field('arguments', $.argument_list),
+        field('arguments', $.macro_argument_list),
         field('body', $.block),
         field('end_macro', $.identifier),
         ';',
@@ -511,7 +541,7 @@ export default grammar({
       // IDENTIFIER(args) block ;
       seq(
         field('macro', $.identifier),
-        field('arguments', $.argument_list),
+        field('arguments', $.macro_argument_list),
         field('body', $.block),
         ';',
       ),
@@ -593,6 +623,10 @@ export default grammar({
         $.macro_invocation,
         // Macro invocation with trailing ';': CBFUNC(t, x);
         $.macro_invocation_stmt,
+        // Bare identifier as declaration: MUTEX; INHERIT_MUTEX; OVERLOAD_TIMEOFDAY;
+        // These are preprocessor macros that expand to declarations or nothing.
+        // The grammar accepts them so the tree stays clean.
+        seq($.identifier, ';'),
       ),
     ),
 
@@ -611,7 +645,7 @@ export default grammar({
       choice(field('body', $.block), ';'),
     ),
 
-    parameters: $ => seq('(', optional(commaSep1($.parameter)), ')'),
+    parameters: $ => seq('(', optional(trailingCommaSep1($.parameter)), ')'),
 
     parameter: $ => seq(
       repeat($._modifier),
@@ -628,6 +662,7 @@ export default grammar({
     ),
 
     local_declaration: $ => seq(
+      repeat($._modifier),
       field('type', $.type), commaSep1(seq(
         field('name', choice($.identifier, $.backtick_identifier)),
         optional(seq('=', field('value', $._expr))),
@@ -709,7 +744,6 @@ export default grammar({
       seq('#', /\s*/, 'define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'include', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'string', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),

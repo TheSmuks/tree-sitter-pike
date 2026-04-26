@@ -265,24 +265,80 @@
       }
     },
     "string_concat": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "string_literal"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "string_literal"
+            },
+            {
+              "type": "REPEAT1",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "string_literal"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  }
+                ]
+              }
+            }
+          ]
         },
         {
-          "type": "REPEAT1",
-          "content": {
-            "type": "SYMBOL",
-            "name": "string_literal"
-          }
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "string_literal"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "string_literal"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     "identifier": {
       "type": "PATTERN",
       "value": "[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    "string_include": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "#string"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "string_literal"
+        }
+      ]
     },
     "backtick_identifier": {
       "type": "TOKEN",
@@ -1802,6 +1858,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "string_include"
+        },
+        {
+          "type": "SYMBOL",
           "name": "string_concat"
         },
         {
@@ -2699,6 +2759,19 @@
         {
           "type": "STRING",
           "value": ";"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "..."
+            },
+            {
+              "type": "STRING",
+              "value": ";"
+            }
+          ]
         },
         {
           "type": "SYMBOL",
@@ -3688,6 +3761,14 @@
                 {
                   "type": "SYMBOL",
                   "name": "type"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "block"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "magic_identifier"
                 }
               ]
             },
@@ -3710,6 +3791,14 @@
                       {
                         "type": "SYMBOL",
                         "name": "type"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "block"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "magic_identifier"
                       }
                     ]
                   }
@@ -3758,7 +3847,7 @@
                 "name": "arguments",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "argument_list"
+                  "name": "macro_argument_list"
                 }
               },
               {
@@ -3832,7 +3921,7 @@
                 "name": "arguments",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "argument_list"
+                  "name": "macro_argument_list"
                 }
               },
               {
@@ -4510,6 +4599,19 @@
             {
               "type": "SYMBOL",
               "name": "macro_invocation_stmt"
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                {
+                  "type": "STRING",
+                  "value": ";"
+                }
+              ]
             }
           ]
         }
@@ -4688,6 +4790,18 @@
                       }
                     ]
                   }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
             },
@@ -4906,6 +5020,13 @@
     "local_declaration": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_modifier"
+          }
+        },
         {
           "type": "FIELD",
           "name": "type",
@@ -5943,31 +6064,6 @@
               },
               {
                 "type": "STRING",
-                "value": "string"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s"
-              },
-              {
-                "type": "PATTERN",
-                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
                 "value": "pike"
               },
               {
@@ -6208,6 +6304,22 @@
     ],
     [
       "postfix_expr"
+    ],
+    [
+      "identifier_expr",
+      "declaration"
+    ],
+    [
+      "primary_expr",
+      "magic_identifier"
+    ],
+    [
+      "basic_type",
+      "magic_identifier"
+    ],
+    [
+      "string_concat",
+      "_id_expr"
     ]
   ],
   "precedences": [],
