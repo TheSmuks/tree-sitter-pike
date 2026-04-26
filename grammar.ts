@@ -85,7 +85,7 @@ export default grammar({
       /[0-9]+/,
     )),
 
-    char_literal: _ => token(seq("'", choice(/[^'\\]/, /\\./), "'")),
+    char_literal: _ => token(seq("'", choice(/[^'\\]/, /\\[0-7]{1,3}/, /\\x[0-9a-fA-F]+/, /\\./), "'")),
 
     float_literal: _ => token(
       /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/
@@ -93,7 +93,7 @@ export default grammar({
 
     string_literal: _ => token(choice(
       seq('"', repeat(choice(/[^"\\]/, /\\./)), '"'),
-      seq('#"', repeat(/[^\x22]/), '"'),
+      seq('#"', repeat(choice(/[^"\\]/, /\\./)), '"'),
     )),
 
     // Adjacent string concatenation: "hello" "world" -> "helloworld"
@@ -430,7 +430,7 @@ export default grammar({
       $.array_destructure,
     ),
 
-    switch_statement: $ => seq('switch', '(', field('value', $._expr), ')', $.block),
+    switch_statement: $ => seq('switch', '(', field('value', choice($._expr, $.cond_decl)), ')', $.block),
 
     // case expr: / case expr..expr: / case ..expr: / case expr...expr:
     case_clause: $ => choice(
@@ -546,7 +546,7 @@ export default grammar({
       /[0-9]+bits?/
     ), ')'),
 
-    _int_range_val: $ => choice($.integer_literal, seq('-', $.integer_literal)),
+    _int_range_val: $ => choice($.integer_literal, seq('-', $.integer_literal), $.identifier),
 
     _mapping_type: $ => seq('(', $.type, ':', $.type, ')'),
 
@@ -644,7 +644,7 @@ export default grammar({
 
     constant_decl: $ => seq(
       'constant',
-      commaSep1(seq(field('name', $.identifier), '=', field('value', $._expr))),
+      commaSep1(seq(field('name', $.identifier), optional(seq('=', field('value', $._expr))))),
       ';',
     ),
 
@@ -662,7 +662,7 @@ export default grammar({
       field('body', $.class_body),
     ),
 
-    class_body: $ => seq('{', repeat($.declaration), '}'),
+    class_body: $ => seq('{', repeat(choice($.declaration, ';')), '}'),
 
     enum_decl: $ => seq(
       'enum', optional(field('name', $.identifier)),
