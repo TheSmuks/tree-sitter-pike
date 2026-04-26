@@ -37,15 +37,13 @@ export default grammar({
     [$.postfix_expr],
   ],
 
-  // External scanner for context-sensitive tokens:
-  //   safe_arrow — `?->` (deprecated Pike safe-index arrow).
-  //   The `?` alone is ternary; only `?->` together is safe arrow.
-  //   See src/scanner.c for implementation.
-  externals: $ => [$.safe_arrow],
-
+  // Extras: whitespace + line continuations treated as skippable inter-token
+  // material, following tree-sitter-c's approach. The regex in extras makes
+  // backslash-newline invisible to every rule. Correct for both normal code
+  // (Pike supports line continuation) and preprocessor directives (the
+  // preprocessor_directive token regex explicitly spans continuations).
   extras: $ => [
-    /\s+/,
-    $.line_continuation,
+    /\s|\\\r?\n/,
     $.line_comment,
     $.block_comment,
     $.autodoc_comment,
@@ -67,7 +65,6 @@ export default grammar({
     line_comment: _ => token(seq('//', /.*/)),
     block_comment: _ => token(seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),  
     autodoc_comment: _ => token(seq('//!', /.*/)),
-    line_continuation: _ => /\\[\r\n]+/,
 
     // ── Literals ──
 
@@ -102,10 +99,6 @@ export default grammar({
       seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),
     )),
 
-    // External token: ?-> (deprecated safe arrow, see src/scanner.c)
-    // Produced by the external scanner only when `?` is followed by `->`.
-    // Without the scanner, `?` is consumed as ternary, breaking `conn?->field`.
-    safe_arrow: _ => '?->',
 
     // ── Collection literals ──
 
@@ -217,7 +210,7 @@ export default grammar({
       // Safe arrow: obj->?field (new syntax, ->?)
       seq($.postfix_expr, '->?', choice($.identifier, $.magic_identifier, $.backtick_identifier)),
       // Safe arrow: obj?->field (deprecated syntax, ?->)
-      seq($.postfix_expr, $.safe_arrow, choice($.identifier, $.magic_identifier, $.backtick_identifier)),
+      seq($.postfix_expr, '?->', choice($.identifier, $.magic_identifier, $.backtick_identifier)),
       // Call: f(args) and f(args) { block }
       seq($.postfix_expr, '(', optional($.argument_list), ')', optional($.block)),
       // Dot access: obj.field
@@ -369,12 +362,21 @@ export default grammar({
 
     expression_statement: $ => seq($._expr, ';'),
 
+    // Declaration-in-condition: if (Type var = expr) { ... }
+    // Yacc allows local declarations in comma_expr (safe_comma_expr).
+    // cond_decl is a type+name+initializer alternative to expression conditions.
+    cond_decl: $ => seq(
+      field('type', $.type), field('name', $.identifier), '=',
+      field('value', $._expr),
+    ),
+
     if_statement: $ => seq(
-      'if', '(', field('condition', $._expr), ')', field('consequence', $._stmt),
+      'if', '(', field('condition', choice($._expr, $.cond_decl)), ')',
+      field('consequence', $._stmt),
       optional(seq('else', field('alternative', $._stmt))),
     ),
 
-    while_statement: $ => seq('while', '(', field('condition', $._expr), ')', field('body', $._stmt)),
+    while_statement: $ => seq('while', '(', field('condition', choice($._expr, $.cond_decl)), ')', field('body', $._stmt)),
     do_while_statement: $ => seq('do', field('body', $._stmt), 'while', '(', field('condition', $._expr), ')', ';'),
 
     for_statement: $ => seq(
@@ -638,25 +640,28 @@ export default grammar({
       ';',
     ),
 
+    // Preprocessor directive token spanning continuation lines.
+    // Regex (\\\n|\\[^\n]|[^\\\n])* handles: line continuation,
+    // escape sequences, and plain chars. Allows multi-line #define bodies.
     preprocessor_directive: _ => token(choice(
-      seq('#if', /\s/, /.*/),
-      seq('#ifdef', /\s/, /.*/),
-      seq('#ifndef', /\s/, /.*/),
-      seq('#elif', /\s/, /.*/),
-      seq('#elifdef', /\s/, /.*/),
-      seq('#elifndef', /\s/, /.*/),
+      seq('#if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#elifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#elifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#else', /\s*/),
       seq('#endif', /\s*/),
-      seq('#define', /\s/, /.*/),
-      seq('#undef', /\s/, /.*/),
-      seq('#include', /\s/, /.*/),
-      seq('#string', /\s/, /.*/),
-      seq('#pike', /\s/, /.*/),
-      seq('#charset', /\s/, /.*/),
-      seq('#pragma', /\s/, /.*/),
-      seq('#require', /\s/, /.*/),
-      seq('#warning', /\s/, /.*/),
-      seq('#error', /\s/, /.*/),
+      seq('#define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#include', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#string', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#require', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#warning', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#error', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
     )),
   },
 });

@@ -1745,3 +1745,273 @@ protected void create (Stdio.File stream, SSL.Context ctx)
                                                 (identifier_expr
                                                   (identifier)))))))))))))))))))))
           (identifier))))))
+
+================================================================================
+Declaration-in-condition - if
+================================================================================
+void f() {
+  if (int err = do_something()) {
+    write("%d\n", err);
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (if_statement
+          (cond_decl
+            (type
+              (basic_type))
+            (identifier)
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier))))))))))))))))))))
+          (block
+            (expression_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))
+                                            (argument_list
+                                              (comma_expr
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (string_literal)))))))))))))))))
+                                                (assign_expr
+                                                  (cond_expr
+                                                    (lor_expr
+                                                      (land_expr
+                                                        (bitor_expr
+                                                          (bitxor_expr
+                                                            (bitand_expr
+                                                              (eq_expr
+                                                                (rel_expr
+                                                                  (shift_expr
+                                                                    (add_expr
+                                                                      (mul_expr
+                                                                        (unary_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (identifier_expr
+                                                                                (identifier)))))))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Declaration-in-condition - while
+================================================================================
+void f() {
+  while (string line = read_line()) {
+    write("%s\n", line);
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (while_statement
+          (cond_decl
+            (type
+              (basic_type))
+            (identifier)
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier))))))))))))))))))))
+          (block
+            (expression_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))
+                                            (argument_list
+                                              (comma_expr
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (string_literal)))))))))))))))))
+                                                (assign_expr
+                                                  (cond_expr
+                                                    (lor_expr
+                                                      (land_expr
+                                                        (bitor_expr
+                                                          (bitxor_expr
+                                                            (bitand_expr
+                                                              (eq_expr
+                                                                (rel_expr
+                                                                  (shift_expr
+                                                                    (add_expr
+                                                                      (mul_expr
+                                                                        (unary_expr
+                                                                          (postfix_expr
+                                                                            (primary_expr
+                                                                              (identifier_expr
+                                                                                (identifier)))))))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Declaration-in-condition - complex type
+================================================================================
+void f() {
+  if (object(Fd) x = ::accept()) {
+    return x;
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (if_statement
+          (cond_decl
+            (type
+              (basic_type
+                (type
+                  (id_type
+                    (identifier)))))
+            (identifier)
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (scope_expr
+                                                (inherit_specifier)
+                                                (identifier))))))))))))))))))))
+          (block
+            (return_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier)))))))))))))))))))))))))

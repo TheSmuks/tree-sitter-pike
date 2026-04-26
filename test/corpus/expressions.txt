@@ -1988,7 +1988,6 @@ Safe arrow - deprecated ?-> syntax
                                       (primary_expr
                                         (identifier_expr
                                           (identifier))))
-                                    (safe_arrow)
                                     (identifier)))))))))))))))))))
 
 ================================================================================
@@ -2020,5 +2019,4 @@ Safe arrow - deprecated ?-> syntax
                                       (primary_expr
                                         (identifier_expr
                                           (identifier))))
-                                    (safe_arrow)
                                     (identifier)))))))))))))))))))

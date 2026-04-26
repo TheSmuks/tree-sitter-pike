@@ -83,10 +83,6 @@
         ]
       }
     },
-    "line_continuation": {
-      "type": "PATTERN",
-      "value": "\\\\[\\r\\n]+"
-    },
     "integer_literal": {
       "type": "TOKEN",
       "content": {
@@ -319,10 +315,6 @@
           }
         ]
       }
-    },
-    "safe_arrow": {
-      "type": "STRING",
-      "value": "?->"
     },
     "array_literal": {
       "type": "SEQ",
@@ -1402,8 +1394,8 @@
               "name": "postfix_expr"
             },
             {
-              "type": "SYMBOL",
-              "name": "safe_arrow"
+              "type": "STRING",
+              "value": "?->"
             },
             {
               "type": "CHOICE",
@@ -2761,6 +2753,39 @@
         }
       ]
     },
+    "cond_decl": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "SYMBOL",
+            "name": "type"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_expr"
+          }
+        }
+      ]
+    },
     "if_statement": {
       "type": "SEQ",
       "members": [
@@ -2776,8 +2801,17 @@
           "type": "FIELD",
           "name": "condition",
           "content": {
-            "type": "SYMBOL",
-            "name": "_expr"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_expr"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "cond_decl"
+              }
+            ]
           }
         },
         {
@@ -2834,8 +2868,17 @@
           "type": "FIELD",
           "name": "condition",
           "content": {
-            "type": "SYMBOL",
-            "name": "_expr"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_expr"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "cond_decl"
+              }
+            ]
           }
         },
         {
@@ -5348,7 +5391,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5365,7 +5408,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5382,7 +5425,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5399,7 +5442,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5416,7 +5459,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5433,7 +5476,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5476,7 +5519,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5493,7 +5536,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5510,7 +5553,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5527,7 +5570,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5544,7 +5587,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5561,7 +5604,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5578,7 +5621,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5595,7 +5638,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5612,7 +5655,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           },
@@ -5629,7 +5672,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": ".*"
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
               }
             ]
           }
@@ -5640,11 +5683,7 @@
   "extras": [
     {
       "type": "PATTERN",
-      "value": "\\s+"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "line_continuation"
+      "value": "\\s|\\\\\\r?\\n"
     },
     {
       "type": "SYMBOL",
@@ -5736,12 +5775,7 @@
     ]
   ],
   "precedences": [],
-  "externals": [
-    {
-      "type": "SYMBOL",
-      "name": "safe_arrow"
-    }
-  ],
+  "externals": [],
   "inline": [],
   "supertypes": [],
   "reserved": {}

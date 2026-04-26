@@ -1235,7 +1235,6 @@ Global identifier expression
                                     (primary_expr
                                       (identifier))))))))))))))))))))
 
-
 ================================================================================
 Line continuation in expression
 ================================================================================
@@ -1268,7 +1267,6 @@ Line continuation in expression
                                     (postfix_expr
                                       (primary_expr
                                         (integer_literal))))))
-                              (line_continuation)
                               (mul_expr
                                 (unary_expr
                                   (postfix_expr
