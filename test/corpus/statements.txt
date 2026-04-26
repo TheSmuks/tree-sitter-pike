@@ -2237,3 +2237,59 @@ void f() {
                                             (primary_expr
                                               (identifier_expr
                                                 (identifier)))))))))))))))))))))))))
+
+================================================================================
+Local function declaration
+================================================================================
+
+void f() {
+  int helper(int x) {
+    return x + 1;
+  };
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (local_function_decl
+          return_type: (type
+            (basic_type))
+          name: (identifier)
+          parameters: (parameters
+            (parameter
+              type: (type
+                (basic_type))
+              name: (identifier)))
+          body: (block
+            (return_statement
+              value: (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  name: (identifier)))))))
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))))))))

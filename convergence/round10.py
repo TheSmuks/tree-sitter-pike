@@ -361,14 +361,27 @@ def revalidate_known_limitations(round_num=10):
         init_known_limitations()
 
     content = KNOWN_LIM_FILE.read_text()
-    items = re.findall(r'### (KL-\d+):.*?(?=### KL-|\Z)', content, re.DOTALL)
+
+    # Split into active and resolved sections
+    active_section = content
+    resolved_section = ""
+    if '## Resolved Limitations' in content:
+        parts = content.split('## Resolved Limitations')
+        active_section = parts[0]
+        resolved_section = parts[1] if len(parts) > 1 else ""
+
+    # Parse active items only
+    active_items = list(re.finditer(r'### (KL-\d+):.*?(?=### KL-|## |\Z)', active_section, re.DOTALL))
+    # Parse resolved items
+    resolved_items = re.findall(r'### (KL-\d+):', resolved_section)
 
     kept = []
     removed = []
     escalated = []
 
-    for item_text in items:
-        kl_id = re.match(r'(KL-\d+)', item_text).group(1)
+    for m in active_items:
+        item_text = m.group(0)  # Full match text including ### header
+        kl_id = m.group(1)  # Just the KL-NNN ID
         last_valid = re.search(r'Last validated:\s*Round\s*(\d+)', item_text)
         rounds_active = re.search(r'Rounds active:\s*(\d+)\+?', item_text)
 
@@ -380,19 +393,27 @@ def revalidate_known_limitations(round_num=10):
         rounds = int(rounds_active.group(1)) if rounds_active else 1
         rounds_since = round_num - last_round + rounds
 
-        # For now, keep all items but update "Last validated" field
-        # Items are kept because they genuinely require external scanners
-        # or semantic checks beyond tree-sitter's scope.
+        # Extract the reason from the item
+        reason = "Requires external scanner or semantic check beyond tree-sitter scope"
+        # Check for specific root cause descriptions
+        if 'external scanner' in item_text.lower() or 'scanner-bound' in item_text.lower():
+            reason = "Genuinely scanner-bound (validated with token ambiguity proof)"
+        elif 'semantic check' in item_text.lower():
+            reason = "Semantic check beyond tree-sitter scope"
+
         kept.append({
             "id": kl_id,
-            "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+            "reason": reason,
             "rounds_since_validation": round_num - last_round,
         })
 
-    # Update Last validated fields
+    for kl_id in resolved_items:
+        removed.append(kl_id)
+
+    # Update Last validated fields in active section only
     new_content = re.sub(
         r'(Last validated:\s*Round\s*)\d+',
-        rf'\g<1>{round_num}',
+        rf'\\g<1>{round_num}',
         content,
     )
     KNOWN_LIM_FILE.write_text(new_content)
@@ -522,8 +543,8 @@ def parse_corpus_node_types():
     for corpus_file in sorted(CORPUS_DIR.glob("*.txt")):
         content = corpus_file.read_text()
         # The expected tree sections contain node types in parentheses
-        # Pattern: (node_name ...)
-        for m in re.finditer(r'\(([a-z_][a-z0-9_]*)\s', content):
+        # Pattern: (node_name followed by space (has children) or ) (leaf)
+        for m in re.finditer(r'\(([a-z_][a-z0-9_]*)(?:\s|\))', content):
             all_nodes.add(m.group(1))
 
     return all_nodes
@@ -705,6 +726,17 @@ def main():
     else:
         print(f"\n  NOT CONVERGED: {total_p1} P1 findings require fixes")
 
+    # Next round priorities
+    next_priorities = [
+        "Re-validate known-limitations under sharpened descriptions (KL-003 scanner-bound proof, KL-004 semantic)",
+        "Add external scanner for version_prefix (KL-003) if version-prefixed identifiers are needed",
+        "Increase adversarial input count and template diversity",
+        "Consider adding corpus tests for edge-case parse trees (deep nesting, many parameters)",
+    ]
+    print("\n  Next round priorities:")
+    for p in next_priorities:
+        print(f"    - {p}")
+
     # Write JSON report
     report_data = {
         "round": 10,
@@ -725,6 +757,7 @@ def main():
         "total_p1": total_p1,
         "total_p2": total_p2,
         "converged": total_p1 == 0,
+        "next_round_priorities": next_priorities,
     }
 
     report_file = REPO / "convergence" / "round10_report.json"

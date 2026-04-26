@@ -96,10 +96,10 @@ export default grammar({
     string_concat: $ => seq($.string_literal, repeat1($.string_literal)),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-    // Backtick identifiers: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=
-    // Known limitation: `foo= (setter) form requires external scanner
+    // Backtick identifiers: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=, `foo=
+    // `foo= setter form: the = is part of the identifier name, same as `->foo=
     backtick_identifier: _ => token(choice(
-      /`[a-zA-Z_][a-zA-Z0-9_]*/,
+      /`[a-zA-Z_][a-zA-Z0-9_]*=?/,
       '`[]', '`[]=', '`()', '`->', '`->=', '`[..]',
       /`[-+&|^*\/~%!=<>]+/,
       seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),

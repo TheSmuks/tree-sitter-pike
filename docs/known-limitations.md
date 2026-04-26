@@ -6,34 +6,36 @@ for 2+ rounds without progress must include a written reason or be escalated.
 
 ## Active Limitations
 
-### KL-001: function(:void) zero-arg type produces zero-width missing identifier
-- **Description**: `function(:void)` parses with GLR error recovery creating a
-  zero-width missing identifier node in the parameter list.
-- **Root cause**: Cannot be fixed without an external scanner to disambiguate
-  the empty position before `:`.
-- **Impact**: Cosmetic only; the parse tree is correct except for the spurious
-  missing node.
-- **Last validated**: Round 8
-- **Rounds active**: 3+
-
-### KL-002: `->name=` backtick setter form requires external scanner
-- **Description**: The token `` `->name= `` is split by the lexer into
-  `` `->name `` and `=` as separate tokens.
-- **Root cause**: The backtick_identifier token regex can capture `->name` but
-  the `=` is always lexed separately. Fixing requires an external scanner.
-- **Impact**: Setter forms like `` `foo= `` work but `` `->name= `` does not
-  parse as a single token.
-- **Last validated**: Round 8
-- **Rounds active**: 3+
-
 ### KL-003: version_prefix (7.8::foo) requires external scanner
-- **Description**: The `major.minor::identifier` syntax (e.g., `7.8::foo`)
-  cannot be parsed because `7.8` is lexed as a float token, not as a version
-  prefix.
-- **Root cause**: The lexer sees `7.8` as a single float literal. An external
-  scanner would need to recognize the `::` following a float-like token.
-- **Impact**: Code using version prefixes fails to parse.
-- **Last validated**: Round 8
+- **Description**: The `major.minor::identifier` syntax (e.g., `7.8::foo`,
+  `inherit 7.0::Stdio;`) cannot be parsed because `7.8` is lexed as a float
+  token, not as a version prefix.
+- **Ambiguous token sequence**: `7.8::` — the lexer encounters `7.8` and must
+  decide between two token types:
+  1. `float_literal` (regex: `/[0-9]+\.[0-9]+/`)
+  2. `version_prefix` (regex: `/[0-9]+\.[0-9]+/`)
+  Both rules match the same character sequence `7.8` with identical length.
+- **Competing parses**:
+  - Parse A (correct): `(version_prefix) (::) (identifier)` → scope resolution
+  - Parse B (actual): `(float_literal) (::) (identifier)` → ERROR at `::`
+- **Why precedence cannot resolve it**: Both alternatives are `token()` rules
+  with identical regex patterns. Tree-sitter's longest-match rule produces a
+  tie. The lexer commits to the token before the parser can see `::`.
+- **Why rule restructuring cannot resolve it**: `version_prefix` and
+  `float_literal` are both atomic `token()` rules. Moving version detection
+  into the grammar (e.g., making `7.8::` a single token) would prevent `7.8`
+  from being used as a float in other contexts.
+- **Specific lookahead requirement**: The lexer must scan past `7.8` and check
+  whether `::` follows (with optional whitespace). If `::` follows, emit
+  `version_prefix`; otherwise emit `float_literal`. This is a two-token
+  lookahead that tree-sitter's default lexer architecture does not support.
+- **Pike's lexer behavior** (lexer.h L990-1030): Pike's `read_float` path
+  explicitly checks for `::` after the fractional digits using `GOBBLE` and
+  conditional logic. It emits `TOK_VERSION` or `TOK_FLOAT` based on this
+  lookahead. This is context-sensitive lexing.
+- **Impact**: ALL version-prefixed identifiers fail. Affects `7.8::Stdio`,
+  `inherit 7.0::Stdio;`, and any `major.minor::identifier` construct.
+- **Last validated**: Round 10
 - **Rounds active**: 3+
 
 ### KL-004: Top-level break/continue without enclosing loop
@@ -44,17 +46,37 @@ for 2+ rounds without progress must include a written reason or be escalated.
   a syntactic one.
 - **Impact**: Accepts invalid Pike code. Low severity since static analysis
   tools catch this.
-- **Last validated**: Round 8
+- **Last validated**: Round 10
 - **Rounds active**: 3+
 
-### KL-005: class { }() anonymous class instantiation as expression
-- **Description**: `class { int x; }()` — creating an anonymous class and
-  immediately instantiating it — fails to parse. The `class` keyword is only
-  recognized in declaration position, not expression position.
-- **Root cause**: yacc has `implicit_modifiers class` as an `expr4` (primary
-  expression) alternative. Our grammar only has `class_decl` in `declaration`
-  and `local_declaration` contexts, not in `primary_expr`.
-- **Impact**: Anonymous class instantiation in variable initializers and
-  expression positions fails. Named class declarations work fine.
-- **Last validated**: Round 10
-- **Rounds active**: 1
+## Resolved Limitations
+
+### KL-001: function(:void) zero-arg type — RESOLVED in Round 10
+- **Original claim**: `function(:void)` produces zero-width missing identifier.
+- **Resolution**: The `_function_type` rule with `optional(trailingCommaSep1($.type))`
+  correctly handles the zero-argument case. When the optional is empty, the parser
+  proceeds directly to `:`. GLR handles this without error recovery. The parse tree
+  is correct. The original claim was based on an earlier grammar version.
+- **Removed**: Round 10
+
+### KL-002: `foo=` backtick setter form — RESOLVED in Round 10
+- **Original claim**: `` `foo= `` setter form requires external scanner.
+- **Resolution**: The fix was a grammar change, not an external scanner. Added
+  `=?` to the backtick identifier regex: `/`[a-zA-Z_][a-zA-Z0-9_]*=?/`. This
+  optionally consumes the trailing `=` as part of the identifier token, matching
+  Pike's lexer behavior where `GOBBLE('=')` appends `=` to identifier names.
+  The `` `->name= `` form was already working via the `seq('`', '->', regex, optional('='))`
+  alternative; the same `optional('=')` pattern was simply missing from the
+  plain identifier alternative.
+- **Removed**: Round 10
+
+### KL-005: class { }() as expression — REMOVED in Round 10
+- **Original claim**: Anonymous class instantiation fails because `class` keyword
+  is not in `primary_expr`.
+- **Resolution**: False positive. The `anon_class` rule IS in `primary_expr` (line
+  264 of grammar.ts) and handles `class { body }()` correctly — the postfix `()`
+  is a call expression on the class value. The original test case
+  `class { int x; } o = class { int x; }()` was invalid Pike: `class { } o`
+  tries to use an anonymous class as a type name in a declaration, which Pike
+  itself rejects (`syntax error, unexpected TOK_IDENTIFIER`).
+- **Removed**: Round 10

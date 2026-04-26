@@ -3,8 +3,8 @@
   "seed": 42,
   "build": "clean",
   "corpus": {
-    "total": 203,
-    "passed": 203,
+    "total": 204,
+    "passed": 204,
     "failed": 0
   },
   "example_files": {
@@ -438,114 +438,25 @@
   "known_limitations": {
     "kept": [
       {
-        "id": "KL-001",
-        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
-        "rounds_since_validation": 10
-      },
-      {
-        "id": "KL-002",
-        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
-        "rounds_since_validation": 10
-      },
-      {
         "id": "KL-003",
-        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "reason": "Genuinely scanner-bound (validated with token ambiguity proof)",
         "rounds_since_validation": 10
       },
       {
         "id": "KL-004",
-        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
-        "rounds_since_validation": 10
-      },
-      {
-        "id": "KL-005",
-        "reason": "Requires external scanner or semantic check beyond tree-sitter scope",
+        "reason": "Semantic check beyond tree-sitter scope",
         "rounds_since_validation": 10
       }
     ],
-    "removed": [],
+    "removed": [
+      "KL-001",
+      "KL-002",
+      "KL-005"
+    ],
     "escalated": []
   },
-  "uncovered_rules": [
-    "continue_statement",
-    "default_clause",
-    "local_function_decl",
-    "this_expr"
-  ],
+  "uncovered_rules": [],
   "uncovered_branches": [
-    {
-      "rule": "primary_expr",
-      "branch_index": 0,
-      "alternative": "$.integer_literal",
-      "references": [
-        "integer_literal"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 1,
-      "alternative": "$.float_literal",
-      "references": [
-        "float_literal"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 2,
-      "alternative": "$.char_literal",
-      "references": [
-        "char_literal"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 3,
-      "alternative": "$.string_literal",
-      "references": [
-        "string_literal"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 9,
-      "alternative": "$.backtick_identifier",
-      "references": [
-        "backtick_identifier"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 10,
-      "alternative": "seq('.', $.identifier)",
-      "references": [
-        "identifier"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 20,
-      "alternative": "$.this_expr",
-      "references": [
-        "this_expr"
-      ]
-    },
-    {
-      "rule": "primary_expr",
-      "branch_index": 21,
-      "alternative": "seq('global', '.', $.identifier)",
-      "references": [
-        "identifier"
-      ]
-    },
-    {
-      "rule": "inherit_specifier",
-      "branch_index": 0,
-      "alternative": "seq(choice($.identifier, $.string_literal), '::')",
-      "references": [
-        "identifier",
-        "string_literal"
-      ]
-    },
     {
       "rule": "inherit_specifier",
       "branch_index": 6,
@@ -553,73 +464,15 @@
       "references": [
         "version_prefix"
       ]
-    },
-    {
-      "rule": "_stmt",
-      "branch_index": 10,
-      "alternative": "$.default_clause",
-      "references": [
-        "default_clause"
-      ]
-    },
-    {
-      "rule": "_stmt",
-      "branch_index": 13,
-      "alternative": "$.continue_statement",
-      "references": [
-        "continue_statement"
-      ]
-    },
-    {
-      "rule": "_stmt",
-      "branch_index": 21,
-      "alternative": "$.local_function_decl",
-      "references": [
-        "local_function_decl"
-      ]
-    },
-    {
-      "rule": "_int_range_val",
-      "branch_index": 0,
-      "alternative": "$.integer_literal",
-      "references": [
-        "integer_literal"
-      ]
-    },
-    {
-      "rule": "_int_range_val",
-      "branch_index": 1,
-      "alternative": "seq('-', $.integer_literal)",
-      "references": [
-        "integer_literal"
-      ]
-    },
-    {
-      "rule": "_program_type",
-      "branch_index": 1,
-      "alternative": "seq('(', $.string_literal, ')')",
-      "references": [
-        "string_literal"
-      ]
-    },
-    {
-      "rule": "_id_expr",
-      "branch_index": 0,
-      "alternative": "$.identifier",
-      "references": [
-        "identifier"
-      ]
-    },
-    {
-      "rule": "_id_expr",
-      "branch_index": 3,
-      "alternative": "seq('.', $.identifier)",
-      "references": [
-        "identifier"
-      ]
     }
   ],
   "total_p1": 0,
-  "total_p2": 22,
-  "converged": true
+  "total_p2": 1,
+  "converged": true,
+  "next_round_priorities": [
+    "Re-validate known-limitations under sharpened descriptions (KL-003 scanner-bound proof, KL-004 semantic)",
+    "Add external scanner for version_prefix (KL-003) if version-prefixed identifiers are needed",
+    "Increase adversarial input count and template diversity",
+    "Consider adding corpus tests for edge-case parse trees (deep nesting, many parameters)"
+  ]
 }
