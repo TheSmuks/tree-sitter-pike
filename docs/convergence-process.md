@@ -188,3 +188,39 @@ extras tokens. The 19 error files are documented in KL-007.
     and `#endif` as opaque text in specific positions (loses tree fidelity).
 (b) Implement an external scanner that tracks `#if`/`#endif` nesting at the lexer
     level and handles split cases before the parser sees them.
+
+
+### Round 15: Sub-categorization, Scope Decision, Targeted Fixes
+
+Round 14 proved the grammar-only ceiling exists. Round 15 decided what to do about it.
+
+**Work completed:**
+
+1. **KL-007 sub-categorization**: Diagnosed all 19 error files and split KL-007
+   into 6 sub-entries (KL-007a through KL-007f) with exact token sequences,
+   affected files, and architectural-path analysis per sub-entry.
+
+2. **Scope decision** (`docs/scope.md`): Grammar-only was Phase 1 (98.2%).
+   Phase 2 is targeted grammar fixes for macro-argument cases.
+   External scanner available but not justified (8-file marginal improvement
+   at high complexity cost). After Phase 2: maintenance cadence.
+
+3. **Grammar fixes** (Phase 2 execution):
+   - Added `$.block` to `argument_list` — fixes macro calls with block args
+   - Added `$.magic_identifier` to `argument_list` — fixes keyword-as-arg cases
+   - Removed `'bits'` from `magic_identifier` — not a Pike keyword, was causing
+     `nist_primes(bits / 64 - 8)` to regress
+
+   Files fixed:
+   - `Protocols/TELNET.pmod`: HANDLE(remote,WILL,WONT,DO,DONT)
+   - `Parser/LR/module.pmod`: LR_GAUGE("LR0", {...})
+   - `src/post_modules/GSSAPI/test.pike`: TEST_CODE({...})
+   - `7.8/SSL/sslfile.pike`: FIX_ERRNOS({...}, 0) partially fixed
+
+**Result:** 1066/1082 clean (98.5%), 204/204 tests passing.
+Up from 1063/1082 (98.2%). 3 files fully fixed, 1 partially fixed.
+
+**Commits:** `1245f44`, `a6ced62`, `cbe3f35`
+
+**Round 16 status:** Maintenance cadence. No scheduled round.
+Round 16 is triggered only by regression, new Pike release, or bug report.
