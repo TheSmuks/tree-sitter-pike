@@ -1343,3 +1343,405 @@ do ; while(1);
                                                                 (postfix_expr
                                                                   (primary_expr
                                                                     (integer_literal)))))))))))))))))))))))))))))))))))
+
+================================================================================
+Macro statement - ENTER/LEAVE pattern
+================================================================================
+void f() { ENTER(0) { int x = 1; } LEAVE; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (macro_statement
+          macro: (identifier)
+          arguments: (argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+          body: (block
+            (local_declaration
+              type: (type
+                (basic_type))
+              name: (identifier)
+              value: (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))
+          end_macro: (identifier))))))
+
+================================================================================
+Macro statement - nested ENTER/LEAVE
+================================================================================
+void f() {
+  ENTER(0) {
+    ENTER(1) {
+      int x = 1;
+    } LEAVE;
+  } LEAVE;
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_statement
+          (identifier)
+          (argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+          (block
+            (macro_statement
+              (identifier)
+              (argument_list
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (integer_literal))))))))))))))))))))))))))))))))))
+              (block
+                (local_declaration
+                  (type
+                    (basic_type))
+                  (identifier)
+                  (comma_expr
+                    (assign_expr
+                      (cond_expr
+                        (lor_expr
+                          (land_expr
+                            (bitor_expr
+                              (bitxor_expr
+                                (bitand_expr
+                                  (eq_expr
+                                    (rel_expr
+                                      (shift_expr
+                                        (add_expr
+                                          (mul_expr
+                                            (unary_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (integer_literal)))))))))))))))))))
+              (identifier)))
+          (identifier))))))
+
+================================================================================
+Macro statement - BEGIN/END without args
+================================================================================
+void f() { BEGIN { int x = 1; } END; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_statement
+          (identifier)
+          (block
+            (local_declaration
+              (type
+                (basic_type))
+              (identifier)
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal)))))))))))))))))))
+          (identifier))))))
+
+================================================================================
+Macro statement - real-world ENTER/LEAVE
+================================================================================
+protected void create (Stdio.File stream, SSL.Context ctx)
+{
+  ENTER (0) {
+    global::stream = stream;
+    global::context = ctx;
+    set_nonblocking();
+  } LEAVE;
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters
+        (parameter
+          (type
+            (id_type
+              (identifier)
+              (identifier)))
+          (identifier))
+        (parameter
+          (type
+            (id_type
+              (identifier)
+              (identifier)))
+          (identifier)))
+      (block
+        (macro_statement
+          (identifier)
+          (argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (integer_literal))))))))))))))))))))))))))))))))))
+          (block
+            (expression_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (scope_expr
+                                                (inherit_specifier)
+                                                (identifier))))))))))))))))
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))))))))))))))))))
+            (expression_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (scope_expr
+                                                (inherit_specifier)
+                                                (identifier))))))))))))))))
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))))))))))))))))))
+            (expression_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier)))))))))))))))))))))
+          (identifier))))))

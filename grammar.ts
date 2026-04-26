@@ -27,8 +27,21 @@ export default grammar({
     [$.assign_expr],
     // dangling else ambiguity
     [$.if_statement],
+    // macro_statement vs identifier expression (ENTER(args){} LEAVE;)
+    [$.macro_statement, $._id_expr],
+    [$.macro_statement, $.identifier_expr],
+    [$.macro_statement, $._id_expr, $.identifier_expr],
+    // inherit_specifier self-recursion (chained scope: Foo::Bar::)
+    [$.inherit_specifier],
+    // postfix_expr call-with-block ambiguity (f() {} vs f() as expr)
+    [$.postfix_expr],
   ],
-  externals: $ => [],
+
+  // External scanner for context-sensitive tokens:
+  //   safe_arrow — `?->` (deprecated Pike safe-index arrow).
+  //   The `?` alone is ternary; only `?->` together is safe arrow.
+  //   See src/scanner.c for implementation.
+  externals: $ => [$.safe_arrow],
 
   extras: $ => [
     /\s+/,
@@ -88,6 +101,11 @@ export default grammar({
       /`[-+&|^*\/~%!=<>]+/,
       seq('`', '->', /[a-zA-Z_][a-zA-Z0-9_]*/, optional('=')),
     )),
+
+    // External token: ?-> (deprecated safe arrow, see src/scanner.c)
+    // Produced by the external scanner only when `?` is followed by `->`.
+    // Without the scanner, `?` is consumed as ternary, breaking `conn?->field`.
+    safe_arrow: _ => '?->',
 
     // ── Collection literals ──
 
@@ -195,9 +213,11 @@ export default grammar({
       // Postfix increment/decrement
       seq($.postfix_expr, choice('++', '--')),
       // Arrow: obj->field
-      seq($.postfix_expr, '->', choice($.identifier, $.magic_identifier)),
-      // Safe arrow: obj->?field
-      seq($.postfix_expr, '->?', choice($.identifier, $.magic_identifier)),
+      seq($.postfix_expr, '->', choice($.identifier, $.magic_identifier, $.backtick_identifier)),
+      // Safe arrow: obj->?field (new syntax, ->?)
+      seq($.postfix_expr, '->?', choice($.identifier, $.magic_identifier, $.backtick_identifier)),
+      // Safe arrow: obj?->field (deprecated syntax, ?->)
+      seq($.postfix_expr, $.safe_arrow, choice($.identifier, $.magic_identifier, $.backtick_identifier)),
       // Call: f(args) and f(args) { block }
       seq($.postfix_expr, '(', optional($.argument_list), ')', optional($.block)),
       // Dot access: obj.field
@@ -339,6 +359,10 @@ export default grammar({
       $.enum_decl,
       $.typedef_decl,
       $.local_function_decl,
+      // Macro statement: ENTER(arg) { body } LEAVE;
+      // Handles paired begin/end macros that tree-sitter can't expand.
+      // See macro_statement rule for full documentation.
+      $.macro_statement,
     ),
 
     block: $ => seq('{', repeat($._stmt), '}'),
@@ -393,6 +417,55 @@ export default grammar({
     continue_statement: $ => seq('continue', optional(field('label', $.identifier)), ';'),
 
     labeled_statement: $ => seq(field('label', $.identifier), ':', field('body', $._stmt)),
+
+    // Macro statement pattern for paired begin/end macros.
+    //
+    // Pike codebases use C preprocessor macros that expand to balanced
+    // constructs, e.g.:  ENTER(0) { ... } LEAVE;
+    //   where ENTER(X) -> do {  and  LEAVE -> } while(0);
+    //
+    // Without macro expansion, tree-sitter sees IDENTIFIER(args) block IDENTIFIER ;
+    // and the trailing IDENTIFIER becomes an orphan error node.
+    //
+    // This rule recognises three patterns:
+    //   1. IDENTIFIER(args) block IDENTIFIER ;   — e.g. ENTER(0) { ... } LEAVE;
+    //   2. IDENTIFIER block IDENTIFIER ;          — e.g. BEGIN { ... } END;
+    //   3. IDENTIFIER(args) block ;               — e.g. RUN_ONCE(x) { ... };
+    //
+    // Recognised macros are documented in the grammar header so new ones
+    // can be added without re-deriving the fix. No token-level rewriting is
+    // needed — the grammar simply accepts the pattern as a statement.
+    //
+    // Field names preserve source positions for downstream tooling.
+    // Recognised macros in ssl_file.pike:
+    //   ENTER(IN_CALLBACK) { ... } LEAVE;
+    //   CHECK_CB_MODE(CUR_THREAD) { ... }
+    // Recognised macros in stdio.pmod:
+    //   CHECK_OPEN() { ... }
+    macro_statement: $ => prec.dynamic(1, choice(
+      // IDENTIFIER(args) block IDENTIFIER ;
+      seq(
+        field('macro', $.identifier),
+        field('arguments', $.argument_list),
+        field('body', $.block),
+        field('end_macro', $.identifier),
+        ';',
+      ),
+      // IDENTIFIER block IDENTIFIER ;
+      seq(
+        field('macro', $.identifier),
+        field('body', $.block),
+        field('end_macro', $.identifier),
+        ';',
+      ),
+      // IDENTIFIER(args) block ;
+      seq(
+        field('macro', $.identifier),
+        field('arguments', $.argument_list),
+        field('body', $.block),
+        ';',
+      ),
+    )),
 
     // ── Type system ──
 

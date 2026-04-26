@@ -1958,3 +1958,67 @@ __func__ in expression context
                                   (postfix_expr
                                     (primary_expr
                                       (string_literal))))))))))))))))))))
+
+================================================================================
+Safe arrow - deprecated ?-> syntax
+================================================================================
+{ return conn?->session; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (return_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          (identifier))))
+                                    (safe_arrow)
+                                    (identifier)))))))))))))))))))
+
+================================================================================
+Safe arrow - deprecated ?-> syntax
+================================================================================
+{ return conn?->session; }
+
+--------------------------------------------------------------------------------
+
+(program
+  (block
+    (return_statement
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (identifier_expr
+                                          (identifier))))
+                                    (safe_arrow)
+                                    (identifier)))))))))))))))))))

@@ -315,6 +315,10 @@
           "named": true
         },
         {
+          "type": "macro_statement",
+          "named": true
+        },
+        {
           "type": "return_statement",
           "named": true
         },
@@ -728,6 +732,10 @@
             "named": true
           },
           {
+            "type": "macro_statement",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -960,6 +968,10 @@
             "named": true
           },
           {
+            "type": "macro_statement",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -1131,6 +1143,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_statement",
             "named": true
           },
           {
@@ -1382,6 +1398,10 @@
             "named": true
           },
           {
+            "type": "macro_statement",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -1483,6 +1503,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_statement",
             "named": true
           },
           {
@@ -1664,6 +1688,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_statement",
             "named": true
           },
           {
@@ -1851,6 +1879,52 @@
     }
   },
   {
+    "type": "macro_statement",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "argument_list",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "end_macro": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "macro": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "magic_identifier",
     "named": true,
     "fields": {}
@@ -1994,6 +2068,10 @@
           "named": true
         },
         {
+          "type": "backtick_identifier",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -2019,6 +2097,10 @@
         },
         {
           "type": "primary_expr",
+          "named": true
+        },
+        {
+          "type": "safe_arrow",
           "named": true
         }
       ]
@@ -2564,6 +2646,10 @@
             "named": true
           },
           {
+            "type": "macro_statement",
+            "named": true
+          },
+          {
             "type": "return_statement",
             "named": true
           },
@@ -2993,6 +3079,10 @@
   {
     "type": "return",
     "named": false
+  },
+  {
+    "type": "safe_arrow",
+    "named": true
   },
   {
     "type": "sscanf",
