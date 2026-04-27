@@ -617,3 +617,118 @@ The two patterns are DIFFERENT from Round 17's fixes:
 - Round 17: `$.block` ({...} bodies), `$.magic_identifier` (bare keyword tokens)
 - sslfile.pike/client.pike: bare `if/else` statements — fundamentally different
   construct that can't be expressed as a single expression or block
+
+### Round 20: Final architectural ceiling confirmed
+
+Four workstreams were attempted at maximum specificity. No files were fixed.
+Rate remains 1071/1082 (99.0%), 208/208 tests.
+
+**This is the architectural ceiling. All remaining 11 files are documented at
+token-level specificity below. The project moves to maintenance cadence.**
+
+**Workstream 1: PREPROC_BLOCK with STMT_BOUNDARY_MARKER**
+
+Implemented a novel mechanism: added `STMT_BOUNDARY_MARKER` as an external token
+that's valid in `_definition`, `_stmt`, and `class_body` but never emitted by the
+scanner. When both `PREPROC_BLOCK` and `STMT_BOUNDARY_MARKER` are valid, the
+scanner knows it's at a statement boundary and skips PREPROC_BLOCK.
+
+Results:
+- 4 PP-split files fixed: Codec.pmod, Concurrent.pmod, GrammarParser.pmod, socktest.pike
+- 15 regressions: files where PP blocks contain partial expressions
+- Net: 1059/1082 (12 regressions), REVERTED
+
+The 4 fixes confirm PREPROC_BLOCK works for standalone-expression PP blocks.
+The 15 regressions are from PP blocks containing non-expression content (commas,
+semicolons, continuation fragments). The scanner cannot determine whether a PP
+block contains a standalone expression without parsing — a fundamental limitation.
+
+Specific regressions include:
+- Struct.pike, Arg.pmod, RSA.pike, SDL.pike: `foreach(EXPR,` where EXPR is PP-split
+  with trailing comma inside the block
+- Context.pike, Constants.pmod, X509.pmod, module.pmod (x2): PP blocks in argument
+  continuations where the block content is not a complete expression
+- Hilfe.pmod, extract_locale.pike, test_pike.pike, lr.pike, pgsql.pike, pgsql_util.pmod:
+  similar PP-split in non-expression contexts
+
+The STMT_BOUNDARY_MARKER mechanism itself is correct and could be reused if a
+scanner-side heuristic for "complete expression" detection is ever developed.
+
+**Workstream 2: macro-arg if_statement in macro_argument_list**
+
+Added `$.if_statement` with `prec(2)` to `macro_argument_list`. This enables
+`if/else` as macro arguments when the call is matched by `macro_invocation_stmt`
+(in `_definition`).
+
+However, sslfile.pike's `RUN_MAYBE_BLOCKING` calls are inside `if`/`else` bodies,
+which are `_stmt` contexts. `_stmt` does NOT include `macro_invocation_stmt`.
+Inside `_stmt`, `RUN_MAYBE_BLOCKING(...)` is parsed as `expression_statement` with
+`postfix_expr` call and `argument_list`, which doesn't accept `if_statement`.
+
+Three approaches to fix this were tried:
+
+(a) macro_call with uppercase callee: tree-sitter cannot conditionally match based
+    on identifier case. Both `RUN_MAYBE_BLOCKING` and `regularFunction` match the
+    same `identifier` token. No grammatical distinction is possible.
+
+(b) if_statement in argument_list: adding `$.if_statement` to the regular
+    `argument_list` makes every function call accept if/else as an argument.
+    This creates massive ambiguity: `f(if(x){a;}else b;)` is ambiguous between
+    function-call-with-if-arg and expression-statement-with-orphaned-else.
+    Specifically, `;` inside the if body creates ambiguity with expression_statement
+    termination, and the `else` clause creates multiplied dangling-else conflicts.
+
+(c) macro_invocation_stmt in _stmt: adding `$.macro_invocation_stmt` to `_stmt`
+    causes 13 test failures because `IDENTIFIER(args);` is extremely common.
+    The macro_argument_list path wins over expression_statement for regular
+    function calls, breaking: catch/gauge expressions, for/foreach statements,
+    spread calls, chained calls, declaration-in-condition patterns, and the
+    existing macro_statement pattern.
+
+**Workstream 3: tds.pike separate modified_local_function_decl rule**
+
+Defined `modified_local_function_decl: seq(repeat1($._modifier), type, name,
+parameters, block)` as a separate rule in `_stmt`. All variants cause sslfile.pike
+to regress from 1-line ERROR (line 848) to ~1460-line ERROR (line 815+).
+
+Root cause: sslfile.pike has ~49 modifier-prefixed declarations in deeply nested
+GLR parse contexts. Any new parse path from `modifier + type + name` to a function
+form (parameters + block) creates exponential state exploration at each occurrence.
+The parser fails at line 815 (much earlier than baseline line 848).
+
+Four specific variants were tried:
+1. Separate `modified_local_function_decl` rule (no precedence)
+2. Same with `prec.dynamic(1)`
+3. Adding `repeat($._modifier)` to existing `local_function_decl`
+4. Extending `local_declaration` with function form alternative
+
+All four produce the same regression. The issue is structural: the GLR state
+machine's FIRST set changes when `modifier + type + name` can lead to a function
+form in `_stmt`, creating state transitions that overlap with `local_declaration`
+at every modifier occurrence in sslfile.pike.
+
+**Ceiling declaration**
+
+All four workstreams have been attempted at maximum specificity. The remaining
+11 files represent 4 distinct architectural limitations:
+
+1. PP-split position explosion (7 files): The scanner can emit PREPROC_BLOCK at
+   expression-interior positions, but cannot determine whether the block content is
+   a standalone expression. The STMT_BOUNDARY_MARKER correctly prevents firing at
+   statement boundaries, but 15 regressions from non-expression PP blocks make
+   this a net negative.
+
+2. GLR state machine structural change (1 file): tds.pike's modifier+function_decl
+   pattern creates FIRST set changes that cascade through sslfile.pike's ~49
+   modifier occurrences. This is a fundamental GLR state machine interaction, not
+   a precedence conflict.
+
+3. RELAY juxtaposition (1 file): install.pike's `RELAY(X) RELAY(Y)` in `+` chain
+   can't be distinguished from separate statements when both are in `primary_expr`.
+
+4. if-statement as macro arg (2 files): sslfile.pike/client.pike use bare if/else
+   as macro arguments inside `_stmt` contexts where `macro_invocation_stmt` is not
+   available. Adding it causes 13 test regressions.
+
+The rate 1071/1082 (99.0%) is the architectural maximum for this grammar with
+tree-sitter's GLR parser. Moving to maintenance cadence.

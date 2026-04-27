@@ -61,57 +61,49 @@ extras approach: 224 files contain conditional directives, and making them
 opaque would regress tree fidelity for all of them. See docs/scanner-design.md
 §10 for the analysis. The scanner was reduced to hash-string-only (HASH_STRING).
 
-- **Last validated**: Round 19
-- **Rounds active**: 8
+- **Last validated**: Round 20 (ceiling)
+- **Rounds active**: 9
+- **Status**: ARCHITECTURAL CEILING — all approaches exhausted
 - **Impact**: 11 distribution files have errors:
-  - KL-007a: 7 files (PP splitting) — **valid_symbols position explosion (Round 19)**
+  - KL-007a: 7 files (PP splitting) — **scanner cannot determine if PP block contains standalone expression (Round 20)**
   - KL-007b: 0 files — **RESOLVED in Round 18** (bare identifier with optional `;`)
   - KL-007c: 0 files — **RESOLVED in Round 18** (typed macro invocation in declaration)
   - KL-007d: 0 files — **RESOLVED in Round 17** (mapping_literal accepts postfix_expr)
   - KL-007e: 0 files — **RESOLVED in Round 18** (string_concat accepts macro_invocation)
-  - KL-007f: 1 file (tds.pike: modifier on local_function_decl) — **GLR state machine structural change (Round 19)**
+  - KL-007f: 1 file (tds.pike: modifier on local_function_decl) — **GLR state machine structural change; all 4 rule variants regress sslfile.pike (Round 20)**
   - KL-007g: 1 file (install.pike: RELAY juxtaposition in + chain) — **string_concat ambiguity at statement boundaries (Round 19)**
-  - KL-007h: 2 files (sslfile.pike, client.pike: if-statement as macro arg) — **RUN_MAYBE_BLOCKING parsed as function call, not macro_invocation (Round 19)**
+  - KL-007h: 2 files (sslfile.pike, client.pike: if-statement as macro arg) — **macro_invocation_stmt in _stmt causes 13 test regressions (Round 20)**
   - Some files appear in multiple sub-entries (total unique: 11)
-#### KL-007a: PP splitting expressions (7 files) — valid_symbols position explosion
+#### KL-007a: PP splitting expressions (7 files) — scanner cannot determine PP block completeness
 
 The `#if`/`#ifdef`/`#endif` block splits a sub-expression. Tree-sitter sees a
 dangling operator with no right operand, or a value with no operator.
 
-**Round 19 correction**: Round 18 claimed "transparent extras consume PP tokens before
-scanner fires." This was WRONG. The external scanner DOES fire before transparent
-extras. The actual issue is valid_symbols position explosion.
+**Round 20**: Implemented PREPROC_BLOCK scanner token with STMT_BOUNDARY_MARKER
+sentinel mechanism. The sentinel is an external token added to `_definition`,
+`_stmt`, and `class_body` that's never emitted — its presence in `valid_symbols`
+tells the scanner it's at a statement boundary. The scanner emits PREPROC_BLOCK
+only when STMT_BOUNDARY_MARKER is NOT valid (i.e., at expression-interior positions).
 
-**Token-level failure (corrected)**:
+Results:
+- 4 files fixed: Codec.pmod, Concurrent.pmod, GrammarParser.pmod, socktest.pike
+- 15 regressions: files where PP blocks contain non-expression content
+- Net: 1059/1082 (12 regressions), REVERTED
 
-1. Parser is at `if (x >` — expecting RHS of `>`
-2. External scanner IS called. PREPROC_BLOCK is in valid_symbols (via
-   `primary_expr` → `expression_statement` → `_stmt`/`_definition`).
-3. Scanner emits PREPROC_BLOCK, consuming the entire `#ifdef...#endif` block.
-4. At expression-interior positions (after `>`): this is CORRECT — PREPROC_BLOCK
-   becomes the RHS of `>`.
-5. At statement-boundary positions (e.g., after `int x = 1;`): this is WRONG —
-   PREPROC_BLOCK consumes interior content that should remain visible.
-   Example: `split_quoted_string(x #ifdef __NT__ ,1 #endif)` — the `,1` argument
-   is consumed by PREPROC_BLOCK and lost.
+The regressions confirm the limitation is not just position discrimination but
+also content discrimination. The scanner correctly identifies expression-interior
+positions via STMT_BOUNDARY_MARKER, but it cannot determine whether a PP block
+contains a standalone expression or a partial expression (commas, continuation
+fragments, semicolons inside the block). This requires parsing, which the scanner
+cannot do.
 
-The scanner cannot distinguish these positions because `primary_expr` is in
-`valid_symbols` at BOTH positions (via `expression_statement`). This is the
-valid_symbols position explosion: adding PREPROC_BLOCK to `primary_expr` makes
-it valid everywhere that `primary_expr` is valid, including statement boundaries.
+Specific regression patterns:
+- `foreach(PP_BLOCK, string index)`: PP block contains iterator WITH trailing comma
+- `func(PP_BLOCK, more_args)`: PP block contains partial arguments
+- Any PP block where `#if`/`#else` branches contain incomplete expressions
 
-Two hybrid approaches were tried:
-- Individual tokens at statement boundaries + PREPROC_BLOCK in expressions:
-  Failed because individual tokens added to `_stmt`/`_definition` become valid
-  at expression positions too (via the same `expression_statement` path).
-- PREPROC_BLOCK only for conditional directives (#if/#ifdef/#ifndef):
-  Regressed 20+ files where PREPROC_BLOCK consumed interior content that
-  was not a complete expression (e.g., additional function arguments).
-
-The architectural change requires the scanner to distinguish statement-boundary
-from expression-interior positions, which is not possible with `valid_symbols` alone.
-A mechanism like tree-sitter parse state introspection or a two-pass approach
-would be needed.
+The STMT_BOUNDARY_MARKER mechanism is correct and available for future use if
+a content-completeness heuristic is ever developed.
 
 | # | File | Location | What is split | Token sequence at failure |
 |---|------|----------|---------------|---------------------------|
@@ -241,27 +233,24 @@ Also added `$.hash_string` to `string_concat` to support juxtaposition
 tds.pike has `protected { protected string string_to_utf16(string s) { ... } }` —
 a function declaration with a redundant `protected` modifier inside a `protected {}` block.
 
-The fix requires adding `repeat($._modifier)` to `local_function_decl`. This was
-attempted in Round 19 with three `prec.dynamic` variants (1, -1, and a separate rule
-with prec.dynamic(2)). All three regressed sslfile.pike from a 1-line ERROR (line 848)
-to a 1462-line ERROR (lines 815-2277).
+**Round 20**: Four rule variants were tried:
+1. Separate `modified_local_function_decl` rule (no precedence)
+2. Same with `prec.dynamic(1)`
+3. Adding `repeat($._modifier)` to existing `local_function_decl`
+4. Extending `local_declaration` with function form alternative
 
-The specific GLR failure: adding `repeat($._modifier)` to `local_function_decl` changes
-the GLR state machine's FIRST set for the rule. This creates new states that overlap
-with `local_declaration` (which also starts with `repeat($._modifier)`). The overlap
-changes the GLR table entries for the transition from `macro_statement` exit back to
-`_stmt`. At line 815 of sslfile.pike, `string read(void|int length, ...)` after a
-`} LEAVE;` macro_statement is misinterpreted because the new GLR states interfere
-with the macro_statement → _stmt transition.
+All four produce the same regression: sslfile.pike fails from line 815 (instead of
+baseline line 848), spanning ~1460 lines. Root cause: sslfile.pike has ~49
+modifier-prefixed declarations in deeply nested GLR parse contexts. Any new parse
+path from `modifier + type + name` to a function form creates exponential state
+exploration at each occurrence.
 
-This is NOT a simple priority conflict — it's a structural change to the GLR state
-machine that `prec.dynamic` cannot fix. The state transitions, not the parse choices,
-are affected.
+This is NOT a precedence conflict — it's a structural change to the GLR state
+machine's FIRST set that cascades through sslfile.pike's modifier occurrences.
 
 | # | File | Location | Issue |
 |---|------|----------|-------|
 | 1 | `Sql/tds.pike` | lines 189, 193 | `protected string f()` inside `protected {}` block |
-
 #### KL-007g: install.pike — RELAY juxtaposition
 
 `RELAY(X)` expands to `" " #X "=" + TRVAR(X)+` — a string concatenation with
@@ -292,18 +281,33 @@ the grammar's perspective.
 sslfile.pike: `RUN_MAYBE_BLOCKING(cond, 0, 1, if(sizeof(read_buffer)){...} else RETURN(0);)`
 client.pike: `IF_ELSE_PAGED_SEARCH(if(supported_controls[...]){...},)`
 
-Both use bare `if/else` statements as macro arguments. Adding `$.if_statement` to
-`macro_argument_list` (with the required `[$.macro_argument_list, $.parameters]`
-conflict) did not fix the files because `RUN_MAYBE_BLOCKING(...)` is parsed as
-`postfix_expr` (function call) with `argument_list`, NOT as `macro_invocation` with
-`macro_argument_list`. The `argument_list` rule doesn't accept `if_statement`, and
-adding it there would create massive ambiguity (any `if` inside a function call
-could be a statement-as-argument).
+**Round 20**: Three approaches were tried:
 
-The two patterns are different from Round 17's fixes:
-- Round 17 fixed: `$.block` ({...} bodies), `$.magic_identifier` (bare keyword tokens)
-- These files need: bare `if/else` statements — a fundamentally different construct
-  that can't be expressed as a single expression or block
+(a) **macro_call with uppercase callee**: tree-sitter cannot conditionally match
+based on identifier case. Both `RUN_MAYBE_BLOCKING` and `regularFunction` match
+the same `identifier` token. No grammatical distinction is possible without a
+separate token class for uppercase identifiers (which would require lexer changes
+that conflict with `word: $ => $.identifier`).
+
+(b) **if_statement in argument_list**: adding `$.if_statement` to `argument_list`
+makes every function call accept if/else as an argument. This creates ambiguity
+at every call site: `f(if(x){a;}else b;)` is ambiguous between function-call-with-
+if-arg and expression-statement-with-orphaned-else. The `;` inside the if body
+creates ambiguity with expression_statement termination.
+
+(c) **macro_invocation_stmt in _stmt**: adding `$.macro_invocation_stmt` to `_stmt`
+causes 13 test regressions. The `macro_argument_list` path wins over
+`expression_statement` for regular function calls, breaking:
+  - catch/gauge expressions (parsed as macro_invocation instead of catch_expr)
+  - for/foreach statements (compound patterns disrupted)
+  - spread calls, chained calls (matched as macro_invocation)
+  - declaration-in-condition patterns (if/while conditions disrupted)
+  - existing macro_statement pattern (macro_statement vs macro_invocation_stmt conflict)
+
+The core issue: `RUN_MAYBE_BLOCKING` calls are inside `_stmt` contexts (if/else
+bodies) where only `expression_statement` with `argument_list` is available.
+`macro_invocation_stmt` (which uses `macro_argument_list` accepting `if_statement`)
+is only in `_definition` (top level), not `_stmt`.
 
 | # | File | Location | Issue |
 |---|------|----------|-------|
