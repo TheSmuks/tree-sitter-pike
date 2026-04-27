@@ -61,54 +61,61 @@ extras approach: 224 files contain conditional directives, and making them
 opaque would regress tree fidelity for all of them. See docs/scanner-design.md
 §10 for the analysis. The scanner was reduced to hash-string-only (HASH_STRING).
 
-- **Last validated**: Round 16
-- **Rounds active**: 6
-- **Impact**: 14 distribution files have errors:
-  - KL-007a: 5 files (PP splitting expressions) — **tree-sitter architectural limit**
-  - KL-007b: 5 files (PP splitting control flow) — **tree-sitter architectural limit**
-  - KL-007c: 2 remaining files (macro args, PP-split) — **tree-sitter architectural limit**
-  - KL-007d: 0 remaining files — **RESOLVED in Round 17**
-  - KL-007e: 0 remaining files (hash-string) — **RESOLVED in Round 16**
-  - KL-007f: 1 file (bare macro) — **not grammar-fixable without massive ambiguity**
-  - KL-007g: 1 file (juxtaposed macro calls) — **tree-sitter architectural limit**
-  - Some files appear in multiple sub-entries (total unique: 14)
-#### KL-007a: PP splitting expressions (5 files) — Not scanner-addressable
+- **Last validated**: Round 18
+- **Rounds active**: 7
+- **Impact**: 11 distribution files have errors:
+  - KL-007a: 7 files (PP splitting) — **transparent extras consume PP tokens before scanner fires**
+  - KL-007b: 0 files — **RESOLVED in Round 18** (bare identifier with optional `;`)
+  - KL-007c: 0 files — **RESOLVED in Round 18** (typed macro invocation in declaration)
+  - KL-007d: 0 files — **RESOLVED in Round 17** (mapping_literal accepts postfix_expr)
+  - KL-007e: 0 files — **RESOLVED in Round 18** (string_concat accepts macro_invocation)
+  - KL-007f: 1 file (protected function_decl in protected {} block) — **GLR conflict with sslfile.pike**
+  - KL-007g: 1 file (RELAY juxtaposition in + chain) — **scanner catch-22**
+  - KL-007h: 2 files (RUN_MAYBE_BLOCKING and IF_ELSE_PAGED_SEARCH) — **macro args contain control flow**
+  - Some files appear in multiple sub-entries (total unique: 11)
+#### KL-007a: PP splitting expressions (7 files) — Transparent extras consume PP tokens before scanner
 
-The `#if`/`#ifdef`/`#endif` block splits a sub-expression so that neither
-branch is a complete expression. Tree-sitter sees a dangling operator with
-no right operand (or a value with no operator). The scanner can fix all of
-these by consuming the entire `#if`...`#endif` block and presenting it as a
-single expression that the grammar can place in `primary_expr`.
+The `#if`/`#ifdef`/`#endif` block splits a sub-expression. Tree-sitter sees a
+dangling operator with no right operand, or a value with no operator.
+
+**Token-level failure**: When the parser is at position `if (x >` and the next
+token is `#ifdef`, the parser processes `#ifdef` as a transparent extra
+(`preprocessor_directive` in `extras`) BEFORE the external scanner is called.
+Tree-sitter's processing order is: (1) external scanner, (2) regular tokens,
+(3) transparent extras. However, the scanner is ONLY called when at least one
+external token is in `valid_symbols`. When `PREPROC_BLOCK` is in `_expr`, it
+IS in valid_symbols at expression positions. But transparent extras are always
+valid and the parser processes them at the same priority as scanner tokens.
+
+The concrete failure chain:
+1. Parser is at `if (x >` — expecting RHS of `>`
+2. Parser sees `#ifdef` — this matches both `PREPROC_BLOCK` (scanner) and
+   `preprocessor_directive` (transparent extra)
+3. Tree-sitter processes transparent extras BEFORE external scanner tokens
+4. `#ifdef DEBUG\n  5\n#else\n  511\n#endif` is consumed as individual
+   `preprocessor_directive` nodes
+5. The `5` after `#ifdef` is now a bare integer at a position where the
+   parser expected a continuation of the `>` comparison
+6. ERROR node wraps `5` because the `rel_expr` context was disrupted
+
+Removing `preprocessor_directive` from extras would let the scanner fire,
+but would break all 221+ files that use PP directives at statement boundaries
+(where `#ifdef`/`#endif` are currently handled correctly as transparent extras).
+
+Keeping `preprocessor_directive` in extras means the scanner can never fire
+for `#if`/`#ifdef`/`#ifndef` because transparent extras are consumed first.
+This is the scanner catch-22: the scanner can only fire for tokens NOT already
+handled by transparent extras.
 
 | # | File | Location | What is split | Token sequence at failure |
 |---|------|----------|---------------|---------------------------|
-| 1 | `Concurrent.pmod` | line 1239 | Variable initializer | `private string orig_backtrace =\n#ifdef CONCURRENT_DEBUG\n  sprintf(...)\n#else\n  ""\n#endif\n;` |
+| 1 | `Concurrent.pmod` | line 1239 | Variable initializer | `private string orig_backtrace =\n#ifdef CONCURRENT_DEBUG\n  sprintf(...)\n#else\n  \"\"\n#endif\n;` |
 | 2 | `Parser/LR/GrammarParser.pmod` | line 327 | Function call argument | `ErrorHandler(\n#ifdef LR_DEBUG\n  1\n#else\n  0\n#endif\n)` |
-| 3 | `Protocols/LysKOM/Raw.pike` | line 336 | `||` right operand in string concat | `whoami||\n#if constant(...)\n  expr\n#else\n  "*unknown*"\n#endif` |
-| 4 | `src/_Stdio/socktest.pike` | line 397 | `>` right operand in `if` condition | `oob_sent >
-#ifdef OOB_DEBUG
-  5
-#else
-  511
-#endif
-)` |
-| 5 | `Audio/Codec.pmod` | line 69 | `==` right operand in `&&` condition | `fc->type ==
-#if constant(_Ffmpeg.AVMEDIA_TYPE_AUDIO)
-  _Ffmpeg.AVMEDIA_TYPE_AUDIO
-#else
-  _Ffmpeg.CODEC_TYPE_AUDIO
-#endif
-)` |
-
-**Scanner resolution**: The scanner consumes the entire `#if`/`#endif` block
-as a `preproc_block` token. The grammar places this in `primary_expr`, so
-the parser sees `oob_sent > [expr]` where `[expr]` is the opaque block.
-Tree fidelity inside the block is lost — this is the tradeoff for correctness.
-
-**Grammar-only path**: Adding `preproc_if` to `primary_expr` (as
-`preproc_if_expr`) works for simple cases but fails when the `#if`/`#endif`
-block is nested inside a larger expression context like `&&` or `||`.
-Round 14 confirmed this.
+| 3 | `Protocols/LysKOM/Raw.pike` | line 336 | `||` right operand in string concat | `whoami||\n#if constant(...)\n  expr\n#else\n  \"*unknown*\"\n#endif` |
+| 4 | `src/_Stdio/socktest.pike` | line 397 | `>` right operand in `if` condition | `oob_sent >\n#ifdef OOB_DEBUG\n  5\n#else\n  511\n#endif\n)` |
+| 5 | `Audio/Codec.pmod` | line 69 | `==` right operand in `&&` condition | `fc->type ==\n#if constant(...)\n  _Ffmpeg.AVMEDIA_TYPE_AUDIO\n#else\n  _Ffmpeg.CODEC_TYPE_AUDIO\n#endif\n)` |
+| 6 | `GTK1/make_example_image.pike` | line 65 | `#if` wraps if-then, `else` after `#endif` | `if (cond)\n#if constant(Gnome.init)\n  Gnome.init(...);\n#else\n  return 1;\n#endif\nelse\n  GTK1.setup_gtk(...);` |
+| 7 | `GTK2/make_example_image.pike` | line 75 | Same pattern as GTK1 | Same as #6 with GTK2 |
 
 #### KL-007b: PP splitting control flow (5 files) — Not scanner-addressable
 

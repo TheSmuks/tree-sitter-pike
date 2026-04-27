@@ -394,3 +394,118 @@ Macro-adjacent (grammar cannot distinguish without semantic context):
 
 Bare identifier:
 - Stdio/Terminfo.pmod: bare MUTEX without `;` — creates cascading GLR conflicts
+
+### Round 18: Targeted fixes + PP-split scanner investigation
+
+Round 17 claimed 14 files were "hard limits." Round 18 tested that claim by
+diagnosing each file with `tree-sitter parse --debug` and attempting fixes.
+
+**Grammar fixes delivered:**
+
+1. **Typed macro invocation in declaration** (Debug/Subject.pike):
+   `void PROXY(destroy, 0);` — added `seq(type, macro_invocation_stmt)` to
+   `declaration`. Requires 2 conflict declarations:
+   `identifier_expr vs macro_invocation` and `macro_argument_list vs parameter`.
+   Result: 40 ERROR nodes eliminated. File parses cleanly.
+
+2. **Bare identifier with optional semicolon** (Stdio/Terminfo.pmod):
+   `MUTEX` macro expands to nothing in non-threaded builds. Changed
+   `seq($.identifier, ';')` to `seq($.identifier, optional(';'))` in declaration.
+   Requires 5 conflict declarations due to cascading IDENT ambiguity:
+   `string_concat vs declaration`, `_id_expr vs declaration`,
+   `identifier_expr + _id_expr vs declaration`, `inherit_specifier vs declaration`,
+   `declaration` (self). Result: file parses cleanly.
+
+3. **string_concat accepts macro_invocation** (ASN1/Types.pmod 7.8):
+   `DEC_COMB_MARK GR("")` — adjacent macro calls producing string concatenation.
+   Added `seq(identifier, macro_invocation, repeat(...))` to `string_concat`.
+   Requires 2 conflict declarations:
+   `string_concat + _id_expr + declaration` and `string_concat + macro_invocation`.
+   Result: file parses cleanly.
+
+**Scanner investigation: valid_symbols-aware PREPROC_BLOCK**
+
+Two scanner designs were tested for PP-split files:
+
+(a) PREPROC_BLOCK in `primary_expr` (Round 17 approach):
+   Failed — regressed 221 files. When PREPROC_BLOCK is in primary_expr,
+   valid_symbols includes it at all statement boundaries via
+   expression_statement → comma_expr → ... → primary_expr.
+   The scanner sees valid_symbols[PREPROC_BLOCK]=true and fires for ALL
+   #if blocks, including those at statement boundaries that should be
+   transparent extras.
+
+(b) PREPROC_BLOCK in `_expr` (Round 18 approach):
+   No regression (1071 clean, same as baseline). But also no improvement.
+   The scanner never fires because transparent extras consume `#ifdef`
+   BEFORE the external scanner is called.
+
+**Token-level failure for PP-split:**
+
+Tree-sitter's processing order: (1) external scanner, (2) regular tokens,
+(3) transparent extras. When the parser is at `if (x >` and the next token
+is `#ifdef`, both PREPROC_BLOCK (external scanner) and preprocessor_directive
+(transparent extra) match. Tree-sitter processes transparent extras first.
+The `#ifdef` line is consumed as a `preprocessor_directive` node, and the
+scanner is never called.
+
+The fix would require removing `preprocessor_directive` from extras, which
+would break all 221+ files that use PP directives at statement boundaries.
+This is the scanner catch-22: the same mechanism that handles PP directives
+correctly at statement boundaries prevents the scanner from handling them
+inside expressions.
+
+**tds.pike — GLR conflict with sslfile.pike:**
+
+`protected { protected string f() { } }` — adding `repeat($._modifier)` to
+`local_function_decl` or adding `seq(repeat1($._modifier), $.function_decl)`
+to `_stmt` causes sslfile.pike to regress from a 1-line ERROR (line 848)
+to a 1462-line ERROR (lines 815-2277). The specific GLR conflict:
+- `local_function_decl` with modifiers has the same prefix as `declaration` →
+  `function_decl` (both: modifier* type name)
+- The new GLR state for modified function_decl interferes with the transition
+  from `macro_statement` (} LEAVE;) back to declaration scope
+- At line 815 of sslfile.pike, `string read(...)` is misinterpreted
+Count: 4 specific conflict messages, all requiring the same `declaration`
+self-conflict that creates the cascade.
+
+**install.pike — RELAY juxtaposition:**
+
+`RELAY(X) RELAY(Y)` in a `+` concatenation chain. Each `RELAY(X)` expands to
+include a trailing `+`. Without expansion, the parser sees two function calls
+with no operator between them. The `string_concat` extension handles
+`IDENTIFIER MACRO_INVOCATION` but not `POSTFIX_EXPR POSTFIX_EXPR` — because
+`RELAY(X)` is parsed as `postfix_expr(argument_list)`, not `macro_invocation`.
+The parser prefers the standard function-call interpretation over macro_invocation.
+Accepting adjacent postfix_expr would create unbounded ambiguity (any two
+expressions could be "concatenated").
+
+**Result:** 1071/1082 (99.0%), 208/208 tests, 0 regressions.
+Up from 1068/1082 (98.89%). +3 files fixed in this round.
+
+**Commits:**
+- 5903bee: typed macro invocation in declaration (Subject.pike)
+- 90048bb: bare identifier with optional semicolon (Terminfo.pmod)
+- 56c5ac1: string_concat accepts macro_invocation (ASN1/Types.pmod)
+
+**Remaining 11 error files — token-level classification:**
+
+PP-split (transparent extras consume #ifdef before scanner fires):
+- Audio/Codec.pmod: `fc->type == #if ... EXPR #else EXPR #endif`
+- Concurrent.pmod: `string x = #ifdef ... EXPR #else EXPR #endif ;`
+- GrammarParser.pmod: `ErrorHandler(#ifdef ... 1 #else 0 #endif)`
+- LysKOM/Raw.pike: `whoami|| #if ... EXPR #else EXPR #endif "%"` (double split)
+- socktest.pike: `oob_sent > #ifdef ... 5 #else 511 #endif )`
+- GTK1/make_example_image.pike: `if(X) #if ... STMT #else STMT #endif else STMT`
+- GTK2/make_example_image.pike: same pattern
+
+GLR conflict (adding modifier to local_function_decl regresses sslfile.pike):
+- Sql/tds.pike: `protected { protected string f() { } }` — function_decl in
+  protected block with redundant modifier
+
+Macro args containing control flow:
+- SSL/sslfile.pike: `RUN_MAYBE_BLOCKING(...)` with if/else blocks in args
+- LDAP/client.pike: `IF_ELSE_PAGED_SEARCH(if(...) {...}, ...)` — statements as args
+
+RELAY juxtaposition:
+- bin/install.pike: `EXPR + RELAY(X) RELAY(Y) + EXPR` — postfix_expr adjacency
