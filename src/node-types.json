@@ -704,6 +704,10 @@
           "named": true
         },
         {
+          "type": "type",
+          "named": true
+        },
+        {
           "type": "typedef_decl",
           "named": true
         },

@@ -4711,6 +4711,19 @@
                   "value": ";"
                 }
               ]
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "type"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "macro_invocation_stmt"
+                }
+              ]
             }
           ]
         }
@@ -6432,6 +6445,14 @@
     [
       "mapping_literal",
       "unary_expr"
+    ],
+    [
+      "identifier_expr",
+      "macro_invocation"
+    ],
+    [
+      "macro_argument_list",
+      "parameter"
     ]
   ],
   "precedences": [],

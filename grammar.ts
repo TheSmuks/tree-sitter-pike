@@ -44,6 +44,9 @@ export default grammar({
     [$.basic_type, $.magic_identifier],
     [$.string_concat, $._id_expr],
     [$.mapping_literal, $.unary_expr],
+    // typed macro invocation vs function_decl: TYPE ID(args)
+    [$.identifier_expr, $.macro_invocation],
+    [$.macro_argument_list, $.parameter],
   ],
 
 
@@ -640,6 +643,11 @@ export default grammar({
         // These are preprocessor macros that expand to declarations or nothing.
         // The grammar accepts them so the tree stays clean.
         seq($.identifier, ';'),
+        // Typed macro invocation: TYPE IDENTIFIER(args);
+        // Handles patterns like: void PROXY(destroy, 0);
+        // where TYPE looks like a return type but the "function name" is actually
+        // a macro and the args are macro arguments, not typed parameters.
+        seq($.type, $.macro_invocation_stmt),
       ),
     ),
 
@@ -689,6 +697,7 @@ export default grammar({
       field('parameters', $.parameters),
       field('body', $.block),
     ),
+
 
     constant_decl: $ => seq(
       'constant',
