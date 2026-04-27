@@ -2123,6 +2123,10 @@
         {
           "type": "mapping_pair",
           "named": true
+        },
+        {
+          "type": "postfix_expr",
+          "named": true
         }
       ]
     }

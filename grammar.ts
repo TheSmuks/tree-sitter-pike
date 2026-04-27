@@ -43,6 +43,7 @@ export default grammar({
     [$.primary_expr, $.magic_identifier],
     [$.basic_type, $.magic_identifier],
     [$.string_concat, $._id_expr],
+    [$.mapping_literal, $.unary_expr],
   ],
 
 
@@ -165,7 +166,7 @@ export default grammar({
     // ── Collection literals ──
 
     array_literal: $ => seq('(', '{', optional(trailingCommaSep1(choice($._expr, seq('@', $._expr)))), '}', ')'),
-    mapping_literal: $ => seq('(', '[', optional(trailingCommaSep1($.mapping_pair)), ']', ')'),
+    mapping_literal: $ => prec(2, seq('(', '[', optional(trailingCommaSep1(choice($.mapping_pair, $.postfix_expr))), ']', ')')),
     multiset_literal: $ => seq('(<', optional(trailingCommaSep1($._expr)), '>)'),
 
     mapping_pair: $ => seq(field('key', $._expr), ':', field('value', $._expr)),
