@@ -478,7 +478,7 @@ export default grammar({
 
     for_statement: $ => seq(
       'for', '(',
-      optional(choice($._expr, $.for_init_decl)), ';', optional(field('condition', $._expr)), ';', optional($._expr),
+      optional(field('initializer', choice($._expr, $.for_init_decl))), ';', optional(field('condition', $._expr)), ';', optional(field('update', $._expr)),
       ')', field('body', $._stmt),
     ),
 
@@ -502,7 +502,7 @@ export default grammar({
       $.array_destructure,
     ),
 
-    switch_statement: $ => seq('switch', '(', field('value', choice($._expr, $.cond_decl)), ')', $.block),
+    switch_statement: $ => seq('switch', '(', field('value', choice($._expr, $.cond_decl)), ')', field('body', $.block)),
 
     // case expr: / case expr..expr: / case ..expr: / case expr...expr:
     case_clause: $ => choice(

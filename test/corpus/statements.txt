@@ -310,7 +310,7 @@ For statement
 (program
   (block
     (for_statement
-      (comma_expr
+      initializer: (comma_expr
         (assign_expr
           (cond_expr
             (lor_expr
@@ -370,7 +370,7 @@ For statement
                                   (postfix_expr
                                     (primary_expr
                                       (integer_literal)))))))))))))))))
-      (comma_expr
+      update: (comma_expr
         (assign_expr
           (cond_expr
             (lor_expr
@@ -718,7 +718,7 @@ Switch statement
                                     (primary_expr
                                       (identifier_expr
                                         name: (identifier))))))))))))))))))
-      (block
+      body: (block
         (case_clause
           value: (comma_expr
             (assign_expr
@@ -1052,7 +1052,7 @@ For with declaration init
 (program
   (block
     (for_statement
-      (for_init_decl
+      initializer: (for_init_decl
         type: (type
           (basic_type))
         name: (identifier)
@@ -1099,7 +1099,7 @@ For with declaration init
                                   (postfix_expr
                                     (primary_expr
                                       (integer_literal)))))))))))))))))
-      (comma_expr
+      update: (comma_expr
         (assign_expr
           (cond_expr
             (lor_expr
@@ -1209,7 +1209,7 @@ Case range
                                     (primary_expr
                                       (identifier_expr
                                         name: (identifier))))))))))))))))))
-      (block
+      body: (block
         (case_clause
           value: (comma_expr
             (assign_expr
