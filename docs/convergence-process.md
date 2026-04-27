@@ -509,3 +509,111 @@ Macro args containing control flow:
 
 RELAY juxtaposition:
 - bin/install.pike: `EXPR + RELAY(X) RELAY(Y) + EXPR` — postfix_expr adjacency
+
+### Round 19: PP-split architectural investigation + targeted fixes attempted
+
+Four workstreams were investigated at token-level specificity. No files were fixed.
+Rate remains 1071/1082 (99.0%), 208/208 tests.
+
+**Workstream 1: PP-split architectural change (7 files)**
+
+The user proposed removing `preprocessor_directive` from extras, adding scanner-emitted
+typed tokens for each directive type, and adding grammar rules for directives at
+statement boundaries + PREPROC_BLOCK for expression-interior positions.
+
+Attempted implementation confirmed:
+
+1. **Scanner DOES fire before transparent extras.** Round 18's claim that "transparent
+   extras consume #ifdef before scanner" was WRONG. The external scanner is called
+   before transparent extras. This was verified by removing preprocessor_directive
+   from extras, adding PREPROC_BLOCK as an external token in primary_expr, and
+   observing the scanner successfully emit PREPROC_BLOCK at the correct positions.
+
+2. **The issue is position explosion, not extras priority.** With the scanner emitting
+   typed tokens, PREPROC_BLOCK fires at ALL positions where primary_expr is valid.
+   This includes both expression-interior positions (correct) AND statement-boundary
+   positions (incorrect). At statement boundaries, PREPROC_BLOCK consumes the entire
+   #ifdef...#endif block as opaque content, losing all interior structure.
+
+3. **valid_symbols cannot distinguish the two contexts.** The scanner checks
+   valid_symbols to decide what to emit. At both statement boundaries and expression
+   interiors, PREPROC_BLOCK is in valid_symbols (because primary_expr is reachable
+   from _stmt and _definition via expression_statement). The scanner has no way to
+   determine whether it should emit PREPROC_BLOCK (expression) or individual tokens
+   (statement boundary).
+
+4. **Two hybrid approaches were tried:**
+   a. Scanner emits individual tokens at statement boundaries, PREPROC_BLOCK in
+      expressions. Failed because individual tokens added to _stmt/_definition make
+      them valid at expression positions too (via expression_statement → primary_expr).
+   b. Scanner always emits PREPROC_BLOCK for conditional directives. Regressed 20+
+      files because PREPROC_BLOCK at statement boundaries consumes interior content
+      that should remain visible (e.g., #ifdef blocks wrapping additional function
+      arguments like `split_quoted_string(x #ifdef ... ,1 #endif)`).
+
+5. **Specific token-level failure for the 7 PP-split files:**
+   All 7 have both branches individually complete as expressions. PREPROC_BLOCK
+   correctly handles them. But the same mechanism incorrectly handles 20+ files
+   where PP directives appear at statement boundaries with incomplete content.
+
+**Conclusion for PP-split**: The architectural change requires the scanner to
+distinguish statement-boundary positions from expression-interior positions, which
+is not possible with valid_symbols alone. A different mechanism (e.g., tree-sitter
+parse state introspection, or a two-pass approach) would be needed.
+
+**Workstream 2: tds.pike prec.dynamic**
+
+Diagnosis: `local_function_decl` doesn't accept modifiers. Adding `repeat($._modifier)`
+to `local_function_decl` causes sslfile.pike to regress from 1-line ERROR (line 848)
+to 1462-line ERROR (lines 815-2277).
+
+Three `prec.dynamic` variants were tried:
+- `prec.dynamic(1)` (higher priority for modifier path): regressed sslfile.pike
+- `prec.dynamic(-1)` (lower priority): still regressed sslfile.pike
+- Separate `local_function_decl_with_mods` rule with `prec.dynamic(2)`: regressed
+
+The specific GLR failure: adding `repeat($._modifier)` to `local_function_decl`
+changes the GLR state machine's FIRST set for the rule. This creates new states
+that overlap with `local_declaration` (which also starts with `repeat($._modifier)`).
+The overlap changes the GLR table entries for the transition from `macro_statement`
+exit back to `_stmt`, causing the parser to take a wrong path for sslfile.pike's
+`string read(void|int length, ...)` at line 815.
+
+The GLR state interaction is NOT a simple priority choice — it's a state machine
+structural change that `prec.dynamic` cannot fix because the issue is in the state
+transitions, not in competing parses at a single point.
+
+**Workstream 3: install.pike narrow-position rule**
+
+The syntactic context: `string cmd = replace(...)+...+...+ RELAY(TMP_LIBDIR)
+RELAY(LIBDIR_SRC) RELAY(SRCDIR) ... + " TMP_BUILDDIR="+...+" $";`
+
+RELAY(X) is parsed as `postfix_expr` (function call), not `macro_invocation`,
+because the parser prefers the standard function-call interpretation.
+
+Adding `seq($.macro_invocation, repeat1($.macro_invocation))` to `string_concat`
+causes 1 test failure: the test "Macro invocation - both forms at top level" has
+two adjacent `CBFUNC(...)` calls at top level that get incorrectly parsed as
+`string_concat` instead of two separate statements.
+
+The narrow-position approach fails because `string_concat` is in `primary_expr`,
+which is valid at both expression-interior AND statement-boundary positions.
+The ambiguity between `macro_invocation sequence` and `two separate statements`
+is unresolvable without context that tree-sitter doesn't provide.
+
+**Workstream 4: sslfile.pike/client.pike macro-args control flow**
+
+sslfile.pike line 848: `RUN_MAYBE_BLOCKING(cond, 0, 1, if(sizeof(read_buffer)){...} else RETURN(0);)`
+client.pike line 1461: `IF_ELSE_PAGED_SEARCH(if(supported_controls[...]){...},)`
+
+Both use bare `if_statement` as a macro argument. Adding `$.if_statement` to
+`macro_argument_list` required 1 conflict declaration (`macro_argument_list` vs
+`parameters`). However, the fix didn't work because `RUN_MAYBE_BLOCKING(...)` is
+parsed as `postfix_expr` (function call) with `argument_list`, not as
+`macro_invocation` with `macro_argument_list`. The `argument_list` rule doesn't
+accept `if_statement`, and adding it there would create massive ambiguity.
+
+The two patterns are DIFFERENT from Round 17's fixes:
+- Round 17: `$.block` ({...} bodies), `$.magic_identifier` (bare keyword tokens)
+- sslfile.pike/client.pike: bare `if/else` statements — fundamentally different
+  construct that can't be expressed as a single expression or block
