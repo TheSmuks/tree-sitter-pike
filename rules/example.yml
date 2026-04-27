@@ -1,0 +1,8 @@
+# Example ast-grep rule for Pike
+# Usage: bunx ast-grep scan -c sgconfig.yml examples/
+id: protected-constructor
+language: pike
+rule:
+  pattern: 'protected void create($$$ARGS) { $$$BODY }'
+message: "Protected constructor"
+severity: hint

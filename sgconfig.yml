@@ -6,3 +6,5 @@ customLanguages:
     libraryPath: pike.so
     extensions: [pike, pmod]
     expandoChar: _
+
+ruleDirs: [rules]

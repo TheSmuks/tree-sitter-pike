@@ -53,6 +53,25 @@ bun run test
 bunx tree-sitter parse path/to/file.pike
 ```
 
+### ast-grep
+
+Build the shared library, then use ast-grep for structural search and rewrite:
+
+```bash
+bunx tree-sitter build --output pike.so
+
+# Pattern search (works for function/method-level patterns)
+bunx ast-grep run -l pike -p 'void $FN($$$ARGS) { $$$BODY }' examples/
+
+# Rule-based scan (works for all patterns including statements)
+bunx ast-grep scan -c sgconfig.yml examples/
+
+# Rewrite preview
+bunx ast-grep run -l pike -p 'inherit $X;' --rewrite 'inherit $X;  // kept' examples/adt_struct.pike
+```
+
+Pattern search (`-p`) works for declarations, functions, classes, inherits, and other top-level constructs. For statement-level patterns (`if`, `foreach`, `while`, `return`), use rule-based scanning with `kind:` rules in `rules/`. See `rules/example.yml`.
+
 ### Run distribution parse
 
 ```bash
