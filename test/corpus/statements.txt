@@ -1286,8 +1286,8 @@ do ; while(1);
 --------------------------------------------------------------------------------
 
 (program
-  (expression_statement
-    (comma_expr
+  (do_while_statement
+    condition: (comma_expr
       (assign_expr
         (cond_expr
           (lor_expr
@@ -1303,28 +1303,7 @@ do ; while(1);
                               (unary_expr
                                 (postfix_expr
                                   (primary_expr
-                                    (identifier_expr
-                                      name: (identifier)))))))))))))))))))
-  (macro_invocation_stmt
-    name: (identifier)
-    arguments: (macro_argument_list
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (postfix_expr
-                                    (primary_expr
-                                      (integer_literal))))))))))))))))))))
+                                    (integer_literal)))))))))))))))))))
 
 ================================================================================
 Macro statement - ENTER/LEAVE pattern

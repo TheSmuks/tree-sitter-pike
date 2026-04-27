@@ -53,6 +53,7 @@ bun run test
 bunx tree-sitter parse path/to/file.pike
 ```
 
+
 ### ast-grep
 
 Build the shared library, then use ast-grep for structural search and rewrite:
@@ -60,18 +61,24 @@ Build the shared library, then use ast-grep for structural search and rewrite:
 ```bash
 bunx tree-sitter build --output pike.so
 
-# Pattern search (works for function/method-level patterns)
-bunx ast-grep run -l pike -p 'void $FN($$$ARGS) { $$$BODY }' examples/
+# Pattern search — all constructs work: declarations, functions, classes,
+# if/while/for/foreach/switch statements, returns, etc.
+bunx ast-grep run -c sgconfig.yml -l pike -p 'void $FN($$$ARGS) { $$$BODY }' examples/
+bunx ast-grep run -c sgconfig.yml -l pike -p 'if ($COND) { $$$BODY }' examples/
+bunx ast-grep run -c sgconfig.yml -l pike -p 'foreach($ITER; $LVAL) { $$$BODY }' examples/
+bunx ast-grep run -c sgconfig.yml -l pike -p 'return $VAL;' examples/
 
-# Rule-based scan (works for all patterns including statements)
+# Rule-based scan with YAML rules
 bunx ast-grep scan -c sgconfig.yml examples/
 
 # Rewrite preview
-bunx ast-grep run -l pike -p 'inherit $X;' --rewrite 'inherit $X;  // kept' examples/adt_struct.pike
+bunx ast-grep run -c sgconfig.yml -l pike -p 'inherit $X;' --rewrite 'inherit $X;  // kept' examples/adt_struct.pike
 ```
 
-Pattern search (`-p`) works for declarations, functions, classes, inherits, and other top-level constructs. For statement-level patterns (`if`, `foreach`, `while`, `return`), use rule-based scanning with `kind:` rules in `rules/`. See `rules/example.yml`.
-
+Pattern search (`-p`) works for all Pike constructs including statement-level
+patterns (if, foreach, while, return, etc.). Rule-based scanning (`scan`)
+with YAML rules supports additional matching modes like `kind:`, `regex:`, and
+`not:`. See `rules/example.yml` for a sample rule.
 ### Run distribution parse
 
 ```bash

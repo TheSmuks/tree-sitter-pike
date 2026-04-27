@@ -2463,7 +2463,19 @@
           "named": true
         },
         {
+          "type": "break_statement",
+          "named": true
+        },
+        {
+          "type": "continue_statement",
+          "named": true
+        },
+        {
           "type": "declaration",
+          "named": true
+        },
+        {
+          "type": "do_while_statement",
           "named": true
         },
         {
@@ -2471,7 +2483,35 @@
           "named": true
         },
         {
+          "type": "for_statement",
+          "named": true
+        },
+        {
+          "type": "foreach_statement",
+          "named": true
+        },
+        {
+          "type": "if_statement",
+          "named": true
+        },
+        {
+          "type": "labeled_statement",
+          "named": true
+        },
+        {
           "type": "macro_invocation_stmt",
+          "named": true
+        },
+        {
+          "type": "return_statement",
+          "named": true
+        },
+        {
+          "type": "switch_statement",
+          "named": true
+        },
+        {
+          "type": "while_statement",
           "named": true
         }
       ]

@@ -1,0 +1,6 @@
+id: kind-if-statement
+language: pike
+rule:
+  kind: if_statement
+message: "if_statement node"
+severity: hint

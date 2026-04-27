@@ -92,6 +92,21 @@ export default grammar({
       // cannot parse. Falls back to expression_statement for simple calls
       // where ';' follows and args are plain expressions.
       $.macro_invocation_stmt,
+      // Statement keywords at top level. Pike rejects these at file scope,
+      // but including them here lets tree-sitter parse them correctly (as
+      // if_statement, while_statement, etc.) instead of falling back to
+      // macro_invocation with the keyword as an identifier callee. This is
+      // important for ast-grep pattern matching and downstream tooling.
+      $.if_statement,
+      $.while_statement,
+      $.do_while_statement,
+      $.for_statement,
+      $.foreach_statement,
+      $.switch_statement,
+      $.return_statement,
+      $.break_statement,
+      $.continue_statement,
+      $.labeled_statement,
     ),
 
     line_comment: _ => token(seq('//', /[^!\n].*|/)),

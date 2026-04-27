@@ -1,0 +1,6 @@
+id: kind-modifier
+language: pike
+rule:
+  kind: modifier
+message: "modifier node"
+severity: hint
