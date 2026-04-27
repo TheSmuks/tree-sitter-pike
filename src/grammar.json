@@ -355,6 +355,43 @@
               }
             }
           ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "macro_invocation"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "string_literal"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "hash_string"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "macro_invocation"
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -6449,6 +6486,15 @@
     [
       "string_concat",
       "_id_expr"
+    ],
+    [
+      "string_concat",
+      "_id_expr",
+      "declaration"
+    ],
+    [
+      "string_concat",
+      "macro_invocation"
     ],
     [
       "mapping_literal",

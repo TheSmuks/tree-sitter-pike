@@ -2607,6 +2607,10 @@
           "named": true
         },
         {
+          "type": "macro_invocation",
+          "named": true
+        },
+        {
           "type": "string_literal",
           "named": true
         }

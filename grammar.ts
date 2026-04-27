@@ -43,6 +43,8 @@ export default grammar({
     [$.primary_expr, $.magic_identifier],
     [$.basic_type, $.magic_identifier],
     [$.string_concat, $._id_expr],
+    [$.string_concat, $._id_expr, $.declaration],
+    [$.string_concat, $.macro_invocation],
     [$.mapping_literal, $.unary_expr],
     // typed macro invocation vs function_decl: TYPE ID(args)
     [$.identifier_expr, $.macro_invocation],
@@ -137,6 +139,10 @@ export default grammar({
       seq($.string_literal, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
       seq($.hash_string, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
       seq($.identifier, $.string_literal, repeat(choice($.string_literal, $.hash_string, $.identifier))),
+      // Identifier followed by macro_invocation: DEC_COMB_MARK GR("")
+      // Handles implicit concatenation of macro-expanded string literals.
+      // Uses macro_invocation (not postfix_expr) to avoid conflict with function calls.
+      seq($.identifier, $.macro_invocation, repeat(choice($.string_literal, $.hash_string, $.identifier, $.macro_invocation))),
     ),
 
 
