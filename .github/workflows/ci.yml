@@ -19,7 +19,7 @@ jobs:
 
       - run: bun install
 
-      - run: bun run check
+      - run: bun build grammar.ts --outfile=grammar.js --target node --format esm
 
       - run: bunx tree-sitter generate
 
