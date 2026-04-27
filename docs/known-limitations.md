@@ -313,18 +313,15 @@ is only in `_definition` (top level), not `_stmt`.
 |---|------|----------|-------|
 | 1 | `SSL/sslfile.pike` | line 848 | `RUN_MAYBE_BLOCKING` 4th arg = `if/else` statement |
 | 2 | `Protocols/LDAP/client.pike` | line 1461 | `IF_ELSE_PAGED_SEARCH` 1st arg = `if` statement, 2nd arg empty |
-### KL-008: Invisible modifier nodes in declarations
-- **Description**: Declaration modifiers (`protected`, `private`, `public`,
+### KL-008: Invisible modifier nodes in declarations — RESOLVED in Round 21
+- **Original claim**: Declaration modifiers (`protected`, `private`, `public`,
   etc.) are consumed by the hidden `_modifier` rule and produce no named
-  child nodes. Downstream consumers (highlighters, refactoring tools) cannot
-  see which modifiers were applied.
-- **Root cause**: The `_modifier` rule is intentionally hidden (underscore
-  prefix) to avoid polluting the parse tree with modifier nodes at every
-  declaration position. The tradeoff is correct but suboptimal for consumers.
-- **Impact**: Structural limitation, not a correctness issue. Affects all
-  declarations with modifiers.
-- **Last validated**: Round 12
-- **Rounds active**: 1
+  child nodes. Downstream consumers cannot see which modifiers were applied.
+- **Resolution**: Renamed `_modifier` to `modifier` (removed underscore prefix).
+  Modifier nodes now appear as named children in `declaration` nodes. The
+  `node-types.json` includes the `modifier` entry. No regressions in corpus
+  tests or distribution parse rate.
+- **Removed**: Round 21
 
 ## Resolved Limitations
 

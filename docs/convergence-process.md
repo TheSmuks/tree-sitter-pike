@@ -732,3 +732,44 @@ All four workstreams have been attempted at maximum specificity. The remaining
 
 The rate 1071/1082 (99.0%) is the architectural maximum for this grammar with
 tree-sitter's GLR parser. Moving to maintenance cadence.
+
+### Round 21: Audit and v1.0.0 release
+
+**Grammar fixes:**
+- Fixed autodoc comments (//!) producing `line_comment` instead of `autodoc_comment`.
+  Root cause: `line_comment` regex (`//.*`) matched `//!` before `autodoc_comment` regex.
+  Fix: restrict `line_comment` to exclude `!` as first character: `//[^!\n].*|`.
+  Extras ordering also changed: `autodoc_comment` before `line_comment`.
+
+- Fixed invisible modifier nodes (KL-008). Renamed `_modifier` to `modifier` so
+  it produces named children. Downstream consumers can now see modifiers.
+
+**Corpus additions:**
+- Added `string_include` test (literals.txt)
+- Added `version_prefix` scope expression test (pike_specific.txt)
+
+**Audit results:**
+
+| Dimension | Result |
+|-----------|--------|
+| Named rule coverage | 80/80 (100%) |
+| Branch coverage | 166/166 (100%) |
+| Construct coverage | 116 Pike 8 constructs mapped, all have grammar rules (100%) |
+| Parse correctness | 100 files sampled, 0 structural errors (100%) |
+| Distribution parse rate | 1071/1082 (99.0%) |
+| Corpus tests | 210/210 (100%) |
+
+**One real bug found and fixed:** `autodoc_comment` never produced a node
+(discovered during construct coverage matrix review). The rule existed but
+`line_comment` always won the lexer match.
+
+**KL-008 resolved:** modifier nodes are now visible in parse trees.
+
+**Remaining active limitations:** KL-004 (semantic), KL-006 (partial macro),
+KL-007 (architectural ceiling, 4 categories, 11 files).
+
+**Project mode:** Maintenance cadence. The harness runs in CI to catch regressions.
+Scheduled convergence rounds are concluded. See docs/ceiling-decision.md for
+the 11-file analysis and docs/known-limitations.md for all active items.
+
+**Tagged as v1.0.0.**
