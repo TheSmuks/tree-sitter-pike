@@ -6,6 +6,25 @@ for 2+ rounds without progress must include a written reason or be escalated.
 
 ## Active Limitations
 
+### KL-009: Top-level statement keywords accepted (ast-grep tradeoff)
+- **Description**: Statement keywords (`if`, `while`, `for`, `foreach`, `switch`,
+  `return`, `break`, `continue`, `do`) parse at file scope. Pike rejects these
+  with "unexpected TOK_<keyword>". The grammar accepts them to prevent
+  `macro_invocation` from matching keyword tokens, which broke ast-grep
+  pattern matching for statements.
+- **Root cause**: In tree-sitter's GLR parser, when no keyword rule matches at
+  top level (because `_definition` didn't include statements), keyword tokens
+  fell through to `identifier` matching via the `word` property. The fix was
+  to add statement rules to `_definition`. This accepts structurally correct
+  but semantically invalid Pike code.
+- **Impact**: Top-level `if (x) { y; }` parses as `if_statement` instead of
+  `macro_invocation`. Both are wrong (Pike rejects both), but `if_statement`
+  is the correct structural representation. Static analysis tools should flag
+  top-level statements as errors. No distribution regressions.
+- **Last validated**: Round 21 (post v1.0.0)
+- **Rounds active**: 1
+## Active Limitations
+
 ### KL-004: Top-level break/continue without enclosing loop
 - **Description**: `break` and `continue` parse at the top level of a block
   without checking for an enclosing loop/switch. Pike would reject these.
