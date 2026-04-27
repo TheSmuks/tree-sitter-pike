@@ -305,7 +305,92 @@ The over-prediction was caused by:
 **Commits:**
 - scanner.c, grammar.ts changes, test updates, doc updates
 
-**Round 17 status:** Maintenance cadence. No scheduled round.
-All remaining errors are architectural (require macro expansion or opaque
-preprocessor blocks, which are not viable). The 98.71% rate is the practical
-ceiling for tree-sitter-pike without fundamental architecture changes.
+### Round 17: Grammar Fixes + Scanner Investigation
+
+Round 16 concluded that 98.71% was the practical ceiling. Round 17
+tested that claim by attempting the work that hadn't been done.
+
+**Grammar fixes delivered:**
+
+1. `mapping_literal` extended to accept `postfix_expr` (KL-007d):
+   `P(scheme)` in mapping literals now accepted as macro-call element.
+   Uses `prec(2)` + GLR conflict `[$.mapping_literal, $.unary_expr]`.
+   Result: Standards/URI.pike now parses cleanly.
+
+2. `parameter` type field accepts `macro_invocation`:
+   `DO_IF_DEBUG(void|int nowarn)` in parameter position now parses.
+   The `macro_invocation` wraps the macro name and arguments.
+
+3. `macro_argument_list` accepts `seq(type, identifier)` pairs:
+   Handles patterns like `DO_IF_DEBUG(void|int nowarn)` where the
+   macro argument looks like a parameter declaration.
+
+**Scanner investigation:**
+
+Selective PREPROC_BLOCK was attempted. The design called for a scanner
+that would only emit `PREPROC_BLOCK` at positions where PP splits occur.
+
+Attempted designs:
+- (a) Position-restricted: put PREPROC_BLOCK in primary_expr with
+  `prec.dynamic(-1)`. Failed: tree-sitter's external scanner runs BEFORE
+  the parser and cannot be influenced by dynamic precedence. When
+  PREPROC_BLOCK is in `valid_symbols` (reachable from primary_expr via
+  expression_statement), the scanner consumes ALL #if blocks, including
+  those at statement boundaries. This regressed 116 files.
+- (b) Content-aware: scan ahead to check if block is structurally
+  incomplete. Failed: tree-sitter's lexer cannot look ahead without
+  consuming tokens. The `advance()` method moves the lexer position
+  irreversibly. If the scanner decides not to emit after scanning ahead,
+  it can't undo the consumption.
+
+Root cause: tree-sitter's scanner-parser architecture is single-pass.
+The scanner produces tokens; the parser consumes them. There is no
+feedback mechanism for the parser to tell the scanner "don't emit
+PREPROC_BLOCK here, I'm at a statement boundary." This is a
+fundamental tree-sitter limitation, not a design flaw in our scanner.
+
+**Attempted but failed grammar fixes:**
+
+- Bare identifier in `_definition` (KL-007f, Terminfo.pide MUTEX):
+  Creates cascading GLR conflicts with `identifier_expr` in every
+  expression context. Would need conflicts for every token that can
+  follow an identifier (`.`, `->`, `(`, `[`, operators, etc.).
+
+- `string_concat` extension with `macro_invocation` (install.pike, Types.pmod):
+  `macro_invocation` has the same shape as function call (`IDENT(args)`),
+  creating ambiguity with `postfix_expr`. Tree-sitter silently removes
+  the new `string_concat` form from the parse table.
+
+- `postfix_expr` in `string_concat` (same files):
+  Creates infinite recursion via `primary_expr → string_concat →
+  postfix_expr → primary_expr`.
+
+**Result:** 1068/1082 (98.89%), 208/208 tests, 0 regressions.
+Up from 1067/1082 (98.71%). +1 file (URI.pike) fixed.
+
+**Commits:**
+- d6e0584: parameter + macro_argument_list grammar fixes
+- 69cda3b: mapping_literal fix (URI.pike)
+
+**Remaining 14 error files — specific token-level analysis:**
+
+PP-split files (tree-sitter architectural limit — scanner cannot be
+position-aware):
+- Audio/Codec.pmod: `#else` inside `&&` condition
+- Sql/tds.pike: `protected {` emitted by `#if`
+- Protocols/LysKOM/Raw.pike: `#if` inside string concatenation
+- src/modules/_Stdio/socktest.pike: `#ifdef` inside comparison value
+- Parser/LR/GrammarParser.pmod: `#ifdef` inside function argument
+- src/post_modules/GTK1/make_example_image.pike: `#if` splitting if/else
+- src/post_modules/GTK2/make_example_image.pike: same
+- Concurrent.pmod: `#ifdef` splitting variable initializer
+- SSL/sslfile.pike: RUN_MAYBE_BLOCKING with PP-split args
+- Protocols/LDAP/client.pike: IF_ELSE_PAGED_SEARCH PP-split
+
+Macro-adjacent (grammar cannot distinguish without semantic context):
+- bin/install.pike: juxtaposed RELAY(X) RELAY(Y) — no operator between calls
+- ASN1/Types.pmod: juxtaposed DEC_COMB_MARK GR("") — no operator between calls
+- Debug/Subject.pike: `void PROXY(destroy, 0);` — function_decl vs macro_stmt
+
+Bare identifier:
+- Stdio/Terminfo.pmod: bare MUTEX without `;` — creates cascading GLR conflicts

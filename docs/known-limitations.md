@@ -62,15 +62,16 @@ opaque would regress tree fidelity for all of them. See docs/scanner-design.md
 §10 for the analysis. The scanner was reduced to hash-string-only (HASH_STRING).
 
 - **Last validated**: Round 16
-- **Rounds active**: 5
-- **Impact**: 15 distribution files have errors:
-  - KL-007a: 5 files (PP splitting expressions) — **not scanner-addressable**
-  - KL-007b: 5 files (PP splitting control flow) — **not scanner-addressable**
-  - KL-007c: 4 remaining files (macro argument shapes) — **not scanner-addressable**
-  - KL-007d: 1 file (P(X) mapping pair) — **not scanner-addressable**
+- **Rounds active**: 6
+- **Impact**: 14 distribution files have errors:
+  - KL-007a: 5 files (PP splitting expressions) — **tree-sitter architectural limit**
+  - KL-007b: 5 files (PP splitting control flow) — **tree-sitter architectural limit**
+  - KL-007c: 2 remaining files (macro args, PP-split) — **tree-sitter architectural limit**
+  - KL-007d: 0 remaining files — **RESOLVED in Round 17**
   - KL-007e: 0 remaining files (hash-string) — **RESOLVED in Round 16**
-  - KL-007f: 1 file (bare macro) — **not scanner-addressable**
-  - Some files appear in multiple sub-entries (total unique: 15)
+  - KL-007f: 1 file (bare macro) — **not grammar-fixable without massive ambiguity**
+  - KL-007g: 1 file (juxtaposed macro calls) — **tree-sitter architectural limit**
+  - Some files appear in multiple sub-entries (total unique: 14)
 #### KL-007a: PP splitting expressions (5 files) — Not scanner-addressable
 
 The `#if`/`#ifdef`/`#endif` block splits a sub-expression so that neither
@@ -192,24 +193,19 @@ syntax as a contextual keyword in `_int_range`. Having it in
 `bits` was matched as a magic identifier instead of a regular identifier
 expression.
 
-#### KL-007d: Macro expansion producing mapping/array members (1 file) — Not scanner-addressable
+#### KL-007d: Macro invocation in mapping element position — RESOLVED in Round 17
 
 A macro invocation `P(X)` expands to `"X":X` — a mapping pair. Without
 macro expansion, tree-sitter sees `P(scheme)` as a function call, not a
-mapping pair. This is fundamentally unfixable without macro expansion awareness.
+mapping pair.
 
-| # | File | Location | Pattern | Token sequence |
-|---|------|----------|---------|----------------|
-| 1 | `Standards/URI.pike` | line 649 | `#define P(X) #X:X` used in mapping literal | `([\n  P(scheme),\n  P(authority),\n  ...\n])` |
+**Round 17 fix**: Extended `mapping_literal` to accept `postfix_expr` (function
+calls) as alternatives to `mapping_pair`. Uses `prec(2)` and a GLR conflict
+declaration to resolve ambiguity with `unary_expr`.
 
-The ERROR spans 52 lines (649-701) because the entire mapping literal fails
-to parse when `P(scheme)` is not recognized as a mapping pair.
-
-**Note**: The files `ASN1/Types.pmod` and `bin/install.pike` have adjacent
-macro invocations producing implicit string concatenation (`DEC_COMB_MARK GR("\300")`
-and `RELAY(X)` chains). These are similar — the grammar sees two expressions
-with no operator between them. Also not scanner-addressable.
-
+| # | File | Status |
+|---|------|--------|
+| 1 | `Standards/URI.pike` | **FIXED** — `P(scheme)` accepted as mapping element |
 #### KL-007e: Multi-line #"..." string literals — PARTIALLY RESOLVED in Round 16
 
 Pike's hash-string syntax `#"..."` produces a string where the content
