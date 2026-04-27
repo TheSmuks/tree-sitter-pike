@@ -47,6 +47,11 @@ export default grammar({
     // typed macro invocation vs function_decl: TYPE ID(args)
     [$.identifier_expr, $.macro_invocation],
     [$.macro_argument_list, $.parameter],
+    [$.string_concat, $.declaration],
+    [$._id_expr, $.declaration],
+    [$.identifier_expr, $._id_expr, $.declaration],
+    [$.inherit_specifier, $.declaration],
+    [$.declaration],
   ],
 
 
@@ -642,7 +647,9 @@ export default grammar({
         // Bare identifier as declaration: MUTEX; INHERIT_MUTEX; OVERLOAD_TIMEOFDAY;
         // These are preprocessor macros that expand to declarations or nothing.
         // The grammar accepts them so the tree stays clean.
-        seq($.identifier, ';'),
+        // Semicolon is optional because some macros (like MUTEX without threading)
+        // expand to nothing — the bare identifier has no trailing ';'.
+        seq($.identifier, optional(';')),
         // Typed macro invocation: TYPE IDENTIFIER(args);
         // Handles patterns like: void PROXY(destroy, 0);
         // where TYPE looks like a return type but the "function name" is actually

@@ -4707,8 +4707,16 @@
                   "name": "identifier"
                 },
                 {
-                  "type": "STRING",
-                  "value": ";"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ";"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
             },
@@ -6453,6 +6461,26 @@
     [
       "macro_argument_list",
       "parameter"
+    ],
+    [
+      "string_concat",
+      "declaration"
+    ],
+    [
+      "_id_expr",
+      "declaration"
+    ],
+    [
+      "identifier_expr",
+      "_id_expr",
+      "declaration"
+    ],
+    [
+      "inherit_specifier",
+      "declaration"
+    ],
+    [
+      "declaration"
     ]
   ],
   "precedences": [],
