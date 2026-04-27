@@ -1995,6 +1995,10 @@
           "named": true
         },
         {
+          "type": "identifier",
+          "named": true
+        },
+        {
           "type": "magic_identifier",
           "named": true
         },
@@ -2211,6 +2215,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "macro_invocation",
+            "named": true
+          },
           {
             "type": "type",
             "named": true

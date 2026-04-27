@@ -508,7 +508,7 @@ export default grammar({
       ';',
     )),
 
-    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.magic_identifier)), ')'),
+    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.magic_identifier, seq($.type, $.identifier))), ')'),
 
     // Macro statement pattern for paired begin/end macros.
     //
@@ -661,7 +661,7 @@ export default grammar({
 
     parameter: $ => seq(
       repeat($._modifier),
-      field('type', $.type), optional('...'), optional(field('name', $.identifier)),
+      field('type', choice($.type, $.macro_invocation)), optional('...'), optional(field('name', $.identifier)),
       optional(seq('=', field('default_value', $._expr))),
     ),
 
