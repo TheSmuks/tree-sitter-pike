@@ -4,7 +4,26 @@ Each item has a "Last validated" field indicating the most recent round where
 the limitation was confirmed to still hold. Items that have been on the list
 for 2+ rounds without progress must include a written reason or be escalated.
 
-## Active Limitations
+## Permissive Parsing
+
+The grammar may accept syntactically-shaped constructs that Pike's compiler
+rejects, when doing so produces structurally-correct parse trees for
+downstream tooling (ast-grep, language servers, code formatters). This is a
+deliberate design choice: tree-sitter is a parser, not a validator. Strict
+syntactic validation is the consumer's responsibility.
+
+Known instances:
+
+### KL-004: Top-level break/continue without enclosing loop
+- **Description**: `break` and `continue` parse at the top level of a block
+  without checking for an enclosing loop/switch. Pike would reject these.
+- **Root cause**: Tree-sitter grammars cannot enforce context-sensitive
+  constraints like "must be inside a loop." This is a semantic check, not
+  a syntactic one.
+- **Impact**: Accepts invalid Pike code. Low severity since static analysis
+  tools catch this.
+- **Last validated**: Round 12
+- **Rounds active**: 3+
 
 ### KL-009: Top-level statement keywords accepted (ast-grep tradeoff)
 - **Description**: Statement keywords (`if`, `while`, `for`, `foreach`, `switch`,
@@ -23,18 +42,8 @@ for 2+ rounds without progress must include a written reason or be escalated.
   top-level statements as errors. No distribution regressions.
 - **Last validated**: Round 21 (post v1.0.0)
 - **Rounds active**: 1
-## Active Limitations
 
-### KL-004: Top-level break/continue without enclosing loop
-- **Description**: `break` and `continue` parse at the top level of a block
-  without checking for an enclosing loop/switch. Pike would reject these.
-- **Root cause**: Tree-sitter grammars cannot enforce context-sensitive
-  constraints like "must be inside a loop." This is a semantic check, not
-  a syntactic one.
-- **Impact**: Accepts invalid Pike code. Low severity since static analysis
-  tools catch this.
-- **Last validated**: Round 12
-- **Rounds active**: 3+
+## Active Limitations
 
 ### KL-006: Complex macro invocations not fully covered
 - **Description**: Macro invocations with non-trivial bodies (e.g.,
