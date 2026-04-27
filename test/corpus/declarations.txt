@@ -769,3 +769,97 @@ private final int x;
       type: (type
         (basic_type))
       name: (identifier))))
+
+
+================================================================================
+Variable declaration - Unicode identifier (UTF-8)
+================================================================================
+int café = 1;
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
+
+================================================================================
+Variable declaration - Greek identifier
+================================================================================
+int αβγ = 42;
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
+
+================================================================================
+Variable declaration - CJK identifier
+================================================================================
+string 日本語 = "hello";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_literal))))))))))))))))))))

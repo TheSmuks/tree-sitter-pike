@@ -161,7 +161,7 @@ export default grammar({
     ),
 
 
-    identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    identifier: _ => /[a-zA-Z_\p{L}][a-zA-Z0-9_\p{L}\p{N}]*/,
 
     // #string "filename" — Pike's file-contents-as-string literal.
     // Reads the named file and evaluates to its contents as a string.
