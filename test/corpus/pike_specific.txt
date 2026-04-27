@@ -1631,3 +1631,35 @@ CBFUNC(function(mixed|void:int), cb);
       (type
         (id_type
           (identifier))))))
+
+================================================================================
+Version prefix scope expression
+================================================================================
+7.8::Stdio.File;
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (scope_expr
+                                        scope: (inherit_specifier
+                                          (version_prefix))
+                                        name: (identifier))))
+                                  (identifier))))))))))))))))))

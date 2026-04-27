@@ -46,7 +46,7 @@
           },
           {
             "type": "PATTERN",
-            "value": ".*"
+            "value": "[^!\\n].*|"
           }
         ]
       }
@@ -6378,15 +6378,15 @@
     },
     {
       "type": "SYMBOL",
+      "name": "autodoc_comment"
+    },
+    {
+      "type": "SYMBOL",
       "name": "line_comment"
     },
     {
       "type": "SYMBOL",
       "name": "block_comment"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "autodoc_comment"
     },
     {
       "type": "SYMBOL",

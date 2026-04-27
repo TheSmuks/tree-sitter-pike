@@ -26,7 +26,7 @@ Autodoc comment
 --------------------------------------------------------------------------------
 
 (program
-  (line_comment))
+  (autodoc_comment))
 
 ================================================================================
 Preprocessor include
@@ -202,7 +202,6 @@ Multiline #define - escaped newline in string
 (program
   (preprocessor_directive))
 
-
 ================================================================================
 Hash string - simple
 ================================================================================
@@ -213,7 +212,8 @@ string s = #"hello";
 (program
   (declaration
     (variable_decl
-      type: (type (basic_type))
+      type: (type
+        (basic_type))
       name: (identifier)
       value: (comma_expr
         (assign_expr
@@ -246,7 +246,8 @@ world
 (program
   (declaration
     (variable_decl
-      type: (type (basic_type))
+      type: (type
+        (basic_type))
       name: (identifier)
       value: (comma_expr
         (assign_expr
@@ -276,7 +277,8 @@ string s = #"hello\nworld\t!";
 (program
   (declaration
     (variable_decl
-      type: (type (basic_type))
+      type: (type
+        (basic_type))
       name: (identifier)
       value: (comma_expr
         (assign_expr
@@ -306,7 +308,8 @@ string s = #"hello" "world";
 (program
   (declaration
     (variable_decl
-      type: (type (basic_type))
+      type: (type
+        (basic_type))
       name: (identifier)
       value: (comma_expr
         (assign_expr

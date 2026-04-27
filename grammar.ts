@@ -69,9 +69,9 @@ export default grammar({
   // preprocessor_directive token regex explicitly spans continuations).
   extras: $ => [
     /\s|\\\r?\n/,
+    $.autodoc_comment,
     $.line_comment,
     $.block_comment,
-    $.autodoc_comment,
     $.preprocessor_directive,
     $.shebang,
   ],
@@ -94,7 +94,7 @@ export default grammar({
       $.macro_invocation_stmt,
     ),
 
-    line_comment: _ => token(seq('//', /.*/)),
+    line_comment: _ => token(seq('//', /[^!\n].*|/)),
     block_comment: _ => token(seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),  
     autodoc_comment: _ => token(seq('//!', /.*/)),
     shebang: _ => token(seq('#!', /.*/)),
