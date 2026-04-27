@@ -20,7 +20,7 @@ export default grammar({
     [$.primary_expr, $.inherit_decl],
     [$.primary_expr, $.import_decl],
     // modifier vs inherit_specifier ('local')
-    [$._modifier, $.inherit_specifier],
+    [$.modifier, $.inherit_specifier],
     // this_expr as type vs expression
     [$.this_expr, $.type],
     // this_object standalone vs this_object() form
@@ -634,7 +634,7 @@ export default grammar({
     // ── Declarations ──
 
     declaration: $ => seq(
-      repeat($._modifier),
+      repeat($.modifier),
       optional($.attribute),
       choice(
         $.function_decl,
@@ -667,7 +667,7 @@ export default grammar({
     // __attribute__("name") as declaration modifier
     attribute: $ => seq('__attribute__', '(', $.string_literal, ')'),
 
-    _modifier: _ => choice(
+    modifier: $ => choice(
       'private', 'protected', 'public', 'static', 'extern',
       'inline', 'local', 'final', 'variant', 'optional', 'nomask',
       '__deprecated__',
@@ -682,7 +682,7 @@ export default grammar({
     parameters: $ => seq('(', optional(trailingCommaSep1($.parameter)), ')'),
 
     parameter: $ => seq(
-      repeat($._modifier),
+      repeat($.modifier),
       field('type', choice($.type, $.macro_invocation)), optional('...'), optional(field('name', $.identifier)),
       optional(seq('=', field('default_value', $._expr))),
     ),
@@ -696,7 +696,7 @@ export default grammar({
     ),
 
     local_declaration: $ => seq(
-      repeat($._modifier),
+      repeat($.modifier),
       field('type', $.type), commaSep1(seq(
         field('name', choice($.identifier, $.backtick_identifier)),
         optional(seq('=', field('value', $._expr))),
@@ -749,15 +749,15 @@ export default grammar({
     ),
 
     typedef_decl: $ => seq(
-      repeat($._modifier), 'typedef', field('type', $.type), field('name', $.identifier), ';',
+      repeat($.modifier), 'typedef', field('type', $.type), field('name', $.identifier), ';',
     ),
 
     import_decl: $ => seq(
-      repeat($._modifier), 'import', field('path', choice($._expr, $.string_literal)), ';',
+      repeat($.modifier), 'import', field('path', choice($._expr, $.string_literal)), ';',
     ),
 
     inherit_decl: $ => seq(
-      repeat($._modifier), 'inherit', field('path', choice($._expr, $.string_literal)),
+      repeat($.modifier), 'inherit', field('path', choice($._expr, $.string_literal)),
       optional(seq(':', field('alias', choice($.identifier, $.string_literal)))),
       ';',
     ),

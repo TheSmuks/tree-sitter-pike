@@ -1529,6 +1529,7 @@ protected void create (Stdio.File stream, SSL.Context ctx)
 
 (program
   (declaration
+    (modifier)
     (function_decl
       return_type: (type
         (basic_type))

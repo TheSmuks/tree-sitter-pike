@@ -486,6 +486,7 @@ private int x;
 
 (program
   (declaration
+    (modifier)
     (variable_decl
       type: (type
         (basic_type))
@@ -500,6 +501,7 @@ protected void foo();
 
 (program
   (declaration
+    (modifier)
     (function_decl
       return_type: (type
         (basic_type))
@@ -515,6 +517,7 @@ public int bar() { return 1; }
 
 (program
   (declaration
+    (modifier)
     (function_decl
       return_type: (type
         (basic_type))
@@ -621,6 +624,7 @@ __deprecated__ void old() {}
 
 (program
   (declaration
+    (modifier)
     (function_decl
       return_type: (type
         (basic_type))
@@ -759,6 +763,8 @@ private final int x;
 
 (program
   (declaration
+    (modifier)
+    (modifier)
     (variable_decl
       type: (type
         (basic_type))

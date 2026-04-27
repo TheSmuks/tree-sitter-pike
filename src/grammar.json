@@ -4674,7 +4674,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -4795,7 +4795,7 @@
         }
       ]
     },
-    "_modifier": {
+    "modifier": {
       "type": "CHOICE",
       "members": [
         {
@@ -4980,7 +4980,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -5190,7 +5190,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -5783,7 +5783,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -5819,7 +5819,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -5856,7 +5856,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "_modifier"
+            "name": "modifier"
           }
         },
         {
@@ -6436,7 +6436,7 @@
       "import_decl"
     ],
     [
-      "_modifier",
+      "modifier",
       "inherit_specifier"
     ],
     [
