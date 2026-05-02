@@ -1,0 +1,1 @@
+mixed err = catch { write("hello\n"); };
