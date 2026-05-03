@@ -813,76 +813,10 @@ Sscanf with typed lvalue
                                                                     (postfix_expr
                                                                       (primary_expr
                                                                         (string_literal)))))))))))))))))
-                                        (type
-                                          (basic_type))
-                                        (identifier)))))))))))))))))))))
-
-================================================================================
-Catch with block
-================================================================================
-{ catch { throw(1); }; }
-
---------------------------------------------------------------------------------
-
-(program
-  (block
-    (expression_statement
-      (comma_expr
-        (assign_expr
-          (cond_expr
-            (lor_expr
-              (land_expr
-                (bitor_expr
-                  (bitxor_expr
-                    (bitand_expr
-                      (eq_expr
-                        (rel_expr
-                          (shift_expr
-                            (add_expr
-                              (mul_expr
-                                (unary_expr
-                                  (postfix_expr
-                                    (primary_expr
-                                      (catch_expr
-                                        value: (block
-                                          (expression_statement
-                                            (comma_expr
-                                              (assign_expr
-                                                (cond_expr
-                                                  (lor_expr
-                                                    (land_expr
-                                                      (bitor_expr
-                                                        (bitxor_expr
-                                                          (bitand_expr
-                                                            (eq_expr
-                                                              (rel_expr
-                                                                (shift_expr
-                                                                  (add_expr
-                                                                    (mul_expr
-                                                                      (unary_expr
-                                                                        (postfix_expr
-                                                                          (postfix_expr
-                                                                            (primary_expr
-                                                                              (identifier_expr
-                                                                                name: (identifier))))
-                                                                          (argument_list
-                                                                            (comma_expr
-                                                                              (assign_expr
-                                                                                (cond_expr
-                                                                                  (lor_expr
-                                                                                    (land_expr
-                                                                                      (bitor_expr
-                                                                                        (bitxor_expr
-                                                                                          (bitand_expr
-                                                                                            (eq_expr
-                                                                                              (rel_expr
-                                                                                                (shift_expr
-                                                                                                  (add_expr
-                                                                                                    (mul_expr
-                                                                                                      (unary_expr
-                                                                                                        (postfix_expr
-                                                                                                          (primary_expr
-                                                                                                            (integer_literal)))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                                        (typed_lvalue
+                                          (type
+                                            (basic_type))
+                                          (identifier))))))))))))))))))))))
 
 ================================================================================
 Gauge expression

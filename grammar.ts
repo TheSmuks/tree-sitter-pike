@@ -496,9 +496,12 @@ export default grammar({
       seq(';', optional(field('key', $._foreach_lvalue)), ';', optional(field('value', $._foreach_lvalue))),
     ),
 
+
+    typed_lvalue: $ => seq(field('type', $.type), field('name', $.identifier)),
+
     _foreach_lvalue: $ => choice(
       $._expr,
-      seq($.type, $.identifier),
+      $.typed_lvalue,
       $.array_destructure,
     ),
 

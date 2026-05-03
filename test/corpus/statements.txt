@@ -1037,9 +1037,10 @@ Foreach with typed lvalue
                                       (identifier_expr
                                         name: (identifier))))))))))))))))))
       (foreach_lvalues
-        value: (type
-          (basic_type))
-        value: (identifier))
+        value: (typed_lvalue
+          type: (type
+            (basic_type))
+          name: (identifier)))
       body: (block))))
 
 ================================================================================
