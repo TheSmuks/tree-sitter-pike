@@ -1,0 +1,34 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source files
+*.ts text eol=lf
+*.js text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.so binary
+*.dylib binary
+*.dll binary
+
+# tree-sitter generated files
+grammar.js linguist-generated=true
+grammar.json linguist-generated=true
+src/parser.c linguist-generated=true
+src/parser.h linguist-generated=true
+
+# Documentation
+*.md text eol=lf
+LICENSE text eol=lf

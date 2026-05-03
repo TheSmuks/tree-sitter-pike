@@ -1,0 +1,22 @@
+# Code owners for tree-sitter-pike
+
+# Default owner
+* @TheSmuks
+
+# Grammar files
+grammar.ts @TheSmuks
+grammar.js @TheSmuks
+
+# External scanner
+src/scanner.c @TheSmuks
+src/parser.c @TheSmuks
+
+# CI/CD
+.github/workflows/ @TheSmuks
+
+# Documentation
+docs/ @TheSmuks
+*.md @TheSmuks
+
+# Agent configuration
+.omp/ @TheSmuks

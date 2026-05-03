@@ -1,0 +1,36 @@
+{
+  "name": "tree-sitter-pike",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/tree-sitter-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tree-sitter.tree-sitter",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.tabSize": 2,
+          "editor.insertSpaces": true
+        },
+        "editorconfig.editorconfig": {
+          "root": true
+        }
+      }
+    }
+  },
+  "postCreateCommand": "bun install && bash scripts/generate.sh",
+  "ports": [],
+  "remoteEnv": {},
+  "remoteUser": "node",
+  "updateContentCommand": "bun install",
+  "workspaceFolder": "/workspaces/tree-sitter-pike",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/tree-sitter-pike,type=bind"
+}

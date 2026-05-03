@@ -1,0 +1,28 @@
+{
+  "name": "tree-sitter-pike",
+  "version": "0.6.0",
+  "description": "Oh My Pi settings for tree-sitter-pike",
+  "defaults": {
+    "code_style": {
+      "indent": "2 spaces",
+      "line_length": 100
+    },
+    "commit_format": "conventional",
+    "changelog_format": "keep_a_changelog"
+  },
+  "rules": {
+    "enforce_conventional_commits": true,
+    "enforce_changelog": true,
+    "enforce_test_coverage": true
+  },
+  "permissions": {
+    "read": true,
+    "write": true,
+    "execute": false
+  },
+  "behavior": {
+    "max_file_size_kb": 100,
+    "max_function_lines": 80,
+    "require_tests": true
+  }
+}
