@@ -1,0 +1,42 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  changelog-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check changelog updated
+        run: |
+          # Check if CHANGELOG.md was modified
+          git diff --name-only origin/main...HEAD | grep -q "CHANGELOG.md" && CHANGELOG_UPDATED=true || CHANGELOG_UPDATED=false
+          
+          # Check if this is a code change that needs changelog
+          NEEDS_CHANGELOG=false
+          for file in $(git diff --name-only origin/main...HEAD); do
+            case "$file" in
+              grammar.ts|grammar.js|src/*|test/*|examples/*)
+                NEEDS_CHANGELOG=true
+                ;;
+            esac
+          done
+          
+          # Skip for docs-only, chore, or template changes
+          IS_DOCS_ONLY=true
+          for file in $(git diff --name-only origin/main...HEAD); do
+            if [[ ! "$file" =~ ^(docs/|\.github/workflows/|README|CHANGELOG|CONTRIBUTING) ]]; then
+              IS_DOCS_ONLY=false
+            fi
+          done
+          
+          if [ "$NEEDS_CHANGELOG" = true ] && [ "$IS_DOCS_ONLY" = false ] && [ "$CHANGELOG_UPDATED" = false ]; then
+            echo "Error: CHANGELOG.md must be updated for code changes"
+            exit 1
+          fi
+          
+          echo "Changelog check passed"

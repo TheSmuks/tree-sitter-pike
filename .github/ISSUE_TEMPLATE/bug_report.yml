@@ -1,0 +1,103 @@
+name: Bug Report
+description: Report a bug in the tree-sitter grammar
+title: "[Bug] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Description
+        A clear description of the bug.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's wrong?
+      placeholder: Describe the bug clearly
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Steps to Reproduce
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: How to reproduce the bug
+      placeholder: |
+        1. Run `bunx tree-sitter parse file.pike`
+        2. See error...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Expected Behavior
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What should happen
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Actual Behavior
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What actually happens
+    validations:
+      required: true
+
+  - type: input
+    id: pike-version
+    attributes:
+      label: Pike Version
+      description: Version of Pike that exhibits the issue
+      placeholder: e.g., 8.0.1116
+    validations:
+      required: false
+
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code Sample
+      description: Pike code that causes the issue
+      placeholder: |
+        ```pike
+        void foo() {
+            // code here
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Error output, if any
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Searched for existing issues
+          required: true
+        - label: Tested with latest grammar version
+          required: false

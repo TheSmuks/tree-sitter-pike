@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions
+    url: https://github.com/TheSmuks/tree-sitter-pike/discussions
+    about: Ask questions and discuss the project
+  - name: Discussions
+    url: https://github.com/TheSmuks/tree-sitter-pike/discussions
+    about: Feature discussions and RFCs

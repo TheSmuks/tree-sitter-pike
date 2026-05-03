@@ -1,0 +1,36 @@
+name: Blob Size Policy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for large files
+        run: |
+          # Check for files larger than 100KB added in this commit
+          LARGE_FILES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | while read file; do
+            if [ -f "$file" ]; then
+              SIZE=$(wc -c < "$file")
+              if [ "$SIZE" -gt 102400 ]; then
+                echo "$file ($((SIZE/1024))KB)"
+              fi
+            fi
+          done)
+          
+          if [ -n "$LARGE_FILES" ]; then
+            echo "Warning: Large files detected (>100KB):"
+            echo "$LARGE_FILES"
+            echo ""
+            echo "Large files may indicate:"
+            echo "- Accidentally committed binaries"
+            echo "- Generated files that should be in .gitignore"
+            echo "- Build artifacts"
+            exit 1
+          fi
+          
+          echo "No large files detected"

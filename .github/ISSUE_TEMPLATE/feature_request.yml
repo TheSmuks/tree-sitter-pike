@@ -1,0 +1,91 @@
+name: Feature Request
+description: Request a new grammar feature or enhancement
+title: "[Feature] "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Description
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the feature
+      placeholder: Describe the feature you'd like to see
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Problem Statement
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this solve?
+      placeholder: What use case does this address?
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Proposed Solution
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution
+      description: How should it work?
+      placeholder: Describe the proposed solution
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Reference
+
+  - type: input
+    id: reference
+    attributes:
+      label: Reference Grammar
+      description: Reference to Pike's authoritative grammar (if applicable)
+      placeholder: e.g., language.yacc line number
+    validations:
+      required: false
+
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Example Code
+      description: Pike code demonstrating the feature
+      placeholder: |
+        ```pike
+        // Example of the syntax to support
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative approaches considered
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Searched for existing issues/discussions
+          required: true
+        - label: Willing to help implement
+          required: false
