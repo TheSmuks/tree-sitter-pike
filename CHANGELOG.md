@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
 ### Added
 
+- Add corpus test for lambda in mapping literal expression context (#13)
 ### Changed
 
 ### Deprecated
