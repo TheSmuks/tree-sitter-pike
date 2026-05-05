@@ -11,14 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `scripts/build-wasm.sh` helper script for local WASM artifact builds
 - Update `cut-release` skill to document WASM artifact verification in release process
-- Re-release v1.1.1 to properly trigger `release.yml` workflow (v1.1.0 had no WASM artifact)
+- Fix `release.yml` workflow to ensure WASM artifact is properly uploaded (add debug logging, explicit GITHUB_TOKEN)
 
 ## [Unreleased]
 
 ### Added
 
 - Add corpus test for lambda in mapping literal expression context (#13)
-- 
+
 ### Changed
 
 ### Deprecated
