@@ -6181,7 +6181,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": "\\s*"
+                "value": "[^\\S\\r\\n]*"
               }
             ]
           },
@@ -6202,7 +6202,7 @@
               },
               {
                 "type": "PATTERN",
-                "value": "\\s*"
+                "value": "[^\\S\\r\\n]*"
               }
             ]
           },

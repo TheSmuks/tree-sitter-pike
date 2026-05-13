@@ -4454,12 +4454,16 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
     case 200:
       ACCEPT_TOKEN(sym_preprocessor_directive);
       if (lookahead == 'i') ADVANCE(52);
-      if (('\t' <= lookahead && lookahead <= '\r') ||
+      if (lookahead == '\t' ||
+          lookahead == 0x0b ||
+          lookahead == '\f' ||
           lookahead == ' ') ADVANCE(201);
       END_STATE();
     case 201:
       ACCEPT_TOKEN(sym_preprocessor_directive);
-      if (('\t' <= lookahead && lookahead <= '\r') ||
+      if (lookahead == '\t' ||
+          lookahead == 0x0b ||
+          lookahead == '\f' ||
           lookahead == ' ') ADVANCE(201);
       END_STATE();
     default:
