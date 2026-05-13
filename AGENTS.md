@@ -95,7 +95,47 @@ Named nodes use lowercase snake_case: `identifier`, `type`, `function_decl`, `cl
 │   ├── CODEOWNERS
 │   ├── SECURITY.md
 │   └── PULL_REQUEST_TEMPLATE.md
-└── .omp/                        # Oh My Pi agent config
+└── .omp/                        # Legacy Oh My Pi agent config (retained for reference)
+```
+
+## Hermes Skills
+
+Project-specific Hermes skills are installed at `~/.hermes/skills/tree-sitter-pike/`:
+
+| Skill | Purpose |
+|-------|---------|
+| `ts-pike-cut-release` | Release workflow: version, changelog, tag, verify WASM |
+| `ts-pike-merge-to-main` | PR lifecycle: create, monitor CI, fix failures, merge |
+
+Load when relevant with `skill_view(name='ts-pike-cut-release')` or `skill_view(name='ts-pike-merge-to-main')`.
+
+## Operating Principles
+
+### Changelog Required
+
+CHANGELOG.md must be updated for all user-facing changes to `grammar.ts`, `grammar.js`, `src/scanner.c`, `src/parser.c`, `test/corpus/**`, or `examples/**`.
+
+Exemptions: documentation-only changes, `chore:` commits, changes to only `.omp/`, `.github/`, `.devcontainer/`.
+
+Entries go under `[Unreleased]` in the correct section (Added, Changed, Deprecated, Removed, Fixed, Security). Use imperative mood.
+
+### No Placeholders
+
+No `TODO`, `FIXME`, `XXX`, `HACK`, `placeholder`, `TEMP`, or template placeholders in committed code or documentation. Exception: `TODO(#issue): description` tied to an open issue.
+
+### Code Review Standards
+
+When reviewing grammar changes:
+1. Reference grammar compliance — align with `pike-ai/Pike/src/language.yacc`
+2. Node naming — lowercase snake_case for all named nodes
+3. Test coverage — new grammar features require corpus tests
+4. Parse correctness — example files must parse without errors
+5. No TypeScript errors in grammar.ts
+
+### Environment Setup
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$HOME/.bun/bin:$(pwd)/node_modules/.bin:$PATH"
 ```
 
 ## Testing
