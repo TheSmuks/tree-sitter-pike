@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-14
+
+### Added
+
+- Structured `preproc_include` node with named `path` field for `#include` directives (#17)
+- `system_lib_string` node type for angle-bracket include paths (`<foo.h>`)
+- Corpus tests for `preproc_include` with quoted strings, angle brackets, and inside functions
+
+### Changed
+
+- Extract `#include` from generic `preprocessor_directive` token into structured `preproc_include` rule with `path` field
+
 ## [1.1.2] - 2026-05-13
 
 ### Added

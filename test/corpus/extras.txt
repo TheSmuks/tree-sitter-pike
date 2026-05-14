@@ -29,14 +29,46 @@ Autodoc comment
   (autodoc_comment))
 
 ================================================================================
-Preprocessor include
+Preprocessor include - quoted string
 ================================================================================
 #include "foo.pike"
 
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_include
+    path: (string_literal)))
+
+================================================================================
+Preprocessor include - angle brackets
+================================================================================
+#include <bar.h>
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_include
+    path: (system_lib_string)))
+
+================================================================================
+Preprocessor include - inside function
+================================================================================
+void main() {
+  #include "headers.pike"
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (preproc_include
+          path: (string_literal))))))
 
 ================================================================================
 Preprocessor define

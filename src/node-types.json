@@ -2349,6 +2349,27 @@
     }
   },
   {
+    "type": "preproc_include",
+    "named": true,
+    "extra": true,
+    "fields": {
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          },
+          {
+            "type": "system_lib_string",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "primary_expr",
     "named": true,
     "fields": {},
@@ -3053,6 +3074,10 @@
     "named": false
   },
   {
+    "type": "#",
+    "named": false
+  },
+  {
     "type": "#string",
     "named": false
   },
@@ -3371,6 +3396,10 @@
     "named": false
   },
   {
+    "type": "include",
+    "named": false
+  },
+  {
     "type": "inherit",
     "named": false
   },
@@ -3476,6 +3505,10 @@
   {
     "type": "switch",
     "named": false
+  },
+  {
+    "type": "system_lib_string",
+    "named": true
   },
   {
     "type": "this",
