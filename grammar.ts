@@ -72,6 +72,7 @@ export default grammar({
     $.autodoc_comment,
     $.line_comment,
     $.block_comment,
+    $.preproc_include,
     $.preprocessor_directive,
     $.shebang,
   ],
@@ -780,10 +781,25 @@ export default grammar({
       ';',
     ),
 
+    // Structured #include directive with named path field.
+    // Supports both quoted and angle-bracket includes:
+    //   #include "foo.pike"
+    //   #include <bar.h>
+    // Placed in extras so it can appear anywhere (like preprocessor_directive).
+    preproc_include: $ => seq(
+      '#', /\s*/, 'include', /\s+/,
+      field('path', choice($.string_literal, $.system_lib_string)),
+    ),
+
+    // Angle-bracket include path: <foo.h>
+    // Used by #include <...> for system/standard headers.
+    system_lib_string: _ => token(seq('<', repeat(/[^>]/), '>')),
+
     // Preprocessor directive token spanning continuation lines.
     // Regex (\\\n|\\[^\n]|[^\\\n])* handles: line continuation,
     // escape sequences, and plain chars. Allows multi-line #define bodies.
     // Whitespace between # and directive keyword is allowed (Pike lexer accepts it).
+    // Note: #include is handled separately by preproc_include for structured access.
     preprocessor_directive: _ => token(choice(
       seq('#', /\s*/, 'if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
@@ -796,7 +812,6 @@ export default grammar({
       seq('#', /\s*/, 'endif', /[^\S\r\n]*/),
       seq('#', /\s*/, 'define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'include', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
