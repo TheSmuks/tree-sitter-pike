@@ -30,13 +30,8 @@ export default grammar({
     // dangling else ambiguity
     [$.if_statement],
     // macro_statement vs identifier expression (ENTER(args){} LEAVE;)
-    [$.macro_statement, $._id_expr],
     [$.macro_statement, $.identifier_expr],
-    [$.macro_statement, $._id_expr, $.identifier_expr],
-    // inherit_specifier self-recursion (chained scope: Foo::Bar::)
-    [$.inherit_specifier],
-    // postfix_expr call-with-block ambiguity (f() {} vs f() as expr)
-    [$.postfix_expr],
+    // postfix_expr call-with-block ambiguity (f() {} vs f() as expr) — resolved by dynamic precedence
     // bare identifier as declaration (MUTEX;) vs identifier_expr
     [$.identifier_expr, $.declaration],
     // magic_identifier (keywords-as-identifiers in macro args) vs primary_expr
@@ -50,7 +45,6 @@ export default grammar({
     [$.identifier_expr, $.macro_invocation],
     // expression_statement vs macro_invocation_stmt: dynamic precedence
     // resolves this — expression_statement wins for plain expression args.
-    [$.expression_statement, $.macro_invocation_stmt],
     [$.identifier_expr, $.macro_invocation, $.macro_invocation_stmt, $.declaration],
     [$.macro_invocation, $.macro_invocation_stmt],
     [$.macro_invocation, $.macro_invocation_stmt, $.declaration],
