@@ -48,6 +48,12 @@ export default grammar({
     [$.mapping_literal, $.unary_expr],
     // typed macro invocation vs function_decl: TYPE ID(args)
     [$.identifier_expr, $.macro_invocation],
+    // expression_statement vs macro_invocation_stmt: dynamic precedence
+    // resolves this — expression_statement wins for plain expression args.
+    [$.expression_statement, $.macro_invocation_stmt],
+    [$.identifier_expr, $.macro_invocation, $.macro_invocation_stmt, $.declaration],
+    [$.macro_invocation, $.macro_invocation_stmt],
+    [$.macro_invocation, $.macro_invocation_stmt, $.declaration],
     [$.macro_argument_list, $.parameter],
     [$.string_concat, $.declaration],
     [$._id_expr, $.declaration],
@@ -84,14 +90,17 @@ export default grammar({
 
     _definition: $ => choice(
       $.declaration,
-      $.expression_statement,
+      // Dynamic precedence ensures expression_statement wins over
+      // macro_invocation_stmt when both can match (plain expression args).
+      // When args contain type expressions, argument_list cannot parse them,
+      // so macro_invocation_stmt wins naturally.
+      prec.dynamic(1, $.expression_statement),
       $.block,
       ';',
       // Top-level macro invocation with trailing ';'.
       // Handles bare macro calls like CBFUNC(function(mixed|void:int), x);
       // where arguments include type expressions that regular argument_list
-      // cannot parse. Falls back to expression_statement for simple calls
-      // where ';' follows and args are plain expressions.
+      // cannot parse. Only matches when expression_statement fails (type args).
       $.macro_invocation_stmt,
       // Statement keywords at top level. Pike rejects these at file scope,
       // but including them here lets tree-sitter parse them correctly (as
@@ -536,11 +545,11 @@ export default grammar({
     // where expression_statement fails because type expressions aren't valid
     // expression arguments. Simple cases like CBFUNC(t, x); are handled by
     // expression_statement instead (regular args parse fine as expressions).
-    macro_invocation_stmt: $ => prec.right(1, seq(
+    macro_invocation_stmt: $ => seq(
       field('name', $.identifier),
       field('arguments', $.macro_argument_list),
       ';',
-    )),
+    ),
 
     macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.magic_identifier, seq($.type, $.identifier))), ')'),
 
