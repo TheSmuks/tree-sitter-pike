@@ -6558,22 +6558,7 @@
     ],
     [
       "macro_statement",
-      "_id_expr"
-    ],
-    [
-      "macro_statement",
       "identifier_expr"
-    ],
-    [
-      "macro_statement",
-      "_id_expr",
-      "identifier_expr"
-    ],
-    [
-      "inherit_specifier"
-    ],
-    [
-      "postfix_expr"
     ],
     [
       "identifier_expr",
@@ -6607,10 +6592,6 @@
     [
       "identifier_expr",
       "macro_invocation"
-    ],
-    [
-      "expression_statement",
-      "macro_invocation_stmt"
     ],
     [
       "identifier_expr",

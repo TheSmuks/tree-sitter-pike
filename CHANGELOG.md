@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-05-14
+
+### Changed
+
+- Remove 5 unnecessary conflict declarations from grammar: `postfix_expr`, `inherit_specifier`, `macro_statement/_id_expr`, `macro_statement/_id_expr/identifier_expr`, `expression_statement/macro_invocation_stmt`. Grammar now compiles with zero warnings.
+
+## [1.2.1] - 2026-05-14
+
 ### Fixed
 
 - Bare function calls at statement level (`f(args);`) now parse as `expression_statement` with `postfix_expr > argument_list`, not `macro_invocation_stmt`. This enables parameter name inlay hints in the Pike Language Server (#18). Complex macros with type expressions (`CBFUNC(function(mixed|void:int), x)`) continue to parse as `macro_invocation_stmt`.
