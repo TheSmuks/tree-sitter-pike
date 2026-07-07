@@ -2210,3 +2210,53 @@ void f() {
                                           (postfix_expr
                                             (primary_expr
                                               (integer_literal))))))))))))))))))))))))
+
+================================================================================
+Local function declaration with modifier inside a block
+================================================================================
+void outer() {
+  protected string helper(string s) {
+    return s;
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (local_function_decl
+          (modifier)
+          (type
+            (basic_type))
+          (identifier)
+          (parameters
+            (parameter
+              (type
+                (basic_type))
+              (identifier)))
+          (block
+            (return_statement
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                (identifier)))))))))))))))))))))))))

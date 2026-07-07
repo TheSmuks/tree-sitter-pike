@@ -1689,3 +1689,215 @@ Version prefix scope expression
                                           (version_prefix))
                                         name: (identifier))))
                                   (identifier))))))))))))))))))
+
+================================================================================
+Macro invocation with if-statement argument
+================================================================================
+void f() {
+  IF_ELSE_PAGED_SEARCH(
+    if (cond) {
+      x += 1;
+    },);
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_invocation_stmt
+          (identifier)
+          (macro_argument_list
+            (macro_argument_stmts
+              (if_statement
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))))))))))))))))
+                (block
+                  (expression_statement
+                    (comma_expr
+                      (assign_expr
+                        (cond_expr
+                          (lor_expr
+                            (land_expr
+                              (bitor_expr
+                                (bitxor_expr
+                                  (bitand_expr
+                                    (eq_expr
+                                      (rel_expr
+                                        (shift_expr
+                                          (add_expr
+                                            (mul_expr
+                                              (unary_expr
+                                                (postfix_expr
+                                                  (primary_expr
+                                                    (identifier_expr
+                                                      (identifier))))))))))))))))
+                        (assign_expr
+                          (cond_expr
+                            (lor_expr
+                              (land_expr
+                                (bitor_expr
+                                  (bitxor_expr
+                                    (bitand_expr
+                                      (eq_expr
+                                        (rel_expr
+                                          (shift_expr
+                                            (add_expr
+                                              (mul_expr
+                                                (unary_expr
+                                                  (postfix_expr
+                                                    (primary_expr
+                                                      (integer_literal))))))))))))))))))))))))))))
+
+================================================================================
+Macro invocation with statement-sequence argument
+================================================================================
+void f() {
+  RUN_MAYBE_BLOCKING(cond, 0, 1,
+    MSG("error");
+    return 0;);
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_invocation_stmt
+          (identifier)
+          (macro_argument_list
+            (macro_argument_stmts
+              (expression_statement
+                (comma_expr
+                  (comma_expr
+                    (comma_expr
+                      (comma_expr
+                        (assign_expr
+                          (cond_expr
+                            (lor_expr
+                              (land_expr
+                                (bitor_expr
+                                  (bitxor_expr
+                                    (bitand_expr
+                                      (eq_expr
+                                        (rel_expr
+                                          (shift_expr
+                                            (add_expr
+                                              (mul_expr
+                                                (unary_expr
+                                                  (postfix_expr
+                                                    (primary_expr
+                                                      (identifier_expr
+                                                        (identifier))))))))))))))))))
+                      (assign_expr
+                        (cond_expr
+                          (lor_expr
+                            (land_expr
+                              (bitor_expr
+                                (bitxor_expr
+                                  (bitand_expr
+                                    (eq_expr
+                                      (rel_expr
+                                        (shift_expr
+                                          (add_expr
+                                            (mul_expr
+                                              (unary_expr
+                                                (postfix_expr
+                                                  (primary_expr
+                                                    (integer_literal)))))))))))))))))
+                    (assign_expr
+                      (cond_expr
+                        (lor_expr
+                          (land_expr
+                            (bitor_expr
+                              (bitxor_expr
+                                (bitand_expr
+                                  (eq_expr
+                                    (rel_expr
+                                      (shift_expr
+                                        (add_expr
+                                          (mul_expr
+                                            (unary_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (integer_literal)))))))))))))))))
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    (identifier))))
+                                              (argument_list
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (string_literal))))))))))))))))))))))))))))))))))
+              (return_statement
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (integer_literal)))))))))))))))))))))))))

@@ -28,6 +28,20 @@ grammar.js linguist-generated=true
 grammar.json linguist-generated=true
 src/parser.c linguist-generated=true
 src/parser.h linguist-generated=true
+src/grammar.json linguist-generated=true
+src/node-types.json linguist-generated=true
+src/tree_sitter/* linguist-generated=true
+
+# Generated language bindings (exclude from GitHub language stats)
+bindings/** linguist-generated=true
+binding.gyp linguist-generated=true
+CMakeLists.txt linguist-generated=true
+Makefile linguist-generated=true
+Cargo.toml linguist-generated=true
+go.mod linguist-generated=true
+Package.swift linguist-generated=true
+setup.py linguist-generated=true
+pyproject.toml linguist-generated=true
 
 # Documentation
 *.md text eol=lf
