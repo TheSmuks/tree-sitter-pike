@@ -94981,8 +94981,8 @@ TS_PUBLIC const TSLanguage *tree_sitter_pike(void) {
     .name = "pike",
     .max_reserved_word_set_size = 0,
     .metadata = {
-      .major_version = 0,
-      .minor_version = 1,
+      .major_version = 1,
+      .minor_version = 3,
       .patch_version = 0,
     },
   };

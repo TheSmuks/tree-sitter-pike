@@ -1,6 +1,6 @@
 LANGUAGE_NAME := tree-sitter-pike
 HOMEPAGE_URL := https://github.com/thesmuks/tree-sitter-pike
-VERSION := 0.1.0
+VERSION := 1.3.0
 
 # repository
 SRC_DIR := src
