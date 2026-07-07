@@ -339,6 +339,10 @@
           "named": true
         },
         {
+          "type": "macro_invocation_stmt",
+          "named": true
+        },
+        {
           "type": "macro_statement",
           "named": true
         },
@@ -844,6 +848,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_stmt",
+            "named": true
+          },
+          {
             "type": "macro_statement",
             "named": true
           },
@@ -1100,6 +1108,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_stmt",
+            "named": true
+          },
+          {
             "type": "macro_statement",
             "named": true
           },
@@ -1301,6 +1313,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_stmt",
             "named": true
           },
           {
@@ -1572,6 +1588,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_stmt",
+            "named": true
+          },
+          {
             "type": "macro_statement",
             "named": true
           },
@@ -1689,6 +1709,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_stmt",
             "named": true
           },
           {
@@ -1906,6 +1930,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_stmt",
             "named": true
           },
           {
@@ -2141,6 +2169,10 @@
           "named": true
         },
         {
+          "type": "macro_argument_stmts",
+          "named": true
+        },
+        {
           "type": "magic_identifier",
           "named": true
         },
@@ -2150,6 +2182,41 @@
         },
         {
           "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "macro_argument_stmts",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "break_statement",
+          "named": true
+        },
+        {
+          "type": "continue_statement",
+          "named": true
+        },
+        {
+          "type": "expression_statement",
+          "named": true
+        },
+        {
+          "type": "if_statement",
+          "named": true
+        },
+        {
+          "type": "macro_invocation_stmt",
+          "named": true
+        },
+        {
+          "type": "return_statement",
           "named": true
         }
       ]
@@ -3205,6 +3272,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_stmt",
             "named": true
           },
           {

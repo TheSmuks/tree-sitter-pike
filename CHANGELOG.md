@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Parse macro invocations that take statement arguments in block/statement
+  context (`macro_invocation_stmt` is now valid inside `_stmt`, with a new
+  `macro_argument_stmts` node for statement-sequence arguments), e.g.
+  `RUN_MAYBE_BLOCKING(cond, 0, 1, MSG("…"); return 0;)` and
+  `IF_ELSE_PAGED_SEARCH(if (…) { … },)`. Brings the real-world distribution
+  parse rate to **624/624 (100%)**.
+
 ### Fixed
 
 - Parse `modifier`-qualified local function declarations inside a block

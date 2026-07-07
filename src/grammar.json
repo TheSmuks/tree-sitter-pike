@@ -2974,8 +2974,16 @@
           ]
         },
         {
+          "type": "PREC_DYNAMIC",
+          "value": 1,
+          "content": {
+            "type": "SYMBOL",
+            "name": "expression_statement"
+          }
+        },
+        {
           "type": "SYMBOL",
-          "name": "expression_statement"
+          "name": "macro_invocation_stmt"
         },
         {
           "type": "SYMBOL",
@@ -3988,6 +3996,10 @@
                 },
                 {
                   "type": "SYMBOL",
+                  "name": "macro_argument_stmts"
+                },
+                {
+                  "type": "SYMBOL",
                   "name": "magic_identifier"
                 },
                 {
@@ -4031,6 +4043,10 @@
                       },
                       {
                         "type": "SYMBOL",
+                        "name": "macro_argument_stmts"
+                      },
+                      {
+                        "type": "SYMBOL",
                         "name": "magic_identifier"
                       },
                       {
@@ -4070,6 +4086,42 @@
           "value": ")"
         }
       ]
+    },
+    "macro_argument_stmts": {
+      "type": "PREC_DYNAMIC",
+      "value": -1,
+      "content": {
+        "type": "REPEAT1",
+        "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "if_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "return_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "break_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "continue_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "expression_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "macro_invocation_stmt"
+            }
+          ]
+        }
+      }
     },
     "macro_statement": {
       "type": "PREC_DYNAMIC",
@@ -6622,10 +6674,6 @@
       "if_statement"
     ],
     [
-      "macro_statement",
-      "identifier_expr"
-    ],
-    [
       "identifier_expr",
       "declaration"
     ],
@@ -6653,10 +6701,6 @@
     [
       "mapping_literal",
       "unary_expr"
-    ],
-    [
-      "identifier_expr",
-      "macro_invocation"
     ],
     [
       "identifier_expr",
@@ -6700,6 +6744,20 @@
     [
       "preproc_conditional_expr",
       "comma_expr"
+    ],
+    [
+      "identifier_expr",
+      "macro_invocation_stmt",
+      "macro_statement"
+    ],
+    [
+      "identifier_expr",
+      "macro_invocation",
+      "macro_invocation_stmt"
+    ],
+    [
+      "identifier_expr",
+      "macro_invocation_stmt"
     ]
   ],
   "precedences": [],
