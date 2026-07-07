@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Parse `modifier`-qualified local function declarations inside a block
+  (`{ protected string helper(string s) { … } }`), e.g. functions grouped
+  under a `protected { … }` modifier block. `local_function_decl` now accepts
+  leading modifiers like `local_declaration` already did. Raises the
+  distribution parse rate to 622/624 (99.68%).
+
 ### Added
 
 - Parse preprocessor conditionals that split a single expression into

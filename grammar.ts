@@ -744,6 +744,7 @@ export default grammar({
     ),
 
     local_function_decl: $ => seq(
+      repeat($.modifier),
       field('return_type', $.type),
       field('name', choice($.identifier, $.backtick_identifier)),
       field('parameters', $.parameters),
