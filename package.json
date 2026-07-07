@@ -1,14 +1,65 @@
 {
   "name": "tree-sitter-pike",
-  "module": "index.ts",
+  "version": "0.1.0",
+  "description": "Pike grammar for tree-sitter",
   "type": "module",
-  "private": true,
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "license": "MIT",
+  "author": {
+    "name": "TheSmuks"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheSmuks/tree-sitter-pike.git"
+  },
+  "keywords": [
+    "incremental",
+    "parsing",
+    "tree-sitter",
+    "pike"
+  ],
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**",
+    "*.wasm"
+  ],
+  "dependencies": {
+    "node-addon-api": "^8.5.0",
+    "node-gyp-build": "^4.8.4"
+  },
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
+    "prebuildify": "^6.0.1",
+    "tree-sitter": "^0.25.0",
     "tree-sitter-cli": "^0.26.8"
   },
   "peerDependencies": {
+    "tree-sitter": "^0.25.0",
     "typescript": "^5"
+  },
+  "peerDependenciesMeta": {
+    "tree-sitter": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "install": "node-gyp-build",
+    "check": "tsc --noEmit",
+    "generate": "bash scripts/generate.sh",
+    "build-wasm": "bash scripts/build-wasm.sh",
+    "test": "bunx tree-sitter test",
+    "test:node": "node --test bindings/node/*_test.js",
+    "prestart": "tree-sitter build --wasm",
+    "start": "tree-sitter playground"
   }
 }
