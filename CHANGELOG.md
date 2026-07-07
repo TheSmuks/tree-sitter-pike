@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Parse preprocessor conditionals that split a single expression into
+  alternative fragments (`x = #if A ... #else B ... #endif y`) as a new
+  `preproc_conditional_expr` node with `branch` fields. Raises the real-world
+  distribution parse rate from 617/624 to 621/624 (98.9% → 99.5%). New
+  `preproc_branch` node covers `#else`/`#elif`/`#elseif`/`#elifdef`/`#elifndef`
+  (previously all folded into `preprocessor_directive`).
 - Standard multi-language bindings under `bindings/` (C, Go, Node, Python, Rust, Swift), matching the layout produced by `tree-sitter init`, so the grammar can be consumed as a native package from each ecosystem.
 - Build manifests for each binding: `binding.gyp`, `Cargo.toml`, `CMakeLists.txt`, `go.mod`, `Makefile`, `Package.swift`, `pyproject.toml`, `setup.py`.
 - `queries/injections.scm` (comment-language injection), `queries/folds.scm` (fold regions), and `queries/indents.scm` (indentation rules).
