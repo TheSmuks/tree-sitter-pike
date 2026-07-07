@@ -6,6 +6,8 @@
       "file-types": ["pike", "pmod"],
       "injection-regex": "^pike$",
       "highlights": ["queries/highlights.scm"],
+      "locals": ["queries/locals.scm"],
+      "injections": ["queries/injections.scm"],
       "tags": ["queries/tags.scm"]
     }
   ],
@@ -17,14 +19,15 @@
       { "name": "TheSmuks" }
     ],
     "links": {
-      "repository": "github:TheSmuks/tree-sitter-pike"
+      "repository": "https://github.com/TheSmuks/tree-sitter-pike"
     }
   },
   "bindings": {
     "c": true,
-    "go": false,
+    "go": true,
     "node": true,
-    "python": false,
-    "rust": false
+    "python": true,
+    "rust": true,
+    "swift": true
   }
 }

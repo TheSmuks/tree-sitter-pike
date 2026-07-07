@@ -1,14 +1,43 @@
 # Dependencies
 node_modules/
 
-# Generated grammar
+# Generated grammar (authoritative source is grammar.ts)
 grammar.js
 
-# Binary artifacts
+# WebAssembly artifact (published as a GitHub release asset)
+*.wasm
+
+# Rust artifacts
+target/
+Cargo.lock
+
+# Node bindings build artifacts
+build/
+prebuilds/
+
+# Swift artifacts
+.build/
+
+# Go artifacts
+_obj/
+go.sum
+
+# Python artifacts
+.venv/
+dist/
+*.egg-info
+*.whl
+
+# C / native artifacts
+*.a
+*.o
 *.so
+*.so.*
 *.dylib
 *.dll
-bindings/
+*.pc
+*.exp
+*.lib
 
 # Python cache (for docs/build)
 convergence/__pycache__/
@@ -50,13 +79,5 @@ Session.vim
 .netrwhist
 
 # Emacs
-*~
 \#*\#
 .\#*
-
-# Tree-sitter generated files (additional)
-src/parser.c
-src/parser.h
-src/tree_sitter/
-# WebAssembly artifact
-*.wasm

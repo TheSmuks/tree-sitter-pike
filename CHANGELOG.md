@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Standard multi-language bindings under `bindings/` (C, Go, Node, Python, Rust, Swift), matching the layout produced by `tree-sitter init`, so the grammar can be consumed as a native package from each ecosystem.
+- Build manifests for each binding: `binding.gyp`, `Cargo.toml`, `CMakeLists.txt`, `go.mod`, `Makefile`, `Package.swift`, `pyproject.toml`, `setup.py`.
+- `queries/injections.scm` (comment-language injection), `queries/folds.scm` (fold regions), and `queries/indents.scm` (indentation rules).
+
+### Changed
+
+- `tree-sitter.json`: enable all bindings, register `locals` and `injections` query files, and use the full `https://github.com/TheSmuks/tree-sitter-pike` repository URL (the `github:` shorthand produced an invalid Go module path and malformed Cargo/npm URLs).
+- `package.json`: add `main`/`types` pointing at the Node binding, node binding dependencies (`node-addon-api`, `node-gyp-build`), a `files` allowlist, and real `scripts` (`generate`, `check`, `test`, `build-wasm`) that the README already documented but did not exist.
+- `.gitattributes`: mark generated bindings and manifests `linguist-generated` so they are excluded from GitHub language statistics.
+
+### Fixed
+
+- `.gitignore` no longer ignores committed/needed artifacts (`bindings/`, `src/parser.c`, `src/parser.h`, `src/tree_sitter/`); added standard per-language build-artifact ignores instead.
+
 ## [1.2.2] - 2026-05-14
 
 ### Changed
