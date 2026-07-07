@@ -127,7 +127,7 @@ Preprocessor elif
 
 (program
   (preprocessor_directive)
-  (preprocessor_directive)
+  (preproc_branch)
   (preprocessor_directive))
 
 ================================================================================
@@ -362,3 +362,61 @@ string s = #"hello" "world";
                                       (string_concat
                                         (hash_string)
                                         (string_literal)))))))))))))))))))))
+
+================================================================================
+Preprocessor conditional splitting an expression
+================================================================================
+int x =
+#ifdef DEBUG
+  1
+#else
+  0
+#endif
+  ;
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type))
+      (identifier)
+      (preprocessor_directive)
+      (preproc_conditional_expr
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal)))))))))))))))))
+        (preproc_branch)
+        (comma_expr
+          (assign_expr
+            (cond_expr
+              (lor_expr
+                (land_expr
+                  (bitor_expr
+                    (bitxor_expr
+                      (bitand_expr
+                        (eq_expr
+                          (rel_expr
+                            (shift_expr
+                              (add_expr
+                                (mul_expr
+                                  (unary_expr
+                                    (postfix_expr
+                                      (primary_expr
+                                        (integer_literal))))))))))))))))))
+      (preprocessor_directive))))

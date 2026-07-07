@@ -811,8 +811,54 @@
       ]
     },
     "_expr": {
-      "type": "SYMBOL",
-      "name": "comma_expr"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "comma_expr"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "preproc_conditional_expr"
+        }
+      ]
+    },
+    "preproc_conditional_expr": {
+      "type": "PREC_DYNAMIC",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "branch",
+            "content": {
+              "type": "SYMBOL",
+              "name": "comma_expr"
+            }
+          },
+          {
+            "type": "REPEAT1",
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "preproc_branch"
+                },
+                {
+                  "type": "FIELD",
+                  "name": "branch",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "comma_expr"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     },
     "comma_expr": {
       "type": "CHOICE",
@@ -6138,127 +6184,6 @@
               },
               {
                 "type": "STRING",
-                "value": "elif"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s"
-              },
-              {
-                "type": "PATTERN",
-                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
-                "value": "elseif"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s"
-              },
-              {
-                "type": "PATTERN",
-                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
-                "value": "elifdef"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s"
-              },
-              {
-                "type": "PATTERN",
-                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
-                "value": "elifndef"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s"
-              },
-              {
-                "type": "PATTERN",
-                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
-                "value": "else"
-              },
-              {
-                "type": "PATTERN",
-                "value": "[^\\S\\r\\n]*"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "#"
-              },
-              {
-                "type": "PATTERN",
-                "value": "\\s*"
-              },
-              {
-                "type": "STRING",
                 "value": "endif"
               },
               {
@@ -6469,6 +6394,135 @@
           }
         ]
       }
+    },
+    "preproc_branch": {
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s*"
+              },
+              {
+                "type": "STRING",
+                "value": "elif"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s"
+              },
+              {
+                "type": "PATTERN",
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s*"
+              },
+              {
+                "type": "STRING",
+                "value": "elseif"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s"
+              },
+              {
+                "type": "PATTERN",
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s*"
+              },
+              {
+                "type": "STRING",
+                "value": "elifdef"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s"
+              },
+              {
+                "type": "PATTERN",
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s*"
+              },
+              {
+                "type": "STRING",
+                "value": "elifndef"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s"
+              },
+              {
+                "type": "PATTERN",
+                "value": "(\\\\\\n|\\\\[^\\n]|[^\\\\\\n])*"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "\\s*"
+              },
+              {
+                "type": "STRING",
+                "value": "else"
+              },
+              {
+                "type": "PATTERN",
+                "value": "[^\\S\\r\\n]*"
+              }
+            ]
+          }
+        ]
+      }
     }
   },
   "extras": [
@@ -6495,6 +6549,10 @@
     {
       "type": "SYMBOL",
       "name": "preprocessor_directive"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "preproc_branch"
     },
     {
       "type": "SYMBOL",
@@ -6631,6 +6689,10 @@
     ],
     [
       "declaration"
+    ],
+    [
+      "preproc_conditional_expr",
+      "comma_expr"
     ]
   ],
   "precedences": [],

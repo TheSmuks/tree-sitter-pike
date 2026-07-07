@@ -82,6 +82,10 @@
         {
           "type": "magic_identifier",
           "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
+          "named": true
         }
       ]
     }
@@ -107,6 +111,10 @@
           "named": true
         },
         {
+          "type": "preproc_conditional_expr",
+          "named": true
+        },
+        {
           "type": "type",
           "named": true
         }
@@ -123,6 +131,10 @@
       "types": [
         {
           "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
           "named": true
         }
       ]
@@ -376,6 +388,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -385,6 +401,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -443,6 +463,10 @@
           },
           {
             "type": "cond_decl",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -558,6 +582,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -629,6 +657,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -840,6 +872,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -892,6 +928,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -927,6 +967,10 @@
         {
           "type": "comma_expr",
           "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
+          "named": true
         }
       ]
     }
@@ -961,6 +1005,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -1080,6 +1128,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -1094,6 +1146,10 @@
           {
             "type": "for_init_decl",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -1103,6 +1159,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -1126,6 +1186,10 @@
             "named": true
           },
           {
+            "type": "preproc_conditional_expr",
+            "named": true
+          },
+          {
             "type": "typed_lvalue",
             "named": true
           }
@@ -1141,6 +1205,10 @@
           },
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           },
           {
@@ -1264,6 +1332,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -1355,6 +1427,10 @@
           },
           {
             "type": "cond_decl",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -1528,6 +1604,10 @@
           {
             "type": "cond_decl",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -1648,6 +1728,10 @@
             "named": true
           },
           {
+            "type": "preproc_conditional_expr",
+            "named": true
+          },
+          {
             "type": "string_literal",
             "named": true
           }
@@ -1689,6 +1773,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           },
           {
@@ -1934,6 +2022,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -2040,6 +2132,10 @@
         },
         {
           "type": "magic_identifier",
+          "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
           "named": true
         },
         {
@@ -2182,6 +2278,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -2191,6 +2291,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -2232,6 +2336,10 @@
         {
           "type": "comma_expr",
           "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
+          "named": true
         }
       ]
     }
@@ -2246,6 +2354,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -2342,7 +2454,37 @@
           "named": true
         },
         {
+          "type": "preproc_conditional_expr",
+          "named": true
+        },
+        {
           "type": "primary_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preproc_conditional_expr",
+    "named": true,
+    "fields": {
+      "branch": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "comma_expr",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "preproc_branch",
           "named": true
         }
       ]
@@ -2570,6 +2712,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -2665,6 +2811,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       },
@@ -2674,6 +2824,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -2689,6 +2843,10 @@
         },
         {
           "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
           "named": true
         },
         {
@@ -2764,6 +2922,10 @@
           },
           {
             "type": "cond_decl",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -2871,6 +3033,10 @@
           {
             "type": "comma_expr",
             "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
+            "named": true
           }
         ]
       }
@@ -2937,6 +3103,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -3059,6 +3229,10 @@
           },
           {
             "type": "cond_decl",
+            "named": true
+          },
+          {
+            "type": "preproc_conditional_expr",
             "named": true
           }
         ]
@@ -3455,6 +3629,11 @@
   {
     "type": "predef",
     "named": false
+  },
+  {
+    "type": "preproc_branch",
+    "named": true,
+    "extra": true
   },
   {
     "type": "preprocessor_directive",

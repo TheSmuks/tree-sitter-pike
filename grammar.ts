@@ -54,6 +54,9 @@ export default grammar({
     [$.identifier_expr, $._id_expr, $.declaration],
     [$.inherit_specifier, $.declaration],
     [$.declaration],
+    // preproc conditional fragments: after a branch's comma_expr, the parser
+    // forks between finishing the expression and continuing to the next branch
+    [$.preproc_conditional_expr, $.comma_expr],
   ],
 
 
@@ -74,6 +77,7 @@ export default grammar({
     $.block_comment,
     $.preproc_include,
     $.preprocessor_directive,
+    $.preproc_branch,
     $.shebang,
   ],
 
@@ -206,7 +210,20 @@ export default grammar({
 
     // ── Expression hierarchy ──
 
-    _expr: $ => $.comma_expr,
+    _expr: $ => choice($.comma_expr, $.preproc_conditional_expr),
+
+    // A single expression whose value is chosen at compile time by a
+    // preprocessor conditional (`#if A ... #else B ... #endif`). In source all
+    // branches are physically present, glued by #else/#elif directives; we
+    // parse them as sibling `branch` fragments. Placed at the `_expr` boundary
+    // so it covers every position that accepts a full expression (declaration
+    // initializers, arguments, return values, if/while conditions) without
+    // recursing into the operator-precedence chain. Negative dynamic
+    // precedence: a plain (unsplit) expression always wins when it can match.
+    preproc_conditional_expr: $ => prec.dynamic(-1, seq(
+      field('branch', $.comma_expr),
+      repeat1(seq($.preproc_branch, field('branch', $.comma_expr))),
+    )),
 
     // Left-recursive for unlimited chaining: a, b, c, d
     comma_expr: $ => choice(
@@ -803,15 +820,14 @@ export default grammar({
     // escape sequences, and plain chars. Allows multi-line #define bodies.
     // Whitespace between # and directive keyword is allowed (Pike lexer accepts it).
     // Note: #include is handled separately by preproc_include for structured access.
+    // Opening/closing conditional directives (#if/#ifdef/#ifndef/#endif) plus
+    // the non-branching directives. All are `extras` (invisible): statement-
+    // level conditionals work because both branches parse as consecutive
+    // statements, and #if/#endif simply vanish around them.
     preprocessor_directive: _ => token(choice(
       seq('#', /\s*/, 'if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'elseif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'elifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'elifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'else', /[^\S\r\n]*/),
       seq('#', /\s*/, 'endif', /[^\S\r\n]*/),
       seq('#', /\s*/, 'define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
@@ -821,6 +837,19 @@ export default grammar({
       seq('#', /\s*/, 'require', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'warning', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'error', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+    )),
+
+    // Branch-separator directives (#else/#elif/#elseif/#elifdef/#elifndef).
+    // Also an `extra` (so statement-level use is invisible), but ADDITIONALLY
+    // referenced explicitly by `preproc_conditional_expr` as visible glue, so
+    // that a conditional splitting a single *expression* into alternative
+    // fragments (`x = #if A ... #else B ... #endif`) parses as one expression.
+    preproc_branch: _ => token(choice(
+      seq('#', /\s*/, 'elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elseif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'elifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
+      seq('#', /\s*/, 'else', /[^\S\r\n]*/),
     )),
   },
 });
