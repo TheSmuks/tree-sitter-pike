@@ -5432,6 +5432,13 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "modifier"
+          }
+        },
+        {
           "type": "FIELD",
           "name": "return_type",
           "content": {

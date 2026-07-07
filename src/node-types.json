@@ -2089,6 +2089,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "modifier",
+          "named": true
+        }
+      ]
     }
   },
   {
