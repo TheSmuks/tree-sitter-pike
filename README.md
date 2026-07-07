@@ -10,22 +10,21 @@ Compatible with [ast-grep](https://ast-grep.github.io/) via custom language regi
 
 | Metric | Value |
 |--------|-------|
-| Distribution parse rate | **1071/1082 (99.0%)** |
-| Corpus tests | **210/210 (100%)** |
-| Grammar rule coverage | **80/80 named rules** |
-| Branch coverage | **166/166 choice() alternatives** |
-| Parse correctness | 100 sampled files, 0 structural errors |
+| Installed-distribution parse rate | **624/624 (100%)** |
+| Corpus tests | **224/224 (100%)** |
 
-The 11 unparseable files (0.9%) are documented in [docs/ceiling-decision.md](docs/ceiling-decision.md)
-with root cause analysis and resolution options. Four architectural limitations
-prevent these files from parsing:
+The installed-distribution rate is measured by parsing every `.pike`/`.pmod`
+file under the Pike 8.0.1116 module/include paths reported by `pike --show-paths`.
 
-1. **PP-split expressions** (7 files): `#if`/`#ifdef` blocks inside sub-expressions
-2. **GLR state machine structural change** (1 file): modifier+function_decl in `_stmt`
-3. **RELAY juxtaposition** (1 file): adjacent macro invocations without operators
-4. **if-statement as macro argument** (2 files): bare `if/else` in macro arguments
+Three architectural limitations previously documented here have been resolved:
 
-See [docs/known-limitations.md](docs/known-limitations.md) for the full catalog.
+1. **PP-split expressions** — `#if`/`#else`/`#endif` splitting a single
+   expression now parse as a `preproc_conditional_expr` node.
+2. **modifier + function declaration in a block** — `local_function_decl`
+   now accepts leading modifiers (e.g. inside a `protected { … }` block).
+3. **statements as macro arguments** — control-flow macros such as
+   `RUN_MAYBE_BLOCKING(cond, 0, 1, MSG("…"); return 0;)` and
+   `IF_ELSE_PAGED_SEARCH(if (…) { … },)` now parse via `macro_argument_stmts`.
 
 ## Installation
 
