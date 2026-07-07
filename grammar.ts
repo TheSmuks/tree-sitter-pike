@@ -29,8 +29,6 @@ export default grammar({
     [$.assign_expr],
     // dangling else ambiguity
     [$.if_statement],
-    // macro_statement vs identifier expression (ENTER(args){} LEAVE;)
-    [$.macro_statement, $.identifier_expr],
     // postfix_expr call-with-block ambiguity (f() {} vs f() as expr) — resolved by dynamic precedence
     // bare identifier as declaration (MUTEX;) vs identifier_expr
     [$.identifier_expr, $.declaration],
@@ -41,8 +39,6 @@ export default grammar({
     [$.string_concat, $._id_expr, $.declaration],
     [$.string_concat, $.macro_invocation],
     [$.mapping_literal, $.unary_expr],
-    // typed macro invocation vs function_decl: TYPE ID(args)
-    [$.identifier_expr, $.macro_invocation],
     // expression_statement vs macro_invocation_stmt: dynamic precedence
     // resolves this — expression_statement wins for plain expression args.
     [$.identifier_expr, $.macro_invocation, $.macro_invocation_stmt, $.declaration],
@@ -57,6 +53,10 @@ export default grammar({
     // preproc conditional fragments: after a branch's comma_expr, the parser
     // forks between finishing the expression and continuing to the next branch
     [$.preproc_conditional_expr, $.comma_expr],
+    // macro invocation vs expression statement in block/statement context
+    [$.identifier_expr, $.macro_invocation_stmt, $.macro_statement],
+    [$.identifier_expr, $.macro_invocation, $.macro_invocation_stmt],
+    [$.identifier_expr, $.macro_invocation_stmt],
   ],
 
 
@@ -448,7 +448,12 @@ export default grammar({
       ';',
       // Ellipsis statement: ...; (placeholder/no-op, valid in switch cases)
       seq('...', ';'),
-      $.expression_statement,
+      // Dynamic precedence: expression_statement wins over macro_invocation_stmt
+      // for ordinary calls. When an argument is a statement (e.g. an if-clause
+      // passed to a control-flow macro), argument_list cannot parse it, so
+      // macro_invocation_stmt wins naturally. Mirrors the _definition handling.
+      prec.dynamic(1, $.expression_statement),
+      $.macro_invocation_stmt,
       $.block,
       $.if_statement,
       $.while_statement,
@@ -562,7 +567,26 @@ export default grammar({
       ';',
     ),
 
-    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.magic_identifier, seq($.type, $.identifier))), ')'),
+    // Macro arguments can be expressions, types, blocks, or a sequence of
+    // statements. Statement arguments arise when a macro expands to control
+    // flow, e.g.
+    //   RUN_MAYBE_BLOCKING(cond, 0, 1, SSL3_DEBUG_MSG("…"); return 0;)
+    //   IF_ELSE_PAGED_SEARCH(if (…) { … },)
+    // A plain expression argument (no trailing `;`) still parses as `_expr`;
+    // `macro_argument_stmts` only wins when the argument contains statements.
+    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.macro_argument_stmts, $.magic_identifier, seq($.type, $.identifier))), ')'),
+
+    // Restricted to control-flow / simple statements (no declarations, which
+    // would collide with type/parameter arguments). Covers the real cases:
+    //   if (…) { … } else RETURN(0);   and   MSG("…"); return 0;
+    macro_argument_stmts: $ => prec.dynamic(-1, repeat1(choice(
+      $.if_statement,
+      $.return_statement,
+      $.break_statement,
+      $.continue_statement,
+      $.expression_statement,
+      $.macro_invocation_stmt,
+    ))),
 
     // Macro statement pattern for paired begin/end macros.
     //
