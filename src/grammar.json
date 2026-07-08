@@ -281,7 +281,15 @@
         "members": [
           {
             "type": "STRING",
-            "value": "#\""
+            "value": "#"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[ \\t]*"
+          },
+          {
+            "type": "STRING",
+            "value": "\""
           },
           {
             "type": "REPEAT",
@@ -447,8 +455,24 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
-          "value": "#string"
+          "type": "TOKEN",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "#"
+              },
+              {
+                "type": "PATTERN",
+                "value": "[ \\t]*"
+              },
+              {
+                "type": "STRING",
+                "value": "string"
+              }
+            ]
+          }
         },
         {
           "type": "SYMBOL",

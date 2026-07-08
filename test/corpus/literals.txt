@@ -595,9 +595,66 @@ Raw string literal
                                     (hash_string)))))))))))))))))))
 
 ================================================================================
+Raw string literal with whitespace after hash
+================================================================================
+# "hello";
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (hash_string)))))))))))))))))))
+
+================================================================================
 String include
 ================================================================================
 constant text = #string "gpl.txt";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (constant_decl
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_include
+                                        (string_literal)))))))))))))))))))))
+
+================================================================================
+String include with whitespace after hash
+================================================================================
+constant text = # string "gpl.txt";
 
 --------------------------------------------------------------------------------
 

@@ -143,7 +143,7 @@ export default grammar({
 
     // Hash-string #"..." — tokenized by the external scanner (src/scanner.c).
     // The rule body is a placeholder; tree-sitter replaces it with the external token.
-    hash_string: _ => token(seq('#"', repeat(choice(/[^"\\]/, /\\./)), '"')),
+    hash_string: _ => token(seq('#', /[ \t]*/, '"', repeat(choice(/[^"\\]/, /\\./)), '"')),
 
     // Adjacent string concatenation: "hello" "world" -> "helloworld"
     // String concatenation and macro-string juxtaposition.
@@ -174,7 +174,9 @@ export default grammar({
     // #string "filename" — Pike's file-contents-as-string literal.
     // Reads the named file and evaluates to its contents as a string.
     // Appears in expression position: constant text = #string "gpl.txt";
-    string_include: $ => seq('#string', $.string_literal),
+    // Pike accepts horizontal whitespace between '#' and 'string'
+    // (`# string "gpl.txt"`), matching the other preprocessor directives.
+    string_include: $ => seq(token(seq('#', /[ \t]*/, 'string')), $.string_literal),
     // Backtick identifiers handle Pike's operator overloading syntax.
     // Single backtick: `foo, `+, `->, `[], `[]=, `(), `[..], `->foo, `->foo=, `foo=
     // Double backtick: ``+ ``| ``* (lvalue operator forms)

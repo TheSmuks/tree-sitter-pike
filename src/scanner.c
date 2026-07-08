@@ -47,6 +47,14 @@ bool tree_sitter_pike_external_scanner_scan(void *payload, TSLexer *lexer,
     if (lexer->lookahead != '#') return false;
     lexer->advance(lexer, false);
 
+    // Pike accepts horizontal whitespace between '#' and '"' (e.g. `# "..."`),
+    // which compiles identically to `#"..."`. Newlines are NOT allowed here —
+    // a bare '#' on its own line is a preprocessor directive.
+    while (!lexer->eof(lexer) &&
+           (lexer->lookahead == ' ' || lexer->lookahead == '\t')) {
+        lexer->advance(lexer, false);
+    }
+
     // Must be followed by '"'
     if (lexer->eof(lexer) || lexer->lookahead != '"') return false;
     lexer->advance(lexer, false);
