@@ -3333,10 +3333,6 @@
     "named": false
   },
   {
-    "type": "#string",
-    "named": false
-  },
-  {
     "type": "%",
     "named": false
   },
