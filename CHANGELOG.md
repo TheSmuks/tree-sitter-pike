@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-07-08
+
+### Fixed
+
+- Accept horizontal whitespace between `#` and the string delimiter in
+  hash-strings (`# "…"` now parses identically to `#"…"`) and in string
+  includes (`# string "file"` as well as `#string "file"`). Pike's compiler
+  accepts spaces/tabs there; the grammar previously produced an `ERROR` node,
+  which surfaced as a spurious diagnostic in the language server. Newlines are
+  still rejected (a bare `#` on its own line is a preprocessor directive). The
+  fix is in the external scanner (`HASH_STRING`) and the `string_include` rule.
+
 ## [1.3.0] - 2026-07-07
 
 ### Added
