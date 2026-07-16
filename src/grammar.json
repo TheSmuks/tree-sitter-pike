@@ -4879,8 +4879,12 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "function_decl"
+              "type": "PREC_DYNAMIC",
+              "value": 2,
+              "content": {
+                "type": "SYMBOL",
+                "name": "function_decl"
+              }
             },
             {
               "type": "PREC_DYNAMIC",
