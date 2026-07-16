@@ -702,7 +702,12 @@ export default grammar({
       repeat($.modifier),
       optional($.attribute),
       choice(
-        $.function_decl,
+        // Same dynamic precedence as variable_decl below, for the same reason:
+        // a prototype (`Dog getDog();`) otherwise splits into a bare-identifier
+        // declaration (`Dog`) plus an expression_statement (`getDog();`), which
+        // wins on expression_statement's prec.dynamic(1). Prototypes are legal
+        // Pike, so a complete `type name(params);` must win.
+        prec.dynamic(2, $.function_decl),
         // Outranks the `_definition` split of `Greeter g = Greeter("x");` into
         // a bare-identifier declaration (`Greeter`) plus an expression_statement
         // (`g = Greeter("x");`). That split wins on dynamic precedence alone —

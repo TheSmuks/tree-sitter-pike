@@ -916,3 +916,46 @@ Greeter g = Greeter("World");
                                                                   (postfix_expr
                                                                     (primary_expr
                                                                       (string_literal))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Function prototype - forward declaration with user-defined return type
+================================================================================
+class Dog {
+}
+Dog getDog();
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (class_decl
+      name: (identifier)
+      body: (class_body)))
+  (declaration
+    (function_decl
+      return_type: (type
+        (id_type
+          (identifier)))
+      name: (identifier)
+      parameters: (parameters))))
+
+================================================================================
+Function prototype - builtin return type with parameters
+================================================================================
+int add(int a, int b);
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters
+        (parameter
+          type: (type
+            (basic_type))
+          name: (identifier))
+        (parameter
+          type: (type
+            (basic_type))
+          name: (identifier))))))

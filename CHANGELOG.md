@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Parse unmodified function prototypes. `Dog getDog();` did not parse as a
+  declaration: it split into a bare-identifier declaration (`Dog`) plus an
+  expression statement (`getDog();`), so the function was never declared and the
+  return type was never a `type_ref`. This is the same dynamic-precedence defect
+  fixed for `variable_decl` in 1.3.2, in the sibling rule: `function_decl`
+  already accepted a `;` body (`choice(field('body', $.block), ';')`) but
+  carried no `prec.dynamic`, so the split won on `expression_statement`'s
+  `prec.dynamic(1)`. Prototypes with a leading modifier (`protected Dog f();`)
+  and definitions with a body were unaffected, which is why it went unnoticed —
+  only an unmodified prototype was mis-parsed. Pike accepts prototypes as
+  forward declarations. `function_decl` now carries `prec.dynamic(2)`, matching
+  `variable_decl`. Downstream tooling regains goto-definition, find-references,
+  rename, and completion for prototyped functions — notably, renaming a class
+  no longer silently leaves a dangling return type on its prototypes.
+
 ## [1.3.2] - 2026-07-16
 
 ### Fixed
