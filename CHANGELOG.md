@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-07-16
+
+### Fixed
+
+- Parse file-scope and class-body variables with user-defined types.
+  `Greeter g = Greeter("World");` did not parse as a declaration: it split into
+  a bare-identifier declaration (`Greeter`) plus an expression statement
+  (`g = Greeter("World");`), so the variable was never declared and the type
+  name was never a `type_ref`. Both parses were valid to the GLR parser and the
+  split won on dynamic precedence, since `expression_statement` carries
+  `prec.dynamic(1)` (to outrank `macro_invocation_stmt`) while `variable_decl`
+  had none. Builtin types (`int n = 5;`) and function bodies were unaffected,
+  which is why it went unnoticed — only a user-defined type at file or
+  class-body scope was mis-parsed. Pike accepts this construct (a file is a
+  class, so it is an ordinary member variable). `variable_decl` now carries
+  `prec.dynamic(2)`, which keeps `expression_statement` ahead of
+  `macro_invocation_stmt` as intended. Downstream tooling regains
+  goto-definition, find-references, rename, and completion for module-level
+  object variables.
+
 ## [1.3.1] - 2026-07-08
 
 ### Fixed
