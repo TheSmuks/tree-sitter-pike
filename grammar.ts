@@ -703,7 +703,16 @@ export default grammar({
       optional($.attribute),
       choice(
         $.function_decl,
-        $.variable_decl,
+        // Outranks the `_definition` split of `Greeter g = Greeter("x");` into
+        // a bare-identifier declaration (`Greeter`) plus an expression_statement
+        // (`g = Greeter("x");`). That split wins on dynamic precedence alone —
+        // expression_statement carries prec.dynamic(1) to beat
+        // macro_invocation_stmt — so any file-scope or class-body variable with
+        // a user-defined type parsed as an assignment to an undeclared name.
+        // Pike accepts `Greeter g = Greeter("World");` at file scope; a
+        // complete `type name [= value];` must win. 2 > 1 keeps
+        // expression_statement ahead of macro_invocation_stmt as intended.
+        prec.dynamic(2, $.variable_decl),
         $.constant_decl,
         $.class_decl,
         $.enum_decl,
