@@ -4883,8 +4883,12 @@
               "name": "function_decl"
             },
             {
-              "type": "SYMBOL",
-              "name": "variable_decl"
+              "type": "PREC_DYNAMIC",
+              "value": 2,
+              "content": {
+                "type": "SYMBOL",
+                "name": "variable_decl"
+              }
             },
             {
               "type": "SYMBOL",
