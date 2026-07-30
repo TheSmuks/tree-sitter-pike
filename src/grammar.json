@@ -5740,22 +5740,6 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "FIELD",
-              "name": "name",
-              "content": {
-                "type": "SYMBOL",
-                "name": "identifier"
-              }
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
               "type": "SYMBOL",
               "name": "generic_bindings"
             },
@@ -6691,10 +6675,6 @@
     [
       "enum_decl",
       "anon_enum"
-    ],
-    [
-      "class_decl",
-      "anon_class"
     ],
     [
       "_definition",
