@@ -14,6 +14,11 @@ export default grammar({
     [$.inherit_decl],
     [$.import_decl],
     [$.enum_decl, $.anon_enum],
+    // `class Foo { … }` is genuinely both: a class declaration, and a class
+    // expression that happens to be a whole statement. Pike resolves this the
+    // same way — one `class` production reached from both positions — so the
+    // GLR conflict is the honest model, not a workaround.
+    [$.class_decl, $.anon_class],
     // _definition vs declaration (block appears in both)
     [$._definition, $.declaration],
     // inherit/import can look like expressions
@@ -805,8 +810,18 @@ export default grammar({
       field('body', $.class_body),
     ),
 
+    // A class in expression position. The name is optional because Pike has
+    // exactly one class production — `class: TOK_CLASS line_number_info
+    // optional_identifier` (language.yacc) — reached from expression position
+    // via `expr4: … | implicit_modifiers class`. So `class Foo { … }` is as
+    // valid an expression as `class { … }`; when the name is absent Pike
+    // synthesises one rather than parsing something different.
+    //
+    // `optional_identifier` is TOK_IDENTIFIER only, so unlike class_decl this
+    // does not admit a backtick identifier.
     anon_class: $ => seq(
       'class',
+      optional(field('name', $.identifier)),
       optional($.generic_bindings),
       optional($.parameters),
       field('body', $.class_body),
