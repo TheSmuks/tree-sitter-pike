@@ -491,12 +491,22 @@ export default grammar({
 
     expression_statement: $ => seq($._expr, ';'),
 
-    // Declaration-in-condition: if (Type var = expr) { ... }
-    // Yacc allows local declarations in comma_expr (safe_comma_expr).
-    // cond_decl is a type+name+initializer alternative to expression conditions.
+    // Declaration-in-condition: `if (Type var = expr)`, `while (Type var)`.
+    //
+    // Pike does not special-case this per statement. `comma_expr` itself has
+    // `simple_type2 local_name_list` (language.yacc), so a declaration is legal
+    // in every position that takes a comma expression — the conditions of if,
+    // while and for, and switch's value.
+    //
+    // The initializer is optional for the same reason: `local_name_list` does
+    // not require one. `for (keys; string key;)` in the Roxen corpus is exactly
+    // that — and worth knowing that it compiles to a loop which never runs,
+    // since an uninitialised declaration evaluates to 0. Pike accepts it with
+    // only an unused-variable warning. Verified against pike v8.0.1116:
+    // `if (string x)`, `while (string x)` and `for (0; string k;)` all compile.
     cond_decl: $ => seq(
-      field('type', $.type), field('name', $.identifier), '=',
-      field('value', $._expr),
+      field('type', $.type), field('name', $.identifier),
+      optional(seq('=', field('value', $._expr))),
     ),
 
     if_statement: $ => seq(
@@ -510,7 +520,9 @@ export default grammar({
 
     for_statement: $ => seq(
       'for', '(',
-      optional(field('initializer', choice($._expr, $.for_init_decl))), ';', optional(field('condition', $._expr)), ';', optional(field('update', $._expr)),
+      optional(field('initializer', choice($._expr, $.for_init_decl))), ';',
+      optional(field('condition', choice($._expr, $.cond_decl))), ';',
+      optional(field('update', $._expr)),
       ')', field('body', $._stmt),
     ),
 

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Parse a declaration in a `for` condition: `for (keys; string key;)`. Pike does
+  not special-case conditions per statement — `comma_expr` itself carries
+  `simple_type2 local_name_list` (language.yacc), so a declaration is valid in
+  every position that takes a comma expression, and `local_name_list` does not
+  require an initialiser. The grammar had `cond_decl` for `if`/`while`/`switch`/
+  `catch` but demanded `= value`, and `for`'s condition accepted no declaration
+  at all. The initialiser is now optional and `for`'s condition takes
+  `cond_decl`. Verified against pike v8.0.1116: `if (string x)`,
+  `while (string x)` and `for (0; string k;)` all compile.
+
+  No new node types; `cond_decl`'s `value` field is simply absent when the
+  source omits it.
+
+  Found in the Roxen 6.1 corpus, which now fails on ten files rather than
+  eleven, with none regressed.
+
 ## [1.4.0] - 2026-07-30
 
 ### Added

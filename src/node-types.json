@@ -615,7 +615,7 @@
       },
       "value": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "comma_expr",
@@ -1173,6 +1173,10 @@
         "types": [
           {
             "type": "comma_expr",
+            "named": true
+          },
+          {
+            "type": "cond_decl",
             "named": true
           },
           {
