@@ -24,6 +24,12 @@
 (anon_class) @local.scope
 (anon_enum) @local.scope
 
+; A named class used as a value (`= class Foo { … }`) is a scope like any
+; other class, and its name is a definition like class_decl's.
+(named_class_expr) @local.scope
+(named_class_expr
+  name: (identifier) @local.definition)
+
 ; Loop scopes (while, do-while, for, foreach)
 ; These introduce a new scope for variables declared in the condition/init
 (while_statement) @local.scope

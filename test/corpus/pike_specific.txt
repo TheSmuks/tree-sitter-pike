@@ -1060,6 +1060,112 @@ Anonymous class
                                               name: (identifier))))))))))))))))))))))))
 
 ================================================================================
+Named class expression as an initialiser
+================================================================================
+object o = class Foo { int x; };
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier)
+      value: (named_class_expr
+        name: (identifier)
+        body: (class_body
+          (declaration
+            (variable_decl
+              type: (type
+                (basic_type))
+              name: (identifier))))))))
+
+================================================================================
+Named class expression, instantiated immediately
+================================================================================
+lock = class lambda17 { void lock(){} }();
+
+--------------------------------------------------------------------------------
+
+(program
+  (expression_statement
+    (comma_expr
+      (assign_expr
+        (cond_expr
+          (lor_expr
+            (land_expr
+              (bitor_expr
+                (bitxor_expr
+                  (bitand_expr
+                    (eq_expr
+                      (rel_expr
+                        (shift_expr
+                          (add_expr
+                            (mul_expr
+                              (unary_expr
+                                (postfix_expr
+                                  (primary_expr
+                                    (identifier_expr
+                                      name: (identifier))))))))))))))))
+        (class_instantiation
+          class: (named_class_expr
+            name: (identifier)
+            body: (class_body
+              (declaration
+                (function_decl
+                  return_type: (type
+                    (basic_type))
+                  name: (identifier)
+                  parameters: (parameters)
+                  body: (block))))))))))
+
+================================================================================
+Named class between preprocessor branches stays a declaration
+================================================================================
+#if 1
+class Foo { int x; }
+#else
+constant z = 1;
+#endif
+
+--------------------------------------------------------------------------------
+
+(program
+  (preprocessor_directive)
+  (declaration
+    (class_decl
+      name: (identifier)
+      body: (class_body
+        (declaration
+          (variable_decl
+            type: (type
+              (basic_type))
+            name: (identifier))))))
+  (preproc_branch)
+  (declaration
+    (constant_decl
+      name: (identifier)
+      value: (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal)))))))))))))))))))
+  (preprocessor_directive))
+
+================================================================================
 Anonymous enum
 ================================================================================
 { enum { A, B }; }

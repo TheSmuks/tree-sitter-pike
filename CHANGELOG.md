@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Parse a named class in expression position: `Write_back wb = class Write_back
+  { … };` and `lock = class lambda17 { … }();`. Pike has one class production —
+  `class: TOK_CLASS line_number_info optional_identifier` — reached from
+  expression position via `expr4: … | implicit_modifiers class`, so a name
+  there is as valid as its absence; the grammar previously put it in an `ERROR`
+  node. Two new nodes: `named_class_expr`, and `class_instantiation` for the
+  immediately-called form, which is a distinct thing (`= class Foo { … }` binds
+  a program, `= class Foo { … }()` binds an object).
+
+  The name is *not* modelled as an optional field on `anon_class`. That was
+  tried first and reverted: it makes `class Foo { … }` ambiguous with
+  `class_decl` everywhere a declaration is legal, tree-sitter resolves that
+  ambiguity statically so no amount of `prec.dynamic` changes it, and the
+  expression reading then completes by running through
+  `preproc_conditional_expr` into an `#else` branch and consuming the semicolon
+  of the following declaration — silently breaking files that parsed before.
+  `named_class_expr` is instead reachable only from an assignment or
+  initialiser right-hand side, where a statement can never begin.
+
+  Found in the Roxen 6.1 corpus, where it accounted for three of the fourteen
+  files the grammar could not parse; that corpus now fails on eleven, with no
+  file regressed.
+
 ## [1.3.3] - 2026-07-16
 
 ### Fixed

@@ -235,9 +235,13 @@ export default grammar({
 
     assign_expr: $ => choice(
       $.cond_expr,
-      seq($.cond_expr, $._assign_op, $.assign_expr),
-      seq($.array_destructure, $._assign_op, $.assign_expr),
+      seq($.cond_expr, $._assign_op, $._assign_rhs),
+      seq($.array_destructure, $._assign_op, $._assign_rhs),
     ),
+
+    // The right-hand side of an assignment, which is the one place a class
+    // expression may be named. See _class_value.
+    _assign_rhs: $ => choice($.assign_expr, $._class_value),
 
     array_destructure: $ => seq('[', commaSep1(choice($._expr, seq($.type, $.identifier), $.array_destructure)), ']'),
 
@@ -769,7 +773,7 @@ export default grammar({
     variable_decl: $ => seq(
       field('type', $.type), commaSep1(seq(
         field('name', choice($.identifier, $.backtick_identifier)),
-        optional(seq('=', field('value', $._expr))),
+        optional(seq('=', field('value', choice($._expr, $._class_value)))),
       )),
       ';',
     ),
@@ -778,7 +782,7 @@ export default grammar({
       repeat($.modifier),
       field('type', $.type), commaSep1(seq(
         field('name', choice($.identifier, $.backtick_identifier)),
-        optional(seq('=', field('value', $._expr))),
+        optional(seq('=', field('value', choice($._expr, $._class_value)))),
       )),
       ';',
     ),
@@ -810,6 +814,45 @@ export default grammar({
       optional($.generic_bindings),
       optional($.parameters),
       field('body', $.class_body),
+    ),
+
+    // A class expression that carries a name.
+    //
+    // Pike has one class production — `class: TOK_CLASS line_number_info
+    // optional_identifier` (language.yacc) — reached from expression position
+    // via `expr4: … | implicit_modifiers class`, so a name there is as valid as
+    // its absence. It is NOT modelled by adding an optional name to
+    // anon_class, though, because that makes `class Foo { … }` ambiguous with
+    // class_decl everywhere a declaration is legal. That ambiguity is not
+    // resolvable by precedence here: tree-sitter settles it statically, so
+    // neither prec.dynamic on class_decl nor on anon_class changes the parse,
+    // and the expression reading wins — it then completes by running through
+    // preproc_conditional_expr into an `#else` branch and consuming the
+    // semicolon of the following declaration.
+    //
+    // So the named form is reachable only from _class_value, and _class_value
+    // only after `=`. A statement can never start there, which is exactly the
+    // position where `class Foo { … }` must stay a declaration.
+    //
+    // `optional_identifier` is TOK_IDENTIFIER only, so unlike class_decl this
+    // does not admit a backtick identifier.
+    named_class_expr: $ => seq(
+      'class', field('name', $.identifier),
+      optional($.generic_bindings),
+      optional($.parameters),
+      field('body', $.class_body),
+    ),
+
+    // A named class used as a value: either the class itself, or an instance
+    // of it. The Roxen corpus uses both forms, and they do not mean the same
+    // thing — `= class Foo { … }` binds a program, `= class Foo { … }()` binds
+    // an object — so instantiation gets its own node rather than vanishing
+    // into an anonymous sequence.
+    _class_value: $ => choice($.named_class_expr, $.class_instantiation),
+
+    class_instantiation: $ => seq(
+      field('class', $.named_class_expr),
+      '(', optional(field('arguments', $.argument_list)), ')',
     ),
 
     class_body: $ => seq('{', repeat(choice($.declaration, ';')), '}'),
