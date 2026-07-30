@@ -7,27 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Parse a named class in expression position. `object o = class Foo { … };` put
-  the name in an `ERROR` node, because `anon_class` accepted no identifier at
-  all. Pike has exactly one class production — `class: TOK_CLASS
-  line_number_info optional_identifier` — reached from expression position via
-  `expr4: … | implicit_modifiers class`, so a name there is as valid as its
-  absence; Pike simply synthesises one when it is missing. `anon_class` now
-  takes an optional `name` field (plain identifier only, matching
-  `optional_identifier`), and `class_decl`/`anon_class` are declared as a
-  conflict, since `class Foo { … }` as a whole statement genuinely is both.
-  Found in the Roxen 6.1 corpus, where it accounted for three of the fourteen
-  files the grammar could not parse.
-
-### Changed
-
-- `anon_class` may now carry a `name` field. Consumers that assumed the node is
-  always anonymous — for example a query matching it as an unnamed scope — still
-  match, but the node name is now a slight misnomer. Renaming it to
-  `class_expr` is deferred to a deliberate breaking change.
-
 ## [1.3.3] - 2026-07-16
 
 ### Fixed
