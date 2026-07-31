@@ -494,6 +494,10 @@
       "required": false,
       "types": [
         {
+          "type": "block",
+          "named": true
+        },
+        {
           "type": "declaration",
           "named": true
         }
@@ -734,10 +738,6 @@
           "named": true
         },
         {
-          "type": "block",
-          "named": true
-        },
-        {
           "type": "class_decl",
           "named": true
         },
@@ -775,6 +775,10 @@
         },
         {
           "type": "modifier",
+          "named": true
+        },
+        {
+          "type": "modifier_block",
           "named": true
         },
         {
@@ -2428,6 +2432,29 @@
     "type": "modifier",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "modifier_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "block",
+          "named": true
+        },
+        {
+          "type": "declaration",
+          "named": true
+        },
+        {
+          "type": "modifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "mul_expr",

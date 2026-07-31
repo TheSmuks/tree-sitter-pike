@@ -959,3 +959,61 @@ int add(int a, int b);
           type: (type
             (basic_type))
           name: (identifier))))))
+
+================================================================================
+Modifier block groups declarations
+================================================================================
+private
+{
+  string v;
+  protected class Inner { int y; }
+}
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (modifier_block
+      (modifier)
+      (declaration
+        (variable_decl
+          type: (type
+            (basic_type))
+          name: (identifier)))
+      (declaration
+        (modifier)
+        (class_decl
+          name: (identifier)
+          body: (class_body
+            (declaration
+              (variable_decl
+                type: (type
+                  (basic_type))
+                name: (identifier)))))))))
+
+================================================================================
+Modifier block with nesting, bare block and stray semicolon
+================================================================================
+private {
+  protected { int x; }
+  { int y; }
+  ;
+}
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (modifier_block
+      (modifier)
+      (declaration
+        (modifier_block
+          (modifier)
+          (declaration
+            (variable_decl
+              type: (type
+                (basic_type))
+              name: (identifier)))))
+      (block
+        (local_declaration
+          type: (type
+            (basic_type))
+          name: (identifier))))))

@@ -714,49 +714,73 @@ export default grammar({
 
     // ── Declarations ──
 
-    declaration: $ => seq(
-      repeat($.modifier),
-      optional($.attribute),
-      choice(
-        // Same dynamic precedence as variable_decl below, for the same reason:
-        // a prototype (`Dog getDog();`) otherwise splits into a bare-identifier
-        // declaration (`Dog`) plus an expression_statement (`getDog();`), which
-        // wins on expression_statement's prec.dynamic(1). Prototypes are legal
-        // Pike, so a complete `type name(params);` must win.
-        prec.dynamic(2, $.function_decl),
-        // Outranks the `_definition` split of `Greeter g = Greeter("x");` into
-        // a bare-identifier declaration (`Greeter`) plus an expression_statement
-        // (`g = Greeter("x");`). That split wins on dynamic precedence alone —
-        // expression_statement carries prec.dynamic(1) to beat
-        // macro_invocation_stmt — so any file-scope or class-body variable with
-        // a user-defined type parsed as an assignment to an undeclared name.
-        // Pike accepts `Greeter g = Greeter("World");` at file scope; a
-        // complete `type name [= value];` must win. 2 > 1 keeps
-        // expression_statement ahead of macro_invocation_stmt as intended.
-        prec.dynamic(2, $.variable_decl),
-        $.constant_decl,
-        $.class_decl,
-        $.enum_decl,
-        $.typedef_decl,
-        $.import_decl,
-        $.inherit_decl,
-        $.block,
-        // Bare macro invocation (no trailing ';'): CBFUNC(t, x)
-        $.macro_invocation,
-        // Macro invocation with trailing ';': CBFUNC(t, x);
-        $.macro_invocation_stmt,
-        // Bare identifier as declaration: MUTEX; INHERIT_MUTEX; OVERLOAD_TIMEOFDAY;
-        // These are preprocessor macros that expand to declarations or nothing.
-        // The grammar accepts them so the tree stays clean.
-        // Semicolon is optional because some macros (like MUTEX without threading)
-        // expand to nothing — the bare identifier has no trailing ';'.
-        seq($.identifier, optional(';')),
-        // Typed macro invocation: TYPE IDENTIFIER(args);
-        // Handles patterns like: void PROXY(destroy, 0);
-        // where TYPE looks like a return type but the "function name" is actually
-        // a macro and the args are macro arguments, not typed parameters.
-        seq($.type, $.macro_invocation_stmt),
+    declaration: $ => choice(
+      $.modifier_block,
+      seq(
+        repeat($.modifier),
+        optional($.attribute),
+        choice(
+          // Same dynamic precedence as variable_decl below, for the same reason:
+          // a prototype (`Dog getDog();`) otherwise splits into a bare-identifier
+          // declaration (`Dog`) plus an expression_statement (`getDog();`), which
+          // wins on expression_statement's prec.dynamic(1). Prototypes are legal
+          // Pike, so a complete `type name(params);` must win.
+          prec.dynamic(2, $.function_decl),
+          // Outranks the `_definition` split of `Greeter g = Greeter("x");` into
+          // a bare-identifier declaration (`Greeter`) plus an expression_statement
+          // (`g = Greeter("x");`). That split wins on dynamic precedence alone —
+          // expression_statement carries prec.dynamic(1) to beat
+          // macro_invocation_stmt — so any file-scope or class-body variable with
+          // a user-defined type parsed as an assignment to an undeclared name.
+          // Pike accepts `Greeter g = Greeter("World");` at file scope; a
+          // complete `type name [= value];` must win. 2 > 1 keeps
+          // expression_statement ahead of macro_invocation_stmt as intended.
+          prec.dynamic(2, $.variable_decl),
+          $.constant_decl,
+          $.class_decl,
+          $.enum_decl,
+          $.typedef_decl,
+          $.import_decl,
+          $.inherit_decl,
+          // Bare macro invocation (no trailing ';'): CBFUNC(t, x)
+          $.macro_invocation,
+          // Macro invocation with trailing ';': CBFUNC(t, x);
+          $.macro_invocation_stmt,
+          // Bare identifier as declaration: MUTEX; INHERIT_MUTEX; OVERLOAD_TIMEOFDAY;
+          // These are preprocessor macros that expand to declarations or nothing.
+          // The grammar accepts them so the tree stays clean.
+          // Semicolon is optional because some macros (like MUTEX without threading)
+          // expand to nothing — the bare identifier has no trailing ';'.
+          seq($.identifier, optional(';')),
+          // Typed macro invocation: TYPE IDENTIFIER(args);
+          // Handles patterns like: void PROXY(destroy, 0);
+          // where TYPE looks like a return type but the "function name" is actually
+          // a macro and the args are macro arguments, not typed parameters.
+          seq($.type, $.macro_invocation_stmt),
+        ),
       ),
+    ),
+
+    // `private { … }` — a modifier applied to a group of definitions, not a
+    // statement block. Pike's `modifiers '{' program '}'` production
+    // (language.yacc) puts a *program* between the braces, so the body holds
+    // declarations: `private { string v; protected class Inner { int y; } }`
+    // compiles, while `private { (int)1.5; }` does not — statements are
+    // rejected there. Modelling the body as `block` (a statement list) made a
+    // nested `protected class Inner` parse as `modifier type identifier`, and
+    // the parser then demanded the `;` that DBManager.pmod does not have.
+    //
+    // At least one modifier is required. That is what keeps the rule
+    // deterministic: a brace at declaration position with no modifier in front
+    // still belongs to `block`, so this rule never competes with it and no
+    // conflict entry is needed for the brace itself.
+    modifier_block: $ => seq(
+      repeat1($.modifier),
+      '{',
+      // `block` is here because Pike's `program` admits a bare `{ … }` group of
+      // its own — `private { { int x; } }` compiles.
+      repeat(choice($.declaration, $.block, ';')),
+      '}',
     ),
 
     // __attribute__("name") as declaration modifier
@@ -867,7 +891,9 @@ export default grammar({
       '(', optional(field('arguments', $.argument_list)), ')',
     ),
 
-    class_body: $ => seq('{', repeat(choice($.declaration, ';')), '}'),
+    // `block` is an alternative here for the same reason as in modifier_block:
+    // a class body is a `program`, and `class C { { int x; } }` compiles.
+    class_body: $ => seq('{', repeat(choice($.declaration, $.block, ';')), '}'),
 
     enum_decl: $ => seq(
       'enum', optional(field('name', $.identifier)),
