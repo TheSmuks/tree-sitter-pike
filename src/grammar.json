@@ -4889,117 +4889,162 @@
       ]
     },
     "declaration": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "modifier_block"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "modifier"
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "attribute"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PREC_DYNAMIC",
+                  "value": 2,
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "function_decl"
+                  }
+                },
+                {
+                  "type": "PREC_DYNAMIC",
+                  "value": 2,
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "variable_decl"
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "constant_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "class_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "enum_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "typedef_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "import_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "inherit_decl"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "macro_invocation"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "macro_invocation_stmt"
+                },
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "identifier"
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": ";"
+                        },
+                        {
+                          "type": "BLANK"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "type"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "macro_invocation_stmt"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "modifier_block": {
       "type": "SEQ",
       "members": [
         {
-          "type": "REPEAT",
+          "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
             "name": "modifier"
           }
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "attribute"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "STRING",
+          "value": "{"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "PREC_DYNAMIC",
-              "value": 2,
-              "content": {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
                 "type": "SYMBOL",
-                "name": "function_decl"
-              }
-            },
-            {
-              "type": "PREC_DYNAMIC",
-              "value": 2,
-              "content": {
+                "name": "declaration"
+              },
+              {
                 "type": "SYMBOL",
-                "name": "variable_decl"
+                "name": "block"
+              },
+              {
+                "type": "STRING",
+                "value": ";"
               }
-            },
-            {
-              "type": "SYMBOL",
-              "name": "constant_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "class_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "enum_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "typedef_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "import_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "inherit_decl"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "block"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "macro_invocation"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "macro_invocation_stmt"
-            },
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "identifier"
-                },
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": ";"
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "type"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "macro_invocation_stmt"
-                }
-              ]
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
         }
       ]
     },
@@ -5955,6 +6000,10 @@
               {
                 "type": "SYMBOL",
                 "name": "declaration"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "block"
               },
               {
                 "type": "STRING",
