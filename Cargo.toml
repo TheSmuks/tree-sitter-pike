@@ -1,7 +1,7 @@
 [package]
 name = "tree-sitter-pike"
 description = "Pike grammar for tree-sitter"
-version = "1.3.3"
+version = "1.5.0"
 authors = ["TheSmuks"]
 license = "MIT"
 readme = "README.md"
