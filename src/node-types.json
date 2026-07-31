@@ -189,7 +189,18 @@
   {
     "type": "basic_type",
     "named": true,
-    "fields": {},
+    "fields": {
+      "macro": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": false,
@@ -344,6 +355,10 @@
         },
         {
           "type": "local_function_decl",
+          "named": true
+        },
+        {
+          "type": "macro_invocation_bare_stmt",
           "named": true
         },
         {
@@ -886,6 +901,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_bare_stmt",
+            "named": true
+          },
+          {
             "type": "macro_invocation_stmt",
             "named": true
           },
@@ -1146,6 +1165,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_bare_stmt",
+            "named": true
+          },
+          {
             "type": "macro_invocation_stmt",
             "named": true
           },
@@ -1355,6 +1378,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_bare_stmt",
             "named": true
           },
           {
@@ -1630,6 +1657,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_bare_stmt",
+            "named": true
+          },
+          {
             "type": "macro_invocation_stmt",
             "named": true
           },
@@ -1751,6 +1782,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_bare_stmt",
             "named": true
           },
           {
@@ -1972,6 +2007,10 @@
           },
           {
             "type": "local_function_decl",
+            "named": true
+          },
+          {
+            "type": "macro_invocation_bare_stmt",
             "named": true
           },
           {
@@ -2199,6 +2238,25 @@
     }
   },
   {
+    "type": "macro_argument_fragment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "comma_expr",
+          "named": true
+        },
+        {
+          "type": "preproc_conditional_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "macro_argument_list",
     "named": true,
     "fields": {},
@@ -2216,6 +2274,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "macro_argument_fragment",
           "named": true
         },
         {
@@ -2273,6 +2335,11 @@
     }
   },
   {
+    "type": "macro_empty_argument_list",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "macro_invocation",
     "named": true,
     "fields": {
@@ -2282,6 +2349,36 @@
         "types": [
           {
             "type": "macro_argument_list",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "macro_invocation_bare_stmt",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "macro_argument_list",
+            "named": true
+          },
+          {
+            "type": "macro_empty_argument_list",
             "named": true
           }
         ]
@@ -2655,6 +2752,41 @@
     }
   },
   {
+    "type": "preproc_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "backtick_identifier",
+          "named": true
+        },
+        {
+          "type": "char_literal",
+          "named": true
+        },
+        {
+          "type": "float_literal",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "integer_literal",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "preproc_conditional_expr",
     "named": true,
     "fields": {
@@ -2681,6 +2813,43 @@
     }
   },
   {
+    "type": "preproc_define",
+    "named": true,
+    "extra": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_body",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_params",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "preproc_include",
     "named": true,
     "extra": true,
@@ -2695,6 +2864,38 @@
           },
           {
             "type": "system_lib_string",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "preproc_param",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "preproc_params",
+    "named": true,
+    "fields": {
+      "parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_param",
             "named": true
           }
         ]
@@ -3396,6 +3597,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation_bare_stmt",
+            "named": true
+          },
+          {
             "type": "macro_invocation_stmt",
             "named": true
           },
@@ -3701,6 +3906,10 @@
   },
   {
     "type": "default",
+    "named": false
+  },
+  {
+    "type": "define",
     "named": false
   },
   {
