@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(tree-sitter-pike
-        VERSION "1.3.3"
+        VERSION "1.5.0"
         DESCRIPTION "Pike grammar for tree-sitter"
         HOMEPAGE_URL "https://github.com/thesmuks/tree-sitter-pike"
         LANGUAGES C)
