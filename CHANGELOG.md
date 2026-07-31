@@ -55,6 +55,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `#define DEFVAR mixed...:object`. The `:` the real signature form requires is
   what keeps the two apart.
 
+- **The conditional directives are modelled too.** `#if`, `#ifdef`, `#ifndef`,
+  `#endif` and `#undef` were folded into the same opaque
+  `preprocessor_directive` token, which hid the names that decide what compiles:
+  2316 identifier occurrences across the Roxen 6.1 corpus, at none of which any
+  position-driven consumer could answer. `preproc_if` carries a `name` field for
+  the `#ifdef`/`#ifndef` form and a `condition` for `#if`; `preproc_undef`
+  carries a `name`; `preproc_endif` closes. They reuse `preproc_body` for the
+  condition, because a condition is preprocessor syntax rather than Pike —
+  `constant(X)` and `defined(X)` are directives of the preprocessor's own
+  expression language, confirmed against pike v8.0.1116.
+
+  All of them remain `extras`, so a conditional region is still spliced rather
+  than made a subtree. Modelling the region was measured and rejected; see the
+  comment on `preproc_if` for the numbers.
+
+  `#else`/`#elif` deliberately stay one token. `preproc_branch` is visible glue
+  inside `preproc_conditional_expr`, and as a rule its first token is a bare
+  `#`, which at an expression boundary also starts every directive extra — the
+  parser takes the extra and the enclosing declaration becomes an ERROR. The
+  structure would have bought the 9 `#elif` directives in the whole corpus.
+
+- **A macro statement argument may declare a local, or end without a `;`.**
+  `macro_argument_stmts` took control-flow and expression statements only.
+  Roxen's `ISIP(H,CODE)` is called all four ways its expansion allows:
+  `ISIP(ip, mixed foo; … return foo;)`, `ISIP(host, return host)` and
+  `ISIP(host, callback(host,@args);return)` — the expansion supplies the final
+  `;`. `macro_argument_decl` takes one declarator only; `local_declaration`'s
+  comma is ambiguous with both the argument separator and an expression
+  argument, and admitting it cascaded into conflicts between
+  `local_declaration` and `identifier_expr`, `_id_expr` and `primary_expr`.
+
 ### Fixed
 
 - `string_concat` accepts a `macro_invocation` among its elements, so a
@@ -66,8 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `#define` token tolerated it, which is why the gap surfaced the moment macro
   bodies started being parsed.
 
-  Roxen 6.1 now fails on five files rather than nine, with none regressed. Two
-  of the five are Roxen's own syntax errors, so the floor is two.
+  Roxen 6.1 now fails on four files rather than nine, with none regressed. Two
+  of the four are Roxen's own syntax errors, so the floor is two.
 
 ## [1.4.1] - 2026-07-30
 

@@ -379,3 +379,200 @@ constant s = "a" DO_IF_DEBUG (+ sprintf("b"));
                                                                                                           (postfix_expr
                                                                                                             (primary_expr
                                                                                                               (string_literal))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Macro statement argument that declares a local
+================================================================================
+void f(string ip)
+{
+  ISIP(ip,
+       mixed foo;
+       return foo;
+       );
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters
+        (parameter
+          type: (type
+            (basic_type))
+          name: (identifier)))
+      body: (block
+        (macro_invocation_stmt
+          name: (identifier)
+          arguments: (macro_argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))
+            (macro_argument_stmts
+              (macro_argument_decl
+                type: (type
+                  (basic_type))
+                name: (identifier))
+              (return_statement
+                value: (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  name: (identifier))))))))))))))))))))))))))
+
+================================================================================
+Macro statement argument whose last statement has no semicolon
+================================================================================
+void f(string ip)
+{
+  ISIP(ip, return ip);
+  ISIP(ip, g(ip);return);
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters
+        (parameter
+          type: (type
+            (basic_type))
+          name: (identifier)))
+      body: (block
+        (macro_invocation_stmt
+          name: (identifier)
+          arguments: (macro_argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              name: (identifier))))))))))))))))))
+            (macro_argument_stmts
+              (macro_argument_tail_stmt
+                value: (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (identifier_expr
+                                                name: (identifier)))))))))))))))))))))
+        (macro_invocation_stmt
+          name: (identifier)
+          arguments: (macro_argument_list
+            (macro_argument_stmts
+              (expression_statement
+                (comma_expr
+                  (comma_expr
+                    (assign_expr
+                      (cond_expr
+                        (lor_expr
+                          (land_expr
+                            (bitor_expr
+                              (bitxor_expr
+                                (bitand_expr
+                                  (eq_expr
+                                    (rel_expr
+                                      (shift_expr
+                                        (add_expr
+                                          (mul_expr
+                                            (unary_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))))))))))))))))
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (postfix_expr
+                                                (primary_expr
+                                                  (identifier_expr
+                                                    name: (identifier))))
+                                              (argument_list
+                                                (comma_expr
+                                                  (assign_expr
+                                                    (cond_expr
+                                                      (lor_expr
+                                                        (land_expr
+                                                          (bitor_expr
+                                                            (bitxor_expr
+                                                              (bitand_expr
+                                                                (eq_expr
+                                                                  (rel_expr
+                                                                    (shift_expr
+                                                                      (add_expr
+                                                                        (mul_expr
+                                                                          (unary_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (identifier_expr
+                                                                                  name: (identifier)))))))))))))))))))))))))))))))))))
+              (macro_argument_tail_stmt))))))))
