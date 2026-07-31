@@ -1,0 +1,381 @@
+================================================================================
+Bare macro statement — expansion supplies its own terminator
+================================================================================
+void f() { SERVER_DEBUG("x") g(); }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_invocation_bare_stmt
+          (identifier)
+          (macro_argument_list
+            (comma_expr
+              (assign_expr
+                (cond_expr
+                  (lor_expr
+                    (land_expr
+                      (bitor_expr
+                        (bitxor_expr
+                          (bitand_expr
+                            (eq_expr
+                              (rel_expr
+                                (shift_expr
+                                  (add_expr
+                                    (mul_expr
+                                      (unary_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (string_literal)))))))))))))))))))
+        (expression_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Bare macro statement with no arguments
+================================================================================
+void f() { LOG_HANDLE_END() g(); }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (macro_invocation_bare_stmt
+          (identifier)
+          (macro_empty_argument_list))
+        (expression_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))))))))))))))))))))))
+
+================================================================================
+Bare macro statement as a case label
+================================================================================
+void f() { switch (n) { CASE_ASSIGN(a) case 1: break; } }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (switch_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (primary_expr
+                                          (identifier_expr
+                                            (identifier))))))))))))))))))
+          (block
+            (macro_invocation_bare_stmt
+              (identifier)
+              (macro_argument_list
+                (comma_expr
+                  (assign_expr
+                    (cond_expr
+                      (lor_expr
+                        (land_expr
+                          (bitor_expr
+                            (bitxor_expr
+                              (bitand_expr
+                                (eq_expr
+                                  (rel_expr
+                                    (shift_expr
+                                      (add_expr
+                                        (mul_expr
+                                          (unary_expr
+                                            (postfix_expr
+                                              (primary_expr
+                                                (identifier_expr
+                                                  (identifier))))))))))))))))))))
+            (case_clause
+              (comma_expr
+                (assign_expr
+                  (cond_expr
+                    (lor_expr
+                      (land_expr
+                        (bitor_expr
+                          (bitxor_expr
+                            (bitand_expr
+                              (eq_expr
+                                (rel_expr
+                                  (shift_expr
+                                    (add_expr
+                                      (mul_expr
+                                        (unary_expr
+                                          (postfix_expr
+                                            (primary_expr
+                                              (integer_literal))))))))))))))))))
+            (break_statement)))))))
+
+================================================================================
+Macro invocation keeps its semicolon when it has one
+================================================================================
+void f() { CBFUNC(int, x); }
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      (type
+        (basic_type))
+      (identifier)
+      (parameters)
+      (block
+        (expression_statement
+          (comma_expr
+            (assign_expr
+              (cond_expr
+                (lor_expr
+                  (land_expr
+                    (bitor_expr
+                      (bitxor_expr
+                        (bitand_expr
+                          (eq_expr
+                            (rel_expr
+                              (shift_expr
+                                (add_expr
+                                  (mul_expr
+                                    (unary_expr
+                                      (postfix_expr
+                                        (postfix_expr
+                                          (primary_expr
+                                            (identifier_expr
+                                              (identifier))))
+                                        (argument_list
+                                          (magic_identifier)
+                                          (comma_expr
+                                            (assign_expr
+                                              (cond_expr
+                                                (lor_expr
+                                                  (land_expr
+                                                    (bitor_expr
+                                                      (bitxor_expr
+                                                        (bitand_expr
+                                                          (eq_expr
+                                                            (rel_expr
+                                                              (shift_expr
+                                                                (add_expr
+                                                                  (mul_expr
+                                                                    (unary_expr
+                                                                      (postfix_expr
+                                                                        (primary_expr
+                                                                          (identifier_expr
+                                                                            (identifier)))))))))))))))))))))))))))))))))))))))
+
+================================================================================
+Macro standing in for a whole function type signature
+================================================================================
+function(DEFVAR) defvar = 0;
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (variable_decl
+      (type
+        (basic_type
+          (identifier)))
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (integer_literal))))))))))))))))))))
+
+================================================================================
+Macro invocation between adjacent string literals
+================================================================================
+constant s = "<tr " BODY_TR_ATTRS (row) ">";
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (constant_decl
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_concat
+                                        (string_literal)
+                                        (macro_invocation
+                                          (identifier)
+                                          (macro_argument_list
+                                            (comma_expr
+                                              (assign_expr
+                                                (cond_expr
+                                                  (lor_expr
+                                                    (land_expr
+                                                      (bitor_expr
+                                                        (bitxor_expr
+                                                          (bitand_expr
+                                                            (eq_expr
+                                                              (rel_expr
+                                                                (shift_expr
+                                                                  (add_expr
+                                                                    (mul_expr
+                                                                      (unary_expr
+                                                                        (postfix_expr
+                                                                          (primary_expr
+                                                                            (identifier_expr
+                                                                              (identifier))))))))))))))))))))
+                                        (string_literal)))))))))))))))))))))
+
+================================================================================
+Macro argument that is an expression fragment
+================================================================================
+constant s = "a" DO_IF_DEBUG (+ sprintf("b"));
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (constant_decl
+      (identifier)
+      (comma_expr
+        (assign_expr
+          (cond_expr
+            (lor_expr
+              (land_expr
+                (bitor_expr
+                  (bitxor_expr
+                    (bitand_expr
+                      (eq_expr
+                        (rel_expr
+                          (shift_expr
+                            (add_expr
+                              (mul_expr
+                                (unary_expr
+                                  (postfix_expr
+                                    (primary_expr
+                                      (string_concat
+                                        (string_literal)
+                                        (macro_invocation
+                                          (identifier)
+                                          (macro_argument_list
+                                            (macro_argument_fragment
+                                              (comma_expr
+                                                (assign_expr
+                                                  (cond_expr
+                                                    (lor_expr
+                                                      (land_expr
+                                                        (bitor_expr
+                                                          (bitxor_expr
+                                                            (bitand_expr
+                                                              (eq_expr
+                                                                (rel_expr
+                                                                  (shift_expr
+                                                                    (add_expr
+                                                                      (mul_expr
+                                                                        (unary_expr
+                                                                          (postfix_expr
+                                                                            (postfix_expr
+                                                                              (primary_expr
+                                                                                (identifier_expr
+                                                                                  (identifier))))
+                                                                            (argument_list
+                                                                              (comma_expr
+                                                                                (assign_expr
+                                                                                  (cond_expr
+                                                                                    (lor_expr
+                                                                                      (land_expr
+                                                                                        (bitor_expr
+                                                                                          (bitxor_expr
+                                                                                            (bitand_expr
+                                                                                              (eq_expr
+                                                                                                (rel_expr
+                                                                                                  (shift_expr
+                                                                                                    (add_expr
+                                                                                                      (mul_expr
+                                                                                                        (unary_expr
+                                                                                                          (postfix_expr
+                                                                                                            (primary_expr
+                                                                                                              (string_literal))))))))))))))))))))))))))))))))))))))))))))))))))))))))

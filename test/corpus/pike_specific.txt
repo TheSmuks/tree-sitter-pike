@@ -1680,7 +1680,11 @@ void f() {
 ---
 
 (program
-  (preprocessor_directive))
+  (preproc_define
+    (identifier)
+    (preproc_body
+      (string_literal)
+      (integer_literal))))
 
 ================================================================================
 Macro invocation - both forms in class body

@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`#define` is modelled instead of swallowed.** A directive used to be one
+  opaque `preprocessor_directive` token, so no identifier inside any macro body
+  had a node or a position, and every position-driven consumer — hover,
+  go-to-definition, completion, references — could answer nothing anywhere
+  inside a macro. `preproc_define` now carries `name`, `parameters`
+  (`preproc_params` / `preproc_param`, present exactly when the paren abuts the
+  name) and `body` (`preproc_body`).
+
+  The body is a permissive token sequence, not an expression or a statement,
+  because a macro body need not be either: `#define DO_IF_DEBUG(X) X`,
+  `#define BODY_TR_ATTRS "class=x"` and bodies that stop mid-expression are all
+  ordinary. Identifiers, numbers, strings, character literals and backtick
+  operator names are real nodes; everything else collapses into hidden chunk
+  tokens. Across the Roxen 6.1 corpus that is 1403 defines — every one of them
+  — exposing 4479 identifiers that had no position before.
+
+  Three external-scanner tokens do the work, because all three turn on
+  something the LR lexer cannot see: whether the paren abuts the name, where the
+  logical line ends, and which body characters no rule can tokenize. The scanner
+  consumes line continuations itself — tree-sitter skips anonymous whitespace
+  extras inside the generated lexer, so once the scanner declines a position it
+  is not consulted again until after the next real token, and a body token on a
+  spliced line would otherwise never reach it. A fourth external token is an
+  error sentinel: tree-sitter marks every external symbol valid at once while
+  recovering, and without it a macro body would swallow arbitrary source.
+
+- `macro_invocation_bare_stmt` — a macro invocation as a statement with no `;`,
+  for macros whose expansion carries its own terminator: `SERVER_DEBUG("…")`,
+  `CASE_ASSIGN(browser_timeout)` as a `case` label, `LOG_HANDLE_END()`. Needs
+  declared conflicts plus `prec.dynamic(-2)`; static precedence appears to work
+  and silently breaks `macro_statement`, because tree-sitter then settles
+  `identifier • '('` before GLR ever sees it. `macro_empty_argument_list` is
+  reachable only from this rule — admitting an empty list into
+  `macro_argument_list` makes `int foo();` a macro invocation as readily as a
+  function prototype.
+
+- `macro_argument_fragment` — a macro argument that begins with a binary
+  operator, completed by whatever the expansion splices it onto:
+  `"…unparsed" DO_IF_DEBUG (+ sprintf (…))`. Ranked below `_expr` so `(-x)`
+  stays unary negation.
+
+- `_function_type` accepts `'(' identifier ')'`, for a macro standing in for a
+  whole signature: `function(DEFVAR) defvar` with
+  `#define DEFVAR mixed...:object`. The `:` the real signature form requires is
+  what keeps the two apart.
+
+### Fixed
+
+- `string_concat` accepts a `macro_invocation` among its elements, so a
+  function-like macro can sit between adjacent literals as long as it expands to
+  a string: `"<tr " BODY_TR_ATTRS (row) ">"`.
+
+- `string_literal` spans a `\`+newline splice. Verified against pike v8.0.1116:
+  `write("%O", "a\<newline>b")` prints `"ab"`. Previously only the opaque
+  `#define` token tolerated it, which is why the gap surfaced the moment macro
+  bodies started being parsed.
+
+  Roxen 6.1 now fails on five files rather than nine, with none regressed. Two
+  of the five are Roxen's own syntax errors, so the floor is two.
+
 ## [1.4.1] - 2026-07-30
 
 ### Fixed

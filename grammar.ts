@@ -54,7 +54,12 @@ export default grammar({
     // forks between finishing the expression and continuing to the next branch
     [$.preproc_conditional_expr, $.comma_expr],
     // macro invocation vs expression statement in block/statement context
-    [$.identifier_expr, $.macro_invocation_stmt, $.macro_statement],
+    // A bare macro statement opens exactly like every other `IDENT (` form;
+    // only the token after the argument list tells them apart, so all four
+    // parses must stay alive until then and dynamic precedence ranks them.
+    [$.identifier_expr, $.macro_invocation_stmt, $.macro_invocation_bare_stmt, $.macro_statement],
+    [$.macro_invocation_stmt, $.macro_invocation_bare_stmt],
+    [$.macro_invocation_bare_stmt, $.macro_statement],
     [$.identifier_expr, $.macro_invocation, $.macro_invocation_stmt],
     [$.identifier_expr, $.macro_invocation_stmt],
   ],
@@ -64,6 +69,16 @@ export default grammar({
   // post-design analysis explaining why PREPROC_BLOCK was dropped.
   externals: $ => [
     $.hash_string,
+    // #define body tokens. The scanner owns them because all three depend on
+    // information the LR lexer cannot see: whether a paren abuts the macro
+    // name, and whether the line has ended. See `preproc_define`.
+    $._preproc_params_open,
+    $._preproc_chunk,
+    $._preproc_line_end,
+    // Never used by any rule. Tree-sitter marks every external token valid at
+    // once during error recovery, so this is the scanner's only way to tell
+    // "the parser wants a #define token here" from "the parser is guessing".
+    $._preproc_error_sentinel,
   ],
   // Extras: whitespace + line continuations treated as skippable inter-token
   // material, following tree-sitter-c's approach. The regex in extras makes
@@ -76,6 +91,7 @@ export default grammar({
     $.line_comment,
     $.block_comment,
     $.preproc_include,
+    $.preproc_define,
     $.preprocessor_directive,
     $.preproc_branch,
     $.shebang,
@@ -137,8 +153,11 @@ export default grammar({
       /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|\.[0-9]+([eE][+-]?[0-9]+)?/
     ),
 
+    // `\` before a newline splices, so a string literal may span lines:
+    // `pike -e 'write("%O", "a\<newline>b")'` prints "ab". The explicit
+    // alternative is needed because tree-sitter's `.` excludes newline.
     string_literal: _ => token(
-      seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')
+      seq('"', repeat(choice(/[^"\\]/, /\\\r?\n/, /\\./)), '"')
     ),
 
     // Hash-string #"..." — tokenized by the external scanner (src/scanner.c).
@@ -159,8 +178,10 @@ export default grammar({
     //   1. string_literal followed by more literals/identifiers: "str" "str" IDENT
     //   2. identifier followed by string_literal (and optionally more): IDENT "str"
     string_concat: $ => choice(
-      seq($.string_literal, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
-      seq($.hash_string, repeat1(choice($.string_literal, $.hash_string, $.identifier))),
+      // A function-like macro may sit between literals too, as long as it
+      // expands to a string: `"<tr " BODY_TR_ATTRS (row) ">"`.
+      seq($.string_literal, repeat1(choice($.string_literal, $.hash_string, $.identifier, $.macro_invocation))),
+      seq($.hash_string, repeat1(choice($.string_literal, $.hash_string, $.identifier, $.macro_invocation))),
       seq($.identifier, $.string_literal, repeat(choice($.string_literal, $.hash_string, $.identifier))),
       // Identifier followed by macro_invocation: DEC_COMB_MARK GR("")
       // Handles implicit concatenation of macro-expanded string literals.
@@ -460,6 +481,7 @@ export default grammar({
       // macro_invocation_stmt wins naturally. Mirrors the _definition handling.
       prec.dynamic(1, $.expression_statement),
       $.macro_invocation_stmt,
+      $.macro_invocation_bare_stmt,
       $.block,
       $.if_statement,
       $.while_statement,
@@ -585,6 +607,19 @@ export default grammar({
       ';',
     ),
 
+    // A macro whose expansion carries its own terminator is written without
+    // one, so the invocation is a whole statement on its own:
+    //   SERVER_DEBUG("received_content_length - !headers")   (proxy.pike)
+    //   CASE_ASSIGN(browser_timeout)   → `case "…": … break;`
+    //   LOG_HANDLE_END()               → a do/while, or nothing at all
+    // Ranked below every other statement that could start the same way, so an
+    // ordinary call, declaration or paired begin/end macro is never re-read as
+    // this; it only wins where nothing else can complete.
+    macro_invocation_bare_stmt: $ => prec.dynamic(-2, seq(
+      field('name', $.identifier),
+      field('arguments', choice($.macro_argument_list, $.macro_empty_argument_list)),
+    )),
+
     // Macro arguments can be expressions, types, blocks, or a sequence of
     // statements. Statement arguments arise when a macro expands to control
     // flow, e.g.
@@ -592,7 +627,24 @@ export default grammar({
     //   IF_ELSE_PAGED_SEARCH(if (…) { … },)
     // A plain expression argument (no trailing `;`) still parses as `_expr`;
     // `macro_argument_stmts` only wins when the argument contains statements.
-    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.macro_argument_stmts, $.magic_identifier, seq($.type, $.identifier))), ')'),
+    macro_argument_list: $ => seq('(', trailingCommaSep1(choice($._expr, $.type, $.block, $.macro_argument_stmts, $.magic_identifier, $.macro_argument_fragment, seq($.type, $.identifier))), ')'),
+
+    // An empty list stays out of `macro_argument_list` itself: allowing it
+    // there makes `int foo();` a macro invocation as readily as a function
+    // prototype, and the two are indistinguishable at that point. Only the
+    // bare statement form takes it, where no prototype can appear.
+    macro_empty_argument_list: _ => seq('(', ')'),
+
+    // An argument that is only half an expression, completed by whatever the
+    // expansion splices it onto:
+    //   "…unparsed" DO_IF_DEBUG (+ sprintf (" (with new %O…", …))
+    // Ranked below `_expr` so `(-x)` stays unary negation rather than becoming
+    // a fragment; only a leading operator no unary rule accepts reaches here.
+    macro_argument_fragment: $ => prec.dynamic(-1, seq(
+      choice('+', '-', '*', '/', '%', '|', '&', '^', '<<', '>>',
+             '==', '!=', '<', '>', '<=', '>=', '&&', '||'),
+      $._expr,
+    )),
 
     // Restricted to control-flow / simple statements (no declarations, which
     // would collide with type/parameter arguments). Covers the real cases:
@@ -690,12 +742,18 @@ export default grammar({
 
     // trailing comma before '...' allowed: function(int, string, ...:void)
     // Zero-param form: function(:void), function(:int)
-    _function_type: $ => seq(
-      '(',
-      optional(trailingCommaSep1($.type)),
-      optional('...'),
-      ':', $.type,
-      ')',
+    _function_type: $ => choice(
+      seq(
+        '(',
+        optional(trailingCommaSep1($.type)),
+        optional('...'),
+        ':', $.type,
+        ')',
+      ),
+      // A macro can stand in for the whole signature — Roxen's
+      // `function(DEFVAR) defvar` with `#define DEFVAR mixed...:object`.
+      // Without the ':' there is no signature here for the branch above.
+      seq('(', field('macro', $.identifier), ')'),
     ),
     _program_type: $ => choice(seq('(', $.type, ')'), seq('(', $.string_literal, ')')),
 
@@ -937,11 +995,64 @@ export default grammar({
     // Used by #include <...> for system/standard headers.
     system_lib_string: _ => token(seq('<', repeat(/[^>]/), '>')),
 
+    // Structured #define. Modelled rather than swallowed as one token so that
+    // identifiers inside a macro body are real nodes at real positions —
+    // hover, go-to-definition, completion and references are all position
+    // lookups, so with an opaque directive token they can answer nothing
+    // anywhere inside a macro.
+    //
+    // Also an `extra`, so a #define stays invisible to every surrounding rule
+    // exactly as the opaque token was.
+    preproc_define: $ => seq(
+      '#', /\s*/, 'define', /\s+/,
+      field('name', $.identifier),
+      optional(field('parameters', $.preproc_params)),
+      optional(field('body', $.preproc_body)),
+      $._preproc_line_end,
+    ),
+
+    // Only a paren that abuts the name makes the macro function-like:
+    // `#define F(X) …` takes a parameter, `#define F (X) …` has body `(X)`.
+    // The distinction is whitespace the LR lexer has already skipped by the
+    // time it picks a token, so the scanner decides it instead.
+    preproc_params: $ => seq(
+      $._preproc_params_open,
+      commaSep(field('parameter', $.preproc_param)),
+      ')',
+    ),
+
+    preproc_param: $ => choice(
+      seq(field('name', $.identifier), optional('...')),
+      '...',
+    ),
+
+    // A permissive token sequence, deliberately not an expression or a
+    // statement: a macro body need not be either. `#define DO_IF_DEBUG(X) X`,
+    // `#define BODY_TR_ATTRS "class=x"` and bodies that stop mid-expression
+    // are all ordinary Pike. Everything that is not an identifier, a literal
+    // or a comment collapses into hidden chunk tokens, which leaves the body
+    // unparsed but keeps the parts tooling resolves individually addressable.
+    preproc_body: $ => repeat1($._preproc_body_token),
+
+    _preproc_body_token: $ => choice(
+      $.identifier,
+      $.integer_literal,
+      $.float_literal,
+      $.char_literal,
+      $.string_literal,
+      $.backtick_identifier,
+      // Spelled out because the scanner hands a slash back to the LR lexer, so
+      // that `//` and `/*` still win over division by being the longer match.
+      '/',
+      $._preproc_chunk,
+    ),
+
     // Preprocessor directive token spanning continuation lines.
     // Regex (\\\n|\\[^\n]|[^\\\n])* handles: line continuation,
-    // escape sequences, and plain chars. Allows multi-line #define bodies.
+    // escape sequences, and plain chars.
     // Whitespace between # and directive keyword is allowed (Pike lexer accepts it).
-    // Note: #include is handled separately by preproc_include for structured access.
+    // Note: #include and #define are handled separately, by preproc_include and
+    // preproc_define, which give them structured children.
     // Opening/closing conditional directives (#if/#ifdef/#ifndef/#endif) plus
     // the non-branching directives. All are `extras` (invisible): statement-
     // level conditionals work because both branches parse as consecutive
@@ -951,7 +1062,6 @@ export default grammar({
       seq('#', /\s*/, 'ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'endif', /[^\S\r\n]*/),
-      seq('#', /\s*/, 'define', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),

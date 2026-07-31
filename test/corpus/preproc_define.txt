@@ -1,0 +1,129 @@
+================================================================================
+#define function-like with varargs parameter
+================================================================================
+#define sQUERY( X,Y...) get_sdb()->query(X,Y)
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    parameters: (preproc_params
+      parameter: (preproc_param
+        name: (identifier))
+      parameter: (preproc_param
+        name: (identifier)))
+    body: (preproc_body
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier))))
+
+================================================================================
+#define with no body
+================================================================================
+#define DEBUG
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)))
+
+================================================================================
+#define object-like whose body starts with a paren
+================================================================================
+#define OFFSET (1 + 2)
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    body: (preproc_body
+      (integer_literal)
+      (integer_literal))))
+
+================================================================================
+#define with stringify and token paste
+================================================================================
+#define TIMER_END(X) timers[TIMER_PREFIX+#X] += gethrtime()-_timer_##X
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    parameters: (preproc_params
+      parameter: (preproc_param
+        name: (identifier)))
+    body: (preproc_body
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier))))
+
+================================================================================
+#define body containing a division and a trailing comment
+================================================================================
+#define HALF(x) ((x)/2) // half of x
+int a;
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    parameters: (preproc_params
+      parameter: (preproc_param
+        name: (identifier)))
+    body: (preproc_body
+      (identifier)
+      (integer_literal))
+    (line_comment))
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier))))
+
+================================================================================
+#define does not swallow the following line
+================================================================================
+#define A 1
+int b;
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    body: (preproc_body
+      (integer_literal)))
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier))))
+
+================================================================================
+#define whose body is a statement fragment
+================================================================================
+#define CASE_ASSIGN(X) case #X: X = value; break;
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_define
+    name: (identifier)
+    parameters: (preproc_params
+      parameter: (preproc_param
+        name: (identifier)))
+    body: (preproc_body
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier))))

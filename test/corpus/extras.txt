@@ -78,7 +78,10 @@ Preprocessor define
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_define
+    (identifier)
+    (preproc_body
+      (integer_literal))))
 
 ================================================================================
 Preprocessor if/endif
@@ -209,7 +212,11 @@ Multiline #define - object-like macro
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_define
+    (identifier)
+    (preproc_body
+      (identifier)
+      (identifier))))
 
 ================================================================================
 Multiline #define - function-like macro
@@ -221,7 +228,20 @@ Multiline #define - function-like macro
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_define
+    (identifier)
+    (preproc_params
+      (preproc_param
+        (identifier)))
+    (preproc_body
+      (identifier)
+      (string_literal)
+      (identifier)
+      (string_literal)
+      (identifier)
+      (identifier)
+      (string_literal)
+      (identifier))))
 
 ================================================================================
 Multiline #define - escaped newline in string
@@ -232,7 +252,12 @@ Multiline #define - escaped newline in string
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_define
+    (identifier)
+    (preproc_body
+      (identifier)
+      (string_literal)
+      (identifier))))
 
 ================================================================================
 Hash string - simple
