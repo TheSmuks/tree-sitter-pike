@@ -88,6 +88,16 @@
 (preproc_define name: (identifier) @function.macro)
 (preproc_param name: (identifier) @variable.parameter)
 
+; The conditional directives are structured for the same reason, so the macro a
+; condition tests reads as a macro rather than as part of one directive blob.
+(preproc_if ["if" "ifdef" "ifndef"] @keyword.directive)
+(preproc_if name: (identifier) @function.macro)
+(preproc_endif "endif" @keyword.directive)
+(preproc_undef "undef" @keyword.directive)
+(preproc_undef name: (identifier) @function.macro)
+(preproc_branch) @keyword.directive
+["#"] @keyword.directive
+
 ; Constants
 [
   "this" "this_program"

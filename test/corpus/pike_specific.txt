@@ -1132,7 +1132,9 @@ constant z = 1;
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive)
+  (preproc_if
+    condition: (preproc_body
+      (integer_literal)))
   (declaration
     (class_decl
       name: (identifier)
@@ -1163,7 +1165,7 @@ constant z = 1;
                                   (postfix_expr
                                     (primary_expr
                                       (integer_literal)))))))))))))))))))
-  (preprocessor_directive))
+  (preproc_endif))
 
 ================================================================================
 Anonymous enum

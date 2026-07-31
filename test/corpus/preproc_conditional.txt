@@ -1,0 +1,137 @@
+================================================================================
+#if with a constant() condition
+================================================================================
+#if constant(Roxen.foo)
+int x;
+#endif
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_if
+    condition: (preproc_body
+      (identifier)
+      (identifier)
+      (identifier)))
+  (declaration
+    (variable_decl
+      type: (type
+        (basic_type))
+      name: (identifier)))
+  (preproc_endif))
+
+================================================================================
+#if condition spanning a line continuation
+================================================================================
+#if defined(A) && \
+    defined(B)
+#endif
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_if
+    condition: (preproc_body
+      (identifier)
+      (identifier)
+      (identifier)
+      (identifier)))
+  (preproc_endif))
+
+================================================================================
+#ifdef with a trailing comment
+================================================================================
+#ifdef DEBUG // only when debugging
+#endif
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_if
+    name: (identifier)
+    (line_comment))
+  (preproc_endif))
+
+================================================================================
+# with space before the directive keyword
+================================================================================
+#   ifdef DEBUG
+#   endif
+
+--------------------------------------------------------------------------------
+
+(program
+  (preproc_if
+    name: (identifier))
+  (preproc_endif))
+
+================================================================================
+Conditional directives are invisible to the surrounding statement
+================================================================================
+void f()
+{
+#ifdef DEBUG
+  int a;
+#else
+  int b;
+#endif
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (preproc_if
+          name: (identifier))
+        (local_declaration
+          type: (type
+            (basic_type))
+          name: (identifier))
+        (preproc_branch)
+        (local_declaration
+          type: (type
+            (basic_type))
+          name: (identifier))
+        (preproc_endif)))))
+
+================================================================================
+A conditional region that opens a brace it does not close still parses
+================================================================================
+void f()
+{
+#ifdef BG_DEBUG
+  {
+#endif
+    int g;
+#ifdef BG_DEBUG
+  }
+#endif
+}
+
+--------------------------------------------------------------------------------
+
+(program
+  (declaration
+    (function_decl
+      return_type: (type
+        (basic_type))
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (preproc_if
+          name: (identifier))
+        (block
+          (preproc_endif)
+          (local_declaration
+            type: (type
+              (basic_type))
+            name: (identifier))
+          (preproc_if
+            name: (identifier)))
+        (preproc_endif)))))

@@ -92,8 +92,10 @@ Preprocessor if/endif
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive)
-  (preprocessor_directive))
+  (preproc_if
+    condition: (preproc_body
+      (integer_literal)))
+  (preproc_endif))
 
 ================================================================================
 Preprocessor ifdef
@@ -104,8 +106,9 @@ Preprocessor ifdef
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive)
-  (preprocessor_directive))
+  (preproc_if
+    name: (identifier))
+  (preproc_endif))
 
 ================================================================================
 Preprocessor ifndef
@@ -116,8 +119,9 @@ Preprocessor ifndef
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive)
-  (preprocessor_directive))
+  (preproc_if
+    name: (identifier))
+  (preproc_endif))
 
 ================================================================================
 Preprocessor elif
@@ -129,9 +133,11 @@ Preprocessor elif
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive)
+  (preproc_if
+    condition: (preproc_body
+      (integer_literal)))
   (preproc_branch)
-  (preprocessor_directive))
+  (preproc_endif))
 
 ================================================================================
 Preprocessor undef
@@ -141,7 +147,8 @@ Preprocessor undef
 --------------------------------------------------------------------------------
 
 (program
-  (preprocessor_directive))
+  (preproc_undef
+    name: (identifier)))
 
 ================================================================================
 Preprocessor pragma
@@ -407,7 +414,8 @@ int x =
       (type
         (basic_type))
       (identifier)
-      (preprocessor_directive)
+      (preproc_if
+        (identifier))
       (preproc_conditional_expr
         (comma_expr
           (assign_expr
@@ -444,4 +452,4 @@ int x =
                                     (postfix_expr
                                       (primary_expr
                                         (integer_literal))))))))))))))))))
-      (preprocessor_directive))))
+      (preproc_endif))))

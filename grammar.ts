@@ -45,6 +45,13 @@ export default grammar({
     [$.macro_invocation, $.macro_invocation_stmt],
     [$.macro_invocation, $.macro_invocation_stmt, $.declaration],
     [$.macro_argument_list, $.parameter],
+    // A macro argument that is exactly `return` is both a keyword passed as a
+    // token and a statement whose ';' the expansion supplies; the token after
+    // it decides, and `macro_argument_stmts` ranks below on a tie.
+    [$.magic_identifier, $.macro_argument_tail_stmt],
+    // `F(return a, b` — one `return a, b;` statement whose ';' is still to come,
+    // or a `return a` argument followed by a `b` argument. The ';' or ')' tells.
+    [$.comma_expr, $.macro_argument_tail_stmt],
     [$.string_concat, $.declaration],
     [$._id_expr, $.declaration],
     [$.identifier_expr, $._id_expr, $.declaration],
@@ -92,6 +99,9 @@ export default grammar({
     $.block_comment,
     $.preproc_include,
     $.preproc_define,
+    $.preproc_if,
+    $.preproc_endif,
+    $.preproc_undef,
     $.preprocessor_directive,
     $.preproc_branch,
     $.shebang,
@@ -646,17 +656,54 @@ export default grammar({
       $._expr,
     )),
 
-    // Restricted to control-flow / simple statements (no declarations, which
-    // would collide with type/parameter arguments). Covers the real cases:
+    // Covers the real cases:
     //   if (…) { … } else RETURN(0);   and   MSG("…"); return 0;
-    macro_argument_stmts: $ => prec.dynamic(-1, repeat1(choice(
+    //   ISIP(ip, mixed foo; if (foo = …) return foo; … return foo;)
+    //
+    macro_argument_stmts: $ => prec.dynamic(-1, choice(
+      repeat1($._macro_argument_stmt),
+      seq(repeat($._macro_argument_stmt), $.macro_argument_tail_stmt),
+    )),
+
+    _macro_argument_stmt: $ => choice(
       $.if_statement,
       $.return_statement,
       $.break_statement,
       $.continue_statement,
       $.expression_statement,
       $.macro_invocation_stmt,
-    ))),
+      $.macro_argument_decl,
+    ),
+
+    // The last statement of an argument may have no ';' — the expansion
+    // supplies it. `#define ISIP(H,CODE) do { … {CODE;} … }` is called as
+    // `ISIP(host, return host)` and as `ISIP(host, callback(host,@args);return)`.
+    //
+    // The returned value is an `assign_expr`, not `_expr`: the preprocessor
+    // splits arguments on top-level commas, so `F(a, return b, c)` passes three
+    // arguments and the comma after `b` is not part of the return value.
+    // Only `return`: a bare `break` or `continue` argument is already a
+    // `magic_identifier`, and offering both makes every such argument ambiguous.
+    macro_argument_tail_stmt: $ => seq('return', optional(field('value', $.assign_expr))),
+
+    // A declaration inside a statement argument, e.g.
+    //   ISIP(ip, mixed foo; if (foo = cache_lookup(…)) return foo; … )
+    //
+    // Deliberately NOT `local_declaration`: that rule declares several names at
+    // once, and its comma makes `F(int x, y` ambiguous with both the argument
+    // list's own comma and an expression argument, cascading into conflicts
+    // between `local_declaration` and `identifier_expr`, `_id_expr` and
+    // `primary_expr` — GLR ambiguity spread across the whole expression
+    // grammar to buy a form no corpus file uses. One declarator needs only the
+    // conflict that `type identifier` already has with a parameter list.
+    // No initializer: `_expr` reaches `comma_expr`, so `F(mixed id = a, b, c)`
+    // would read the argument separators as part of the initializer and then
+    // demand a ';' that is not there. The corpus wants only the bare form.
+    macro_argument_decl: $ => seq(
+      field('type', $.type),
+      field('name', $.identifier),
+      ';',
+    ),
 
     // Macro statement pattern for paired begin/end macros.
     //
@@ -1051,18 +1098,9 @@ export default grammar({
     // Regex (\\\n|\\[^\n]|[^\\\n])* handles: line continuation,
     // escape sequences, and plain chars.
     // Whitespace between # and directive keyword is allowed (Pike lexer accepts it).
-    // Note: #include and #define are handled separately, by preproc_include and
-    // preproc_define, which give them structured children.
-    // Opening/closing conditional directives (#if/#ifdef/#ifndef/#endif) plus
-    // the non-branching directives. All are `extras` (invisible): statement-
-    // level conditionals work because both branches parse as consecutive
-    // statements, and #if/#endif simply vanish around them.
+    // Note: #include, #define and the conditional directives are handled
+    // separately, by rules that give them structured children.
     preprocessor_directive: _ => token(choice(
-      seq('#', /\s*/, 'if', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'ifdef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'ifndef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
-      seq('#', /\s*/, 'endif', /[^\S\r\n]*/),
-      seq('#', /\s*/, 'undef', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pike', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'charset', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'pragma', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
@@ -1071,11 +1109,68 @@ export default grammar({
       seq('#', /\s*/, 'error', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
     )),
 
+    // The conditional directives, structured for the same reason `#define` is:
+    // a condition is where the names that decide what compiles are written, and
+    // an opaque token gives them no position. In the Roxen corpus 2316
+    // identifier occurrences sit inside these lines — `ENABLE_DUMPING`,
+    // `constant(...)`, `defined(...)` — and no position-driven capability could
+    // answer at any of them.
+    //
+    // They stay `extras`, exactly as the opaque tokens were: a conditional
+    // region is NOT a subtree, both branches are still spliced into one stream.
+    //
+    // Making it one — `preproc_if repeat(_stmt) (preproc_branch repeat(_stmt))*
+    // preproc_endif` as a `_stmt` alternative — was measured and rejected. The
+    // Roxen corpus went from 5 failing files of 442 to 145. An extra keeps its
+    // implicit skip only in states that have no explicit action for it, so
+    // adding the rule removes the fallback at exactly the position that needs
+    // it: 54 of the corpus's 1698 regions open a brace they do not close
+    // (`#ifdef D` … `timer = gauge {` … `#endif`), and each one becomes an
+    // ERROR. Adding a stray-directive escape hatch with declared conflicts
+    // recovers part of it — 119 failing, still 114 regressions.
+    //
+    // The motivating file cannot be fixed this way in any case.
+    // roxen_master.pike:676 puts an `if (…)` header in the `#ifdef` branch and
+    // its body after the `#endif`; no tree in which each branch is a complete
+    // statement list describes it, and the structural grammar turns the whole
+    // file into one ERROR where the spliced one localises the damage.
+    //
+    // The condition reuses `preproc_body` rather than the expression grammar. A
+    // `#if` condition is preprocessor syntax, not Pike: `constant(X)` and
+    // `defined(X)` are preprocessor operators, and a condition may be spelled
+    // with macros that expand to anything. The permissive form surfaces the
+    // identifiers, which is what tooling asks for, without inventing a parse.
+    preproc_if: $ => seq(
+      '#', /\s*/,
+      choice(
+        seq('if', optional(field('condition', $.preproc_body))),
+        // `#ifdef`/`#ifndef` take exactly one name; it gets a field of its own
+        // so a lookup does not have to reach through a body. Anything after it
+        // is still absorbed, because a directive must never fail to parse.
+        seq(choice('ifdef', 'ifndef'), field('name', $.identifier), optional($.preproc_body)),
+      ),
+      $._preproc_line_end,
+    ),
+
+    preproc_endif: _ => seq('#', /\s*/, 'endif'),
+
+    // `#undef` names a macro, so its argument is a reference like any other.
+    preproc_undef: $ => seq('#', /\s*/, 'undef', field('name', $.identifier), $._preproc_line_end),
+
     // Branch-separator directives (#else/#elif/#elseif/#elifdef/#elifndef).
     // Also an `extra` (so statement-level use is invisible), but ADDITIONALLY
     // referenced explicitly by `preproc_conditional_expr` as visible glue, so
     // that a conditional splitting a single *expression* into alternative
     // fragments (`x = #if A ... #else B ... #endif`) parses as one expression.
+    //
+    // Deliberately still ONE token, unlike its `#if` counterpart. Being visible
+    // glue is what forbids the split: as a rule its first token is a bare '#',
+    // which at an expression boundary is also the start of every directive
+    // extra, and the parser takes the extra route — the whole declaration
+    // becomes an ERROR. As a token it out-matches '#' by length wherever the
+    // glue is expected, and elsewhere the extras still win. The structure would
+    // buy 9 `#elif` directives in the whole Roxen corpus; `#else`, the other 379,
+    // carries no condition to structure.
     preproc_branch: _ => token(choice(
       seq('#', /\s*/, 'elif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
       seq('#', /\s*/, 'elseif', /\s/, /(\\\n|\\[^\n]|[^\\\n])*/),
